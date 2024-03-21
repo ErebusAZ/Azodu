@@ -93,7 +93,6 @@ async function insertUserData() {
 
 
 async function insertVote(client, post_id, isUpvote, ip) {
-  console.log('upvote val is ' + isUpvote);
 
   const query = `
     INSERT INTO my_keyspace.votes (post_id, ip, is_upvote)
@@ -104,7 +103,7 @@ async function insertVote(client, post_id, isUpvote, ip) {
 
   try {
     await client.execute(query, params, { prepare: true });
-    console.log('Vote recorded successfully');
+  //  console.log('Vote recorded successfully');
   } catch (error) {
     console.error('Error inserting vote:', error);
   }
