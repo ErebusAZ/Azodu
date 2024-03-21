@@ -322,6 +322,24 @@
                 if (newVoteState !== 'none') {
                     $this.addClass(newVoteState + 'vote-active');
                 }
+
+
+                $.ajax({
+                    url: `/api/vote/`,
+                    type: 'POST',
+                    data: {
+                        upvote: isUpvote,
+                        post_id: $this.data('postid')
+                    },
+                    success: function (response) {
+                        console.log('Vote recorded successfully.');
+                        // You might still want to log the success or handle any sync issues here
+                    },
+                    error: function (error) {
+                        console.error('Failed to record vote:', error);
+                        // Since we're optimistically updating the UI, consider how to handle errors
+                    }
+                });
             });
 
 
