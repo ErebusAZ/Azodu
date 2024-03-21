@@ -34,8 +34,13 @@ const updateInterval = 10 * 1000; // how quickly to fetch all posts and update v
 
 
 
-setInterval(() => fetchPostsAndCalculateVotes(client), updateInterval);
-
+setInterval(() => {
+  fetchPostsAndCalculateVotes(client,postsVoteSummary).then(result => {
+    postsVoteSummary = result;
+  }).catch(error => {
+    console.error('Failed to fetch posts and calculate votes:', error);
+  });
+}, updateInterval);
 
 // Define the route for form submission
 app.post('/submitPost', async (req, res) => {

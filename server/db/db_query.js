@@ -40,7 +40,7 @@ async function fetchPostByPostID(client, post_id) {
 }
 
 
-async function fetchPostsAndCalculateVotes(client) {
+async function fetchPostsAndCalculateVotes(client,postsVoteSummary) {
   try {
     const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
     const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE timestamp > ? ALLOW FILTERING`;
@@ -73,6 +73,8 @@ async function fetchPostsAndCalculateVotes(client) {
   } catch (error) {
     console.error('Error fetching posts and calculating votes:', error);
   }
+
+  return postsVoteSummary; 
 }
 
 
