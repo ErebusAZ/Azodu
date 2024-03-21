@@ -103,13 +103,13 @@
             return comments.filter(comment => comment.parent_id === comment.post_id).map(comment => commentsMap[comment.comment_id]);
         }
 
-    function getCommentHtml(commentId, author, content, depth = 0) {
-        const backgroundColor = depth % 2 === 0 ? '#262626' : '#2d2d2d';
-        const votes = Math.floor(Math.random() * 100); // Placeholder for votes
-        const points = "0 points"; // Placeholder for points
-        const timeAgo = "1 hour ago"; // Placeholder for time ago
+        function getCommentHtml(commentId, author, content, depth = 0) {
+            const backgroundColor = depth % 2 === 0 ? '#262626' : '#2d2d2d';
+            const votes = Math.floor(Math.random() * 100); // Placeholder for votes
+            const points = "0 points"; // Placeholder for points
+            const timeAgo = "1 hour ago"; // Placeholder for time ago
 
-        return `<div data-depth="${depth}" data-commentid="${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">
+            return `<div data-depth="${depth}" data-commentid="${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">
         <div class="voting">
 
             <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${commentId}"><img src="/img/up-arrow.svg" alt="Upvote"></a>
@@ -139,25 +139,25 @@
             </div>
         </div>
     </div>`;
-    }
+        }
 
 
 
-    function renderComments(comments, depth = 0) {
-        let html = ''; // Start with an empty string
+        function renderComments(comments, depth = 0) {
+            let html = ''; // Start with an empty string
 
-        comments.forEach(comment => {
-            // Use getCommentHtml with individual parameters
-            html += getCommentHtml(comment.comment_id, comment.author, comment.content, depth);
+            comments.forEach(comment => {
+                // Use getCommentHtml with individual parameters
+                html += getCommentHtml(comment.comment_id, comment.author, comment.content, depth);
 
-            // Check for replies and recursively render them
-            if (comment.replies && comment.replies.length > 0) {
-                html += renderComments(comment.replies, depth + 1); // Increment depth for nested comments
-            }
-        });
+                // Check for replies and recursively render them
+                if (comment.replies && comment.replies.length > 0) {
+                    html += renderComments(comment.replies, depth + 1); // Increment depth for nested comments
+                }
+            });
 
-        return html;
-    }
+            return html;
+        }
 
         // Use the functions
         const organizedComments = organizeComments(post.comments);
@@ -166,170 +166,170 @@
         // In an EJS template, you might then inject commentsHTML where appropriate
 
 
-            $(document).ready(function () {
-                //    $('.comments').append(generateTestComments(100)); // Start with 10 top-level comments
-                const organizedComments = organizeComments(post.comments);
-                const commentsHTML = renderComments(organizedComments);
-                $('.comments').append(commentsHTML);
+        $(document).ready(function () {
+            //    $('.comments').append(generateTestComments(100)); // Start with 10 top-level comments
+            const organizedComments = organizeComments(post.comments);
+            const commentsHTML = renderComments(organizedComments);
+            $('.comments').append(commentsHTML);
 
-                // Assuming this code is placed inside a document ready function and the reply link click handler
-                $(document).on('click', '.reply', function (e) {
-                    e.preventDefault();
-                    var $replyForm = $(this).closest('.comment-content').find('.reply-form').first();
-                    $replyForm.show(); // Show the reply form
+            // Assuming this code is placed inside a document ready function and the reply link click handler
+            $(document).on('click', '.reply', function (e) {
+                e.preventDefault();
+                var $replyForm = $(this).closest('.comment-content').find('.reply-form').first();
+                $replyForm.show(); // Show the reply form
 
-                    if (!$replyForm.data('quill-initialized')) {
-                        var container = $replyForm.find('.reply-input')[0];
-
-
-                        // Find the submit button within the reply form
-                        var $submitButton = $replyForm.find('.submit-reply').first();
-                        console.log($submitButton);
-                        // Now $submitButton is the jQuery object for the submit button
-                        console.log('Submit button post id is:', $submitButton.data('postid'));
-
-                        // Initialize Quill editor if not already initialized
-                        quillEditors[$submitButton.data('postid')] = new Quill(container, {
-                            modules: {
-                                toolbar: [
-                                    ['bold', 'italic', 'underline', 'strike', 'blockquote'],        // grouped buttons
-                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                                    ['link']  // links and image embed buttons
-                                ]
-                            },
-                            theme: 'snow', // Assuming the Snow theme
-                            // other Quill options...
-                        });
+                if (!$replyForm.data('quill-initialized')) {
+                    var container = $replyForm.find('.reply-input')[0];
 
 
-                        // Add a specific class to the .ql-editor based on the parent's background color
-                        var editorClass = $(this).closest('.comment').css('background-color') === 'rgb(38, 38, 38)' ? 'ql-editor-dark' : 'ql-editor-light';
-                        $(container).find('.ql-editor').addClass(editorClass);
+                    // Find the submit button within the reply form
+                    var $submitButton = $replyForm.find('.submit-reply').first();
+                    console.log($submitButton);
+                    // Now $submitButton is the jQuery object for the submit button
+                    console.log('Submit button post id is:', $submitButton.data('postid'));
 
-                        $replyForm.data('quill-initialized', true);
-                    }
-                });
-
-                $(document).on('click', '.cancel-reply', function (e) {
-                    e.preventDefault();
-
-                    var $replyForm = $(this).closest('.comment-content').find('.reply-form').first();
-                    $replyForm.hide();
-
-
-                });
-                $(document).on('click', '#submit-comment, .submit-reply', function (e) {
-                    e.preventDefault();
-
-                    var $thisButton = $(this);
-                    var post_id = $thisButton.data('postid'); // The ID of the post or parent comment
-                    var truePostId = '<%= post.post_id %>'; // Assuming this is provided by your server-side template
-                    var commentContent = quillEditors[post_id].root.innerHTML; // Content from Quill editor
-                    var $statusMessage = $thisButton.siblings('.status-message'); // Status message related to this comment form
-
-                    // Determine depth for new comment
-                    var depth = 0; // Default depth for top-level comments
-                    if (post_id !== truePostId) { // If it's a reply to another comment
-                        var $parentComment = $thisButton.closest('.comment');
-                        depth = parseInt($parentComment.data('depth')) + 1;
-                    }
-
-                    // Show submitting status
-                    $statusMessage.text('Submitting...').css('color', 'white').show();
-
-                    $.ajax({
-                        url: '/api/comment',
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify({ post_id: truePostId, content: commentContent, parent_id: post_id }),
-                        success: function (response) {
-                            var commentHTML = getCommentHtml(post_id, 'test', commentContent, depth); // Assuming your getCommentHtml can handle these parameters
-
-                            // Inserting the comment in the correct position
-                            if (post_id === truePostId) {
-                                $('.comments').prepend(commentHTML); // Add to the start for top-level comments
-                            } else {
-                                $thisButton.closest('.comment').after(commentHTML); // Add after the parent comment for nested replies
-                            }
-
-                            // Clearing the Quill editor and hiding the reply form
-                            if (quillEditors[post_id]) {
-                                quillEditors[post_id].setContents([]);
-                            }
-                            $statusMessage.text('').hide();
-                            $thisButton.closest('.reply-form').hide();
+                    // Initialize Quill editor if not already initialized
+                    quillEditors[$submitButton.data('postid')] = new Quill(container, {
+                        modules: {
+                            toolbar: [
+                                ['bold', 'italic', 'underline', 'strike', 'blockquote'],        // grouped buttons
+                                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                ['link']  // links and image embed buttons
+                            ]
                         },
-                        error: function (xhr, status, error) {
-                            console.error('Error submitting comment', error);
-                            $statusMessage.text('Error submitting comment').css('color', 'red').show().delay(3000).fadeOut();
-                        }
+                        theme: 'snow', // Assuming the Snow theme
+                        // other Quill options...
                     });
-                });
-                
-                
-                $('.upvote, .downvote').on('click', function (event) {
-                event.preventDefault(); 
-
-            }); 
 
 
-            $('body').on('click', '.upvote, .downvote', function(event) {
-        event.preventDefault();
+                    // Add a specific class to the .ql-editor based on the parent's background color
+                    var editorClass = $(this).closest('.comment').css('background-color') === 'rgb(38, 38, 38)' ? 'ql-editor-dark' : 'ql-editor-light';
+                    $(container).find('.ql-editor').addClass(editorClass);
 
-        const $this = $(this);
-        const $votingContext = $this.closest('.voting');
-        const isUpvote = $this.hasClass('upvote');
-        let currentVoteState = $votingContext.data('voteState') || 'none';
+                    $replyForm.data('quill-initialized', true);
+                }
+            });
 
-        let newVoteState = 'none';
-        // Determine the new vote state based on the current state and the action
-        if (isUpvote && currentVoteState !== 'up') {
-            newVoteState = 'up';
-        } else if (!isUpvote && currentVoteState !== 'down') {
-            newVoteState = 'down';
-        }
+            $(document).on('click', '.cancel-reply', function (e) {
+                e.preventDefault();
 
-        // Update vote state or toggle off if the same button was clicked again
-        if (newVoteState === currentVoteState) {
-            newVoteState = 'none'; // Toggle off if the same state was clicked again
-        }
+                var $replyForm = $(this).closest('.comment-content').find('.reply-form').first();
+                $replyForm.hide();
 
-        // Find the current vote count
-        const $voteCountSpan = $votingContext.find('.votes');
-        let currentCount = parseInt($voteCountSpan.text(), 10);
-
-        // Adjust the vote count based on the new vote state
-        switch(newVoteState) {
-            case 'up':
-                currentCount = currentVoteState === 'down' ? currentCount + 2 : currentVoteState === 'none' ? currentCount + 1 : currentCount - 1;
-                break;
-            case 'down':
-                currentCount = currentVoteState === 'up' ? currentCount - 2 : currentVoteState === 'none' ? currentCount - 1 : currentCount + 1;
-                break;
-            case 'none':
-                // Undo the vote
-                currentCount = currentVoteState === 'up' ? currentCount - 1 : currentVoteState === 'down' ? currentCount + 1 : currentCount;
-                break;
-        }
-
-        // Update the vote count and state
-        $voteCountSpan.text(currentCount);
-        $votingContext.data('voteState', newVoteState);
-
-        // Reset visual state for all buttons
-        $votingContext.find('.upvote, .downvote').removeClass('upvote-active downvote-active');
-        // Apply the active class to the current button, if applicable
-        if (newVoteState !== 'none') {
-            $this.addClass(newVoteState + 'vote-active');
-        }
-    });
-
-
-
-
-            
 
             });
+            $(document).on('click', '#submit-comment, .submit-reply', function (e) {
+                e.preventDefault();
+
+                var $thisButton = $(this);
+                var post_id = $thisButton.data('postid'); // The ID of the post or parent comment
+                var truePostId = '<%= post.post_id %>'; // Assuming this is provided by your server-side template
+                var commentContent = quillEditors[post_id].root.innerHTML; // Content from Quill editor
+                var $statusMessage = $thisButton.siblings('.status-message'); // Status message related to this comment form
+
+                // Determine depth for new comment
+                var depth = 0; // Default depth for top-level comments
+                if (post_id !== truePostId) { // If it's a reply to another comment
+                    var $parentComment = $thisButton.closest('.comment');
+                    depth = parseInt($parentComment.data('depth')) + 1;
+                }
+
+                // Show submitting status
+                $statusMessage.text('Submitting...').css('color', 'white').show();
+
+                $.ajax({
+                    url: '/api/comment',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ post_id: truePostId, content: commentContent, parent_id: post_id }),
+                    success: function (response) {
+                        var commentHTML = getCommentHtml(post_id, 'test', commentContent, depth); // Assuming your getCommentHtml can handle these parameters
+
+                        // Inserting the comment in the correct position
+                        if (post_id === truePostId) {
+                            $('.comments').prepend(commentHTML); // Add to the start for top-level comments
+                        } else {
+                            $thisButton.closest('.comment').after(commentHTML); // Add after the parent comment for nested replies
+                        }
+
+                        // Clearing the Quill editor and hiding the reply form
+                        if (quillEditors[post_id]) {
+                            quillEditors[post_id].setContents([]);
+                        }
+                        $statusMessage.text('').hide();
+                        $thisButton.closest('.reply-form').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error submitting comment', error);
+                        $statusMessage.text('Error submitting comment').css('color', 'red').show().delay(3000).fadeOut();
+                    }
+                });
+            });
+
+
+            $('.upvote, .downvote').on('click', function (event) {
+                event.preventDefault();
+
+            });
+
+
+            $('body').on('click', '.upvote, .downvote', function (event) {
+                event.preventDefault();
+
+                const $this = $(this);
+                const $votingContext = $this.closest('.voting');
+                const isUpvote = $this.hasClass('upvote');
+                let currentVoteState = $votingContext.data('voteState') || 'none';
+
+                let newVoteState = 'none';
+                // Determine the new vote state based on the current state and the action
+                if (isUpvote && currentVoteState !== 'up') {
+                    newVoteState = 'up';
+                } else if (!isUpvote && currentVoteState !== 'down') {
+                    newVoteState = 'down';
+                }
+
+                // Update vote state or toggle off if the same button was clicked again
+                if (newVoteState === currentVoteState) {
+                    newVoteState = 'none'; // Toggle off if the same state was clicked again
+                }
+
+                // Find the current vote count
+                const $voteCountSpan = $votingContext.find('.votes');
+                let currentCount = parseInt($voteCountSpan.text(), 10);
+
+                // Adjust the vote count based on the new vote state
+                switch (newVoteState) {
+                    case 'up':
+                        currentCount = currentVoteState === 'down' ? currentCount + 2 : currentVoteState === 'none' ? currentCount + 1 : currentCount - 1;
+                        break;
+                    case 'down':
+                        currentCount = currentVoteState === 'up' ? currentCount - 2 : currentVoteState === 'none' ? currentCount - 1 : currentCount + 1;
+                        break;
+                    case 'none':
+                        // Undo the vote
+                        currentCount = currentVoteState === 'up' ? currentCount - 1 : currentVoteState === 'down' ? currentCount + 1 : currentCount;
+                        break;
+                }
+
+                // Update the vote count and state
+                $voteCountSpan.text(currentCount);
+                $votingContext.data('voteState', newVoteState);
+
+                // Reset visual state for all buttons
+                $votingContext.find('.upvote, .downvote').removeClass('upvote-active downvote-active');
+                // Apply the active class to the current button, if applicable
+                if (newVoteState !== 'none') {
+                    $this.addClass(newVoteState + 'vote-active');
+                }
+            });
+
+
+
+
+
+
+        });
 
         var quillEditors = {};
 
@@ -344,7 +344,7 @@
 <body>
     <div class="container">
         <a href="/"><img id="logo_blink1" src="/branding/blink1.png" /></a>
-<div style="clear:both;"></div>
+        <div style="clear:both;"></div>
 
         <div class="sort-container">
             <select id="sort-by" name="sort-by">
@@ -356,10 +356,14 @@
 
         <div class="post-content">
             <div class="voting" id="voting_main">
-      
-                <a title="upvote" description="upvote" href="#" class="upvote" data-postid="<%= post.post_id %>"><img src="/img/up-arrow.svg" alt="Upvote"></a>
-                <span class="votes"><%= post.upvotes - post.downvotes %></span>
-                <a title="downvote" description="downvote" href="#" class="downvote" data-postid="<%= post.post_id %>"><img src="/img/down-arrow.svg" alt="Downvote"></a>
+
+                <a title="upvote" description="upvote" href="#" class="upvote" data-postid="<%= post.post_id %>"><img
+                        src="/img/up-arrow.svg" alt="Upvote"></a>
+                <span class="votes">
+                    <%= post.upvotes - post.downvotes %>
+                </span>
+                <a title="downvote" description="downvote" href="#" class="downvote"
+                    data-postid="<%= post.post_id %>"><img src="/img/down-arrow.svg" alt="Downvote"></a>
 
             </div>
             <h2 id="post-title">
