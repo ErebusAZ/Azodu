@@ -770,7 +770,7 @@ text-decoration: underline;
 .submission-form {
     background-color: #252525;
     color: #d7dadc;
-    padding: 20px;
+    padding: 20px 50px;
     border-radius: 5px;
     width: 100%;
     max-width: 600px;
