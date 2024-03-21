@@ -40,5 +40,41 @@ async function fetchPostByPostID(client, post_id) {
 }
 
 
+async function fetchPostsAndCalculateVotes() {
+  try {
+    const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+    const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE timestamp > ? ALLOW FILTERING`;
+    const posts = await client.execute(fetchPostsQuery, [fortyEightHoursAgo], { prepare: true });
 
-module.exports = { queryAndLogUserData,fetchPostByPostID };
+    for (const post of posts.rows) {
+      const fetchVotesQuery = `SELECT is_upvote FROM my_keyspace.votes WHERE post_id = ?`;
+      const votes = await client.execute(fetchVotesQuery, [post.post_id], { prepare: true });
+
+      let upvotes = 0;
+      let downvotes = 0;
+      votes.rows.forEach(vote => {
+        if (vote.is_upvote) {
+          upvotes++;
+        } else {
+          downvotes++;
+
+        }
+      });
+
+      postsVoteSummary[post.post_id] = {
+        ...post,
+        upvotes,
+        downvotes,
+        total_votes: upvotes - downvotes
+      };
+    }
+
+  //  console.log('Posts and vote summary updated.');
+  } catch (error) {
+    console.error('Error fetching posts and calculating votes:', error);
+  }
+}
+
+
+
+module.exports = { queryAndLogUserData,fetchPostByPostID,fetchPostsAndCalculateVotes };

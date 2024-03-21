@@ -7,7 +7,7 @@ const path = require('path');
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable } = require('./db/db_create');
 const { insertPostData, populateTestData, insertVote,insertCommentData,generateShortId } = require('./db/db_insert');
-const { fetchPostByPostID } = require('./db/db_query');
+const { fetchPostByPostID,fetchPostsAndCalculateVotes } = require('./db/db_query');
 
 
 const app = express();
@@ -32,41 +32,6 @@ const client = new cassandra.Client({
 let postsVoteSummary = {};
 const updateInterval = 10 * 1000; // how quickly to fetch all posts and update votes
 
-
-async function fetchPostsAndCalculateVotes() {
-  try {
-    const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
-    const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE timestamp > ? ALLOW FILTERING`;
-    const posts = await client.execute(fetchPostsQuery, [fortyEightHoursAgo], { prepare: true });
-
-    for (const post of posts.rows) {
-      const fetchVotesQuery = `SELECT is_upvote FROM my_keyspace.votes WHERE post_id = ?`;
-      const votes = await client.execute(fetchVotesQuery, [post.post_id], { prepare: true });
-
-      let upvotes = 0;
-      let downvotes = 0;
-      votes.rows.forEach(vote => {
-        if (vote.is_upvote) {
-          upvotes++;
-        } else {
-          downvotes++;
-
-        }
-      });
-
-      postsVoteSummary[post.post_id] = {
-        ...post,
-        upvotes,
-        downvotes,
-        total_votes: upvotes - downvotes
-      };
-    }
-
-  //  console.log('Posts and vote summary updated.');
-  } catch (error) {
-    console.error('Error fetching posts and calculating votes:', error);
-  }
-}
 
 
 setInterval(fetchPostsAndCalculateVotes, updateInterval);
