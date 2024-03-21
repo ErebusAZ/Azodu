@@ -34,7 +34,7 @@ const updateInterval = 10 * 1000; // how quickly to fetch all posts and update v
 
 
 
-setInterval(fetchPostsAndCalculateVotes, updateInterval);
+setInterval(() => fetchPostsAndCalculateVotes(client), updateInterval);
 
 
 // Define the route for form submission

@@ -40,7 +40,7 @@ async function fetchPostByPostID(client, post_id) {
 }
 
 
-async function fetchPostsAndCalculateVotes() {
+async function fetchPostsAndCalculateVotes(client) {
   try {
     const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
     const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE timestamp > ? ALLOW FILTERING`;
