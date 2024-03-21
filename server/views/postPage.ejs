@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= post.title %>
+    </title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Include stylesheet -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <!-- Include the Quill library -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+
+
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/branding/fav/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/branding/fav/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/branding/fav/favicon-16x16.png">
+    <link rel="manifest" href="/branding/fav/site.webmanifest">
+    <link rel="mask-icon" href="/branding/fav/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <script>
+
+   // Convert the post object to a JSON string and parse it back to an object
+   var post = JSON.parse('<%- JSON.stringify(post).replace(/'/g, "\\'").replace(/"/g, '\\"') %>');
+        console.log(post);
+ 
+
+
+        function generateTestComments(count, depth = 0) {
+            if (depth > 4) return ''; // Limit depth to 4
+            let commentsHtml = '';
+            for (let i = 0; i < count; i++) {
+                const username = `user${Math.floor(Math.random() * 100)}`;
+                const points = `${Math.floor(Math.random() * 10) + 1} points`;
+                const timeAgo = `${Math.floor(Math.random() * 59) + 1} minutes ago`;
+                // Determine background color based on depth
+                const backgroundColor = depth % 2 === 0 ? '#262626' : '#2d2d2d';
+
+                commentsHtml += `
+        <div class="comment" style="background-color: ${backgroundColor};">
+            <div class="voting">
+    
+                <a title="upvote" description="upvote" href="#" class="upvote" data-postid="123"><img src="/img/up-arrow.svg" alt="Upvote"></a>
+        <span class="votes">123</span>
+<a title="downvote" description="downvote" href="#" class="downvote" data-postid="123"><img src="/img/down-arrow.svg" alt="Downvote"></a>
+
+
+
+            </div>
+            <div class="comment-content">
+                <div class="comment-header">
+                    <a href="#" class="username">${username}</a>
+                    <span class="points">${points}</span>
+                    <span class="time">${timeAgo}</span>
+                </div>
+                <p>This is a comment. It could be very interesting and contain lots of insightful information. Or it could be asking for more details.</p>
+                <div class="comment-links">
+                    <a href="#">link</a>
+                    <a href="#">save</a>
+                    <a href="#">report</a>
+                    <a href="#reply" class="reply">reply</a>
+                </div>
+                <div class="reply-form" style="display: none;">
+                    <div class="reply-input"></div>
+                    <div class="status-message" style="color: red; display: none;"></div>
+                    <button type="button" class="submit-reply">Submit</button>
+                    <button type="button" class="cancel-reply">Cancel</button>
+
+                </div>
+                ${generateTestComments(Math.floor(Math.random() * 3), depth + 1)}
+            </div>
+        </div>
+        `;
+            }
+            return commentsHtml;
+        }
+
+        function organizeComments(comments) {
+            const commentsMap = {};
+
+            // Initialize each comment with an empty 'replies' array
+            comments.forEach(comment => {
+                commentsMap[comment.comment_id] = { ...comment, replies: [] };
+            });
+
+            // Populate the 'replies' array for parent comments
+            comments.forEach(comment => {
+                if (comment.parent_id !== comment.post_id) {
+                    commentsMap[comment.parent_id].replies.push(commentsMap[comment.comment_id]);
+                }
+            });
+
+            // Filter out top-level comments (direct replies to the post)
+            return comments.filter(comment => comment.parent_id === comment.post_id).map(comment => commentsMap[comment.comment_id]);
+        }
+
+    function getCommentHtml(commentId, author, content, depth = 0) {
+        const backgroundColor = depth % 2 === 0 ? '#262626' : '#2d2d2d';
+        const votes = Math.floor(Math.random() * 100); // Placeholder for votes
+        const points = "0 points"; // Placeholder for points
+        const timeAgo = "1 hour ago"; // Placeholder for time ago
+
+        return `<div data-depth="${depth}" data-commentid="${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">
+        <div class="voting">
+
+            <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${commentId}"><img src="/img/up-arrow.svg" alt="Upvote"></a>
+        <span class="votes">${votes}</span>
+<a title="downvote" description="downvote" href="#" class="downvote" data-postid="${commentId}"><img src="/img/down-arrow.svg" alt="Downvote"></a>
+
+
+        </div>
+        <div class="comment-content">
+            <div class="comment-header">
+                <a href="#" class="username">${author}</a>
+                <span class="points">${points}</span>
+                <span class="time">${timeAgo}</span>
+            </div>
+            ${content}
+            <div class="comment-links">
+                <a href="#">link</a>
+                <a href="#">save</a>
+                <a href="#">report</a>
+                <a href="#reply" class="reply">reply</a>
+            </div>
+            <div class="reply-form" style="display: none;">
+                <div class="reply-input"></div>
+                <div class="status-message" style="color: red; display: none;"></div>
+                <button type="button" class="submit-reply" data-postid="${commentId}">Submit</button>
+                <button type="button" class="cancel-reply">Cancel</button>
+            </div>
+        </div>
+    </div>`;
+    }
+
+
+
+    function renderComments(comments, depth = 0) {
+        let html = ''; // Start with an empty string
+
+        comments.forEach(comment => {
+            // Use getCommentHtml with individual parameters
+            html += getCommentHtml(comment.comment_id, comment.author, comment.content, depth);
+
+            // Check for replies and recursively render them
+            if (comment.replies && comment.replies.length > 0) {
+                html += renderComments(comment.replies, depth + 1); // Increment depth for nested comments
+            }
+        });
+
+        return html;
+    }
+
+        // Use the functions
+        const organizedComments = organizeComments(post.comments);
+        const commentsHTML = renderComments(organizedComments);
+
+        // In an EJS template, you might then inject commentsHTML where appropriate
+
+
+            $(document).ready(function () {
+                //    $('.comments').append(generateTestComments(100)); // Start with 10 top-level comments
+                const organizedComments = organizeComments(post.comments);
+                const commentsHTML = renderComments(organizedComments);
+                $('.comments').append(commentsHTML);
+
+                // Assuming this code is placed inside a document ready function and the reply link click handler
+                $(document).on('click', '.reply', function (e) {
+                    e.preventDefault();
+                    var $replyForm = $(this).closest('.comment-content').find('.reply-form').first();
+                    $replyForm.show(); // Show the reply form
+
+                    if (!$replyForm.data('quill-initialized')) {
+                        var container = $replyForm.find('.reply-input')[0];
+
+
+                        // Find the submit button within the reply form
+                        var $submitButton = $replyForm.find('.submit-reply').first();
+                        console.log($submitButton);
+                        // Now $submitButton is the jQuery object for the submit button
+                        console.log('Submit button post id is:', $submitButton.data('postid'));
+
+                        // Initialize Quill editor if not already initialized
+                        quillEditors[$submitButton.data('postid')] = new Quill(container, {
+                            modules: {
+                                toolbar: [
+                                    ['bold', 'italic', 'underline', 'strike', 'blockquote'],        // grouped buttons
+                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                    ['link']  // links and image embed buttons
+                                ]
+                            },
+                            theme: 'snow', // Assuming the Snow theme
+                            // other Quill options...
+                        });
+
+
+                        // Add a specific class to the .ql-editor based on the parent's background color
+                        var editorClass = $(this).closest('.comment').css('background-color') === 'rgb(38, 38, 38)' ? 'ql-editor-dark' : 'ql-editor-light';
+                        $(container).find('.ql-editor').addClass(editorClass);
+
+                        $replyForm.data('quill-initialized', true);
+                    }
+                });
+
+                $(document).on('click', '.cancel-reply', function (e) {
+                    e.preventDefault();
+
+                    var $replyForm = $(this).closest('.comment-content').find('.reply-form').first();
+                    $replyForm.hide();
+
+
+                });
+                $(document).on('click', '#submit-comment, .submit-reply', function (e) {
+                    e.preventDefault();
+
+                    var $thisButton = $(this);
+                    var post_id = $thisButton.data('postid'); // The ID of the post or parent comment
+                    var truePostId = '<%= post.post_id %>'; // Assuming this is provided by your server-side template
+                    var commentContent = quillEditors[post_id].root.innerHTML; // Content from Quill editor
+                    var $statusMessage = $thisButton.siblings('.status-message'); // Status message related to this comment form
+
+                    // Determine depth for new comment
+                    var depth = 0; // Default depth for top-level comments
+                    if (post_id !== truePostId) { // If it's a reply to another comment
+                        var $parentComment = $thisButton.closest('.comment');
+                        depth = parseInt($parentComment.data('depth')) + 1;
+                    }
+
+                    // Show submitting status
+                    $statusMessage.text('Submitting...').css('color', 'white').show();
+
+                    $.ajax({
+                        url: '/api/comment',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ post_id: truePostId, content: commentContent, parent_id: post_id }),
+                        success: function (response) {
+                            var commentHTML = getCommentHtml(post_id, 'test', commentContent, depth); // Assuming your getCommentHtml can handle these parameters
+
+                            // Inserting the comment in the correct position
+                            if (post_id === truePostId) {
+                                $('.comments').prepend(commentHTML); // Add to the start for top-level comments
+                            } else {
+                                $thisButton.closest('.comment').after(commentHTML); // Add after the parent comment for nested replies
+                            }
+
+                            // Clearing the Quill editor and hiding the reply form
+                            if (quillEditors[post_id]) {
+                                quillEditors[post_id].setContents([]);
+                            }
+                            $statusMessage.text('').hide();
+                            $thisButton.closest('.reply-form').hide();
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error submitting comment', error);
+                            $statusMessage.text('Error submitting comment').css('color', 'red').show().delay(3000).fadeOut();
+                        }
+                    });
+                });
+
+
+            });
+
+        var quillEditors = {};
+
+
+    </script>
+
+
+
+
+</head>
+
+<body>
+    <div class="container">
+        <div id="blink_logo"><a href="/">blink.ink</a></div>
+
+        <!--
+        <a href="/"><img id="logo" src="branding/glitch8.png" /></a>
+        <h1 style="padding-top: 10px;">blink.ink</h1>
+        -->
+
+
+        <div class="sort-container">
+            <select id="sort-by" name="sort-by">
+                <option value="top">Top</option>
+                <option value="new" selected>Latest</option>
+                <option value="hot">Hot</option>
+            </select>
+        </div>
+
+        <div class="post-content">
+            <div class="voting" id="voting_main">
+      
+                <a title="upvote" description="upvote" href="#" class="upvote" data-postid="<%= post.post_id %>"><img src="/img/up-arrow.svg" alt="Upvote"></a>
+                <span class="votes"><%= post.upvotes - post.downvotes %></span>
+                <a title="downvote" description="downvote" href="#" class="downvote" data-postid="<%= post.post_id %>"><img src="/img/down-arrow.svg" alt="Downvote"></a>
+
+            </div>
+            <h2 id="post-title">
+                <%= post.title %>
+            </h2>
+
+            <div id="selftext">
+                <p>
+                    <%= post.content %>
+                </p>
+            </div>
+
+
+            <div class="comment-form">
+                <textarea id="comment" placeholder="Add a comment..."></textarea>
+            </div>
+            <div class="status-message" style="color: red; display: none;"></div>
+
+            <button data-postid="<%= post.post_id %>" type="submit" id="submit-comment">Submit</button>
+
+
+
+            <div class="comments">
+
+                <!-- Add more comments here -->
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <div class="sidebar">
+        <p style="margin-top:0;">Register an account</p>
+        <form class="login-form">
+            <input type="text" id="username" placeholder="username" required>
+            <input type="password" id="password" placeholder="password" required>
+            <input type="submit" value="Login">
+        </form>
+        <ul>
+            <li class="earn-voc">Earn $VOC</li>
+            <li class="censorship">Censorship resistant</li>
+            <li class="bot-proof">Bot-proof</li>
+        </ul>
+
+
+    </div>
+
+
+    <script>
+        quillEditors['<%= post.post_id %>'] = new Quill('.comment-form', {
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline', 'strike', 'blockquote'],        // grouped buttons
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    ['link']  // links and image embed buttons
+                ]
+            },
+            theme: 'snow', // Specify theme in configuration
+            placeholder: 'Write a comment...',
+
+        });
+    </script>
+
+
+
+</body>
+
+</html>

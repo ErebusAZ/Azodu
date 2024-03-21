@@ -1,0 +1,1055 @@
+#logo {width: 59px;height: auto;float: left;position: relative;bottom: 10px;}
+
+#blink_logo {font-size: 30px;background-color: #efefef;display: inline;color: black;font-weight: 600;padding: 4px 10px;font-family: arial;}
+#blink_logo a {
+    color: black;
+    text-decoration: none;
+}
+
+
+body {
+    background-color: #1a1a1a;
+    color: #d7dadc;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+textarea {
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    width: 100%;
+    margin: auto;
+    padding: 20px;
+    min-height: 900px;
+}
+
+
+a:hover {
+    text-decoration: none !important;
+}
+
+h1 {
+    color: #ffffff;
+    font-size: 24px;
+    padding-top: 0 !important;
+}
+
+p {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+ul {
+font-size: 14px; 
+}
+
+/*
+button {
+    font-weight: bold;
+}
+*/
+label {
+    font-size: 14px;
+}
+
+.post {
+    background-color: #2b2b2b;
+    /* Dark gray background for each post */
+    margin-bottom: 10px;
+    padding: 15px;
+    /* Adds some padding inside each post for spacing */
+    border-radius: 5px;
+    /* Slightly rounded corners for a modern look */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    /* Subtle shadow for depth */
+    transition: background-color 0.3s;
+    /* Smooth transition for hover effect */
+    float: left;
+    clear: both;
+    width: 100%;
+    min-height: 60px;
+}
+
+.post:hover {
+    background-color: #3a3a3a;
+    /* Slightly lighter gray on hover */
+}
+
+.post-links {
+    margin-top: 3px;
+    margin-left: 117px;
+}
+
+.thumbnail {
+    width: 70px !important;
+    height: 50px;
+    background-color: #343536;
+    margin-right: 20px;
+    float: left;
+    margin-top: 4px;
+}
+
+.content {
+    flex-grow: 1;
+    min-height: 50px;
+}
+
+.post-title {
+    color: #d7dadc;
+    font-size: 18px;
+    text-decoration: none;
+    display: block;
+    /* Make the title take its own line */
+    /* margin-bottom: 5px; */
+}
+
+.post-title:hover {
+    text-decoration: underline !important;
+}
+
+.post-description {
+    color: #818384;
+    display: none;
+}
+
+.post-links a {
+    color: #d7dadc;
+    text-decoration: none;
+    margin-right: 10px;
+    font-size: 12px;
+    float: left;
+}
+
+.post-links a:hover {
+    text-decoration: underline !important;
+}
+
+.page-divider {
+    margin: 20px 0;
+    padding: 10px 0;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    font-weight: bold;
+}
+
+.post-submitted {
+    font-size: 12px;
+    color: #818384;
+    margin: 10px 0;
+    padding-top: 0;
+    margin-top: 0;
+    margin-bottom: 3px;
+}
+
+.post-submitted a {
+    color: #8197bf;
+    text-decoration: none;
+}
+
+.post-submitted a:hover {
+    text-decoration: underline !important;
+}
+
+
+
+
+/* Voting */
+
+
+.voting {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+.votes {
+    color: #d7dadc;
+    font-size: 14px;
+}
+
+.upvote, .downvote {
+    color: #d7dadc;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.upvote:hover, .downvote:hover {
+    color: #ff4500;
+    /* Or any color to indicate active/hover state */
+}
+
+
+/* Sidebar */
+
+#sidebar_container {
+    width: 270px;
+    float: right;
+}
+
+.sidebar_button {
+    width: 100%;
+    border: none;
+    background-color: #3c3c3c;
+    color: #d7dadc;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.sidebar_button:hover {
+    text-decoration: underline;
+}
+
+.sidebar ul {
+    font-size: 12px;
+    margin-left: -10px;
+}
+
+.container {
+    width: calc(100% - 334px);
+    /* Adjust container width to make space for sidebar */
+    float: left;
+    padding: 20px;
+}
+
+.sidebar {
+    width: 200px;
+    /* Or keep it at 300px if you prefer */
+    background-color: #2d2d2d;
+    /* Slightly lighter than the body for contrast */
+    padding: 20px;
+    margin-top: 86px;
+    /* Adjusted to position the sidebar */
+    float: right;
+    /* Float to the right of the container */
+    border-radius: 5px;
+    margin-right: 20px;
+}
+
+/* Login Form */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    /* Full width of the sidebar */
+}
+
+.login-form input[type="text"],
+.login-form input[type="password"] {
+    width: 180px;
+    /* Full width of the form */
+    padding: 4px;
+    margin-bottom: 10px;
+    /* Space between fields */
+    background-color: #404040;
+    /* Dark input fields for the theme */
+    border: none;
+    /* Slightly lighter border for visibility */
+    color: #d7dadc;
+    /* Text color similar to body text */
+    border-radius: 4px;
+    /* Optional: rounded corners */
+    padding-left: 10px;
+}
+
+.login-form input[type="submit"] {
+    width: 100%;
+    /* Full width of the form */
+    padding: 10px;
+    /* Larger padding for a bigger button */
+    background-color: #555;
+    /* Grayish button */
+    color: #d7dadc;
+    /* Text color similar to body text */
+    border: none;
+    /* No border for the button */
+    cursor: pointer;
+    /* Pointer cursor on hover */
+    border-radius: 4px;
+    /* Optional: rounded corners */
+    font-weight: bold;
+    /* Optional: make the button text bold */
+    /* margin-top: 10px; */
+    /* Space above the submit button */
+}
+
+.login-form input[type="submit"]:hover {
+    background-color: #676767;
+    /* Slightly lighter on hover for feedback */
+}
+
+/* Reset float layout */
+.clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.sort-container {
+    width: 100%;
+    /* margin-bottom: 20px; */
+    /* Space between the sort dropdown and the first post */
+    text-align: right;
+    /* Align the dropdown to the right */
+    display: none;
+}
+
+#sort-by {
+    padding: 7px 15px;
+    background-color: #2b2b2b;
+    /* Dark background for the dropdown */
+    color: #d7dadc;
+    /* Light text color */
+    border: none;
+    /* Subtle border */
+    border-radius: 4px;
+    /* Rounded corners for the dropdown */
+    font-size: 14px;
+    margin-bottom: 10px;
+    margin-top: 22px;
+    width: 100%;
+}
+
+
+
+.sort-container_new ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.sort-container_new li {
+    margin-right: 10px;
+}
+
+.sort-container_new a {
+    text-decoration: none;
+    color: #d7dadc;
+    font-size: 12px;
+}
+
+.sort-container_new a.selected,
+.sort-container_new a:hover {
+    text-decoration: underline;
+}
+
+
+
+
+.sidebar ul li.censorship:before {
+    content: "\f3ed";
+    /* Font Awesome shield-alt icon */
+}
+
+.sidebar ul li.bot-proof:before {
+    content: "\f544";
+    /* Font Awesome user-shield icon */
+}
+
+
+.sidebar ul li.earn-voc:before {
+    content: "\f53d";
+    /* Font Awesome coin icon */
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    padding-left: 30px;
+}
+
+.sidebar ul li {
+    position: relative;
+    padding-left: 25px;
+    margin-bottom: 10px;
+    color: #d7dadc;
+}
+
+/* General icon style */
+.sidebar ul li:before {
+    font-family: 'Font Awesome 5 Free';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #b1b1b1;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+/* Specific icons */
+.sidebar ul li.censorship:before {
+    content: "\f3ed";
+}
+
+/* shield-alt */
+.sidebar ul li.bot-proof:before {
+    content: "\f544";
+}
+
+/* user-shield */
+.sidebar ul li.earn-voc:before {
+    content: "\f555";
+}
+
+
+
+/* Explore our communities */
+
+#explore_sidebar {
+    float: right;
+    margin-right: 70px;
+}
+
+#explore_sidebar h3 {
+    margin-bottom: 0;
+    font-size: 16px;
+    padding-left: 20px;
+    margin-top: 25px;
+}
+
+
+.community-links {
+    list-style: none;
+    padding: 0;
+    float: left;
+    padding-left: 30px;
+    font-size: 14px;
+    text-decoration: underline;
+    line-height: 14px;
+}
+
+
+.communities-section {
+    background-color: #1a1a1a;
+    color: #d7dadc;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.communities-section h3 {
+    color: #fff;
+}
+
+.community-links {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 0;
+}
+
+.community-links li {
+    margin-bottom: 10px;
+    padding-left: 40px;
+}
+
+.community-links a {
+    color: #d7dadc;
+    text-decoration: none;
+}
+
+.community-links a:hover {
+    text-decoration: none !important;
+}
+
+
+
+
+.show-more {
+    color: #8197bf !important;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    display: block;
+    margin-left: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+
+
+
+
+
+
+
+
+/* Internal Pages */
+
+h2#post-title {
+font-size: 19px;
+    position: relative;
+    bottom: 5px;
+}
+
+
+.comment-form {
+    margin-top: 20px;
+}
+
+.comment-form textarea {
+    width: 410px;
+    background-color: #333;
+    color: #d7dadc;
+    border: 1px solid #555;
+    padding: 10px;
+    border-radius: 4px;
+    resize: both;
+    height: 70px;
+    max-width: 70%;
+}
+
+.comment-form button {
+    background-color: #555;
+    color: #d7dadc;
+    border: none;
+    padding: 5px 12px;
+    margin-top: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    clear: both;
+    display: block;
+    font-size: 12px;
+}
+
+.comment-form button:hover {
+    background-color: #676767;
+}
+
+
+#submit-comment, .submit-reply,.cancel-reply {
+    background-color: #4c4c4c;
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    font-size: 12px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.submit-reply:hover,.cancel-reply:hover {
+text-decoration: underline;
+}
+
+#submit-comment:hover {
+    text-decoration: underline;
+
+}
+
+
+
+.post-content h2 {
+    color: #ffffff;
+    margin-bottom: 10px;
+    padding-top: 22px;
+}
+
+.post-content .voting {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.comments {
+    margin-top: 20px;
+}
+
+.comment {
+    background-color: #333;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+.comment .comment {
+    background-color: #444;
+    /* Slightly lighter for nested comments */
+    margin-top: 10px;
+}
+
+.comment.dark {
+    background-color: #2d2d2d;
+    /* Other styles for dark comments */
+}
+
+.comment.light {
+    background-color: #262626;
+    /* Other styles for light comments */
+}
+
+
+.voting a {
+    text-decoration: none;
+    color: #d7dadc;
+    font-size: 16px;
+    margin: 0 5px;
+}
+
+
+  
+  .voting a:hover {
+    transform: scale(1.2); /* scale up the arrow */
+    color: #ddd; /* change color on hover */
+  }
+  
+
+.voting span.votes {
+    color: #d7dadc;
+    font-size: 14px;
+    position: relative;
+    text-align: center;
+    top: 4px;
+}
+
+.voting a:hover {
+    color: #ff4500;
+}
+
+
+.comment {
+    display: flex;
+    align-items: flex-start;
+    background-color: #2d2d2d;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+.voting {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.comment-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.username, .points, .time {
+    margin-right: 10px;
+    color: #d7dadc;
+}
+
+.comment-links a {
+    margin-right: 10px;
+    color: #828282;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.comment-links a:hover {
+    text-decoration: underline !important;
+}
+
+.comment p {
+    margin-top: 5px;
+    color: #d7dadc;
+    padding-bottom: 0;
+    margin-bottom: 5px;
+}
+
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    font-size: 10px;
+    /* margin-bottom: 5px; */
+    /* Space between header and comment text */
+}
+
+.username {
+    color: #8197bf;
+    /* A distinct color for the username */
+    margin-right: 10px;
+    text-decoration: none;
+}
+
+.username:hover {
+    text-decoration: underline !important;
+
+}
+
+.points, .time {
+    color: #828282;
+    /* Gray color for points and timestamp */
+    margin-right: 10px;
+}
+
+.comment-content p {
+    font-size: 14px;
+    color: #d7dadc;
+    /* Ensure comment text is visible against the dark background */
+    line-height: 18px;
+}
+
+.comment-links a {
+    color: #828282;
+    /* Consistent gray color for action links */
+    font-size: 12px;
+    margin-right: 10px;
+    text-decoration: none;
+}
+
+.comment-links a:hover {
+    text-decoration: underline;
+}
+
+
+.comment.even-depth {
+    background-color: #2e2e2e;
+    /* Slightly darker shade for even depth */
+}
+
+.comment.odd-depth {
+    background-color: #383838;
+    /* Slightly lighter shade for odd depth */
+}
+
+
+.status-message {
+    font-size: 10px;
+    padding: 0 10px;
+    position: relative;
+    bottom: -5px;
+    left: -5px;
+}
+
+
+.voting {
+    display: inline-flex;
+    /* flex-direction: column; */
+    align-items: center;
+    margin-right: 10px;
+    float: left;
+}
+
+.voting a, .voting .votes {
+    display: block;
+    height: 15px;
+}
+
+
+#voting_main {
+    float: left;
+}
+
+#selftext {
+    clear: both;
+    margin-top: 30px;
+    background-color: #2f2f2f;
+    padding: 2px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    line-height: 18px;
+}
+
+
+/* Submission page */
+
+
+.submission-form {
+    background-color: #252525;
+    color: #d7dadc;
+    padding: 20px;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
+    margin-top: 60px;
+}
+
+.submission-form h2 {
+    color: #fff;
+}
+
+.submission-form label {
+    display: block;
+    margin-top: 20px;
+}
+
+.submission-form input[type="text"],
+.submission-form textarea,
+.submission-form select, #postContentUrl {
+    width: 90%;
+    padding: 10px;
+    margin-top: 5px;
+    background-color: #333;
+    border: none;
+    color: #d7dadc;
+    border-radius: 4px;
+}
+
+.submission-form button {
+    display: block;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: #555;
+    color: #d7dadc;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submission-form button:hover {
+    background-color: #676767;
+}
+
+.contentField {
+    margin-top: 20px;
+}
+
+
+
+select#postType {
+    width: 80px;
+}
+
+
+#subreddit {
+    width: 80px;
+}
+
+
+
+
+
+
+i.fas {
+    font-size: 20px;
+    margin-right: 5px;
+    margin-top: 3px;
+    cursor: pointer;
+}
+
+i.fas.fa-plus, i.fas.fa-minus {
+    float: left;
+    background-color: #3c3c3c;
+    padding: 3px;
+    border-radius: 3px;
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+
+.post:hover i.fas.fa-plus, .post:hover i.fas.fa-minus {
+    background-color: #1f1f1f;
+
+}
+
+i.fas.fa-external-link-alt {
+    font-size: 12px;
+    position: relative;
+    bottom: 6px;
+    left: 5px;
+}
+
+.post-text, .post-iframe {
+    clear: both;
+    display: block;
+}
+
+
+.post-text {
+    background-color: #202020;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-top: 33px;
+    font-size: 14px;
+    line-height: 18px;
+    margin-left: 110px;
+}
+
+.single-line {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    /* Adjust line height as needed */
+}
+
+
+/* Rights & Rules */
+
+#rules {
+    margin-top: 10px;
+}
+
+#rights {
+    margin-top: 20px;
+}
+
+span#rules_span {
+    /* padding-left: 5px; */
+}
+
+#rights, #rules {
+    font-size: 14px;
+    margin-left: 6px;
+}
+
+#rights a, #rules a {
+    color: #d7dadc;
+}
+
+#rights_span, #rules_span {
+    padding-left: 32px;
+    position: relative;
+    top: 2px;
+}
+
+i.fas.fa-scroll, i.fas.fa-gavel {
+    position: absolute;
+}
+
+
+
+
+
+
+/* Skeletons */
+
+
+/* Skeleton Base Style */
+.skeleton-loader {
+    animation: shimmer 2s infinite linear;
+    background: linear-gradient(to right, #404040 8%, #383737 18%, #393939 33%);
+    background-size: 1000px 100%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+
+
+
+/* Specific Skeleton styles */
+.post.skeleton .thumbnail {
+    background-color: #343536;
+    /* Use the theme's gray shades */
+}
+
+.post.skeleton .post-title,
+.post.skeleton .post-description,
+.post.skeleton .post-links a {
+    background-color: #fdb0b0;
+    height: 10px;
+    width: 90%;
+    margin: 5px 0;
+}
+
+.post.skeleton .post-title {
+    width: 60%;
+    height: 20px;
+    margin-top: 3px !important;
+}
+
+/*
+.skeleton .voting {
+    opacity: 0; 
+}
+*/
+
+.skeleton .content {
+    margin-left: 120px;
+}
+
+.skeleton .post-links {
+
+    margin-left: 0;
+}
+
+
+
+
+/* Mobile */
+
+
+
+@media (max-width: 600px) {
+    #sidebar_container {
+        display: none;
+    }
+
+
+    .container {
+        width: 83%;
+    }
+}
+
+#comment * {
+    all: revert;
+}
+
+
+/* Quill */
+
+.ql-toolbar.ql-snow, .ql-container.ql-snow {
+    border: none !important;
+}
+
+.ql-editor {
+    background-color: #262626;
+    width:400px;
+    min-height: 100px;
+    resize: both;
+
+}
+
+
+.ql-editor-dark {
+    background-color: #2d2d2d;
+    /* Light theme for dark containers */
+    color: white;
+}
+
+.ql-editor-light {
+    background-color: #262626;
+    /* Dark theme for light containers */
+    color: white;
+}
+
+
+
+.ql-toolbar {
+    margin-top: 20px;
+}
+
+.ql-editor.ql-blank::before {
+    color: #757575 !important;
+    content: attr(data-placeholder);
+    font-style: italic;
+    left: 15px;
+    pointer-events: none;
+    position: absolute;
+    right: 15px;
+}
+
+blockquote {
+    border-left: 4px solid #ccc;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    padding-left: 10px;
+    font-size: 14px;
+    margin-left: 10px;
+    color: gray;
+}

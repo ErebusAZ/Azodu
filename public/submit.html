@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>blink.ink</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+
+
+    <link rel="apple-touch-icon" sizes="180x180" href="branding/fav/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="branding/fav/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="branding/fav/favicon-16x16.png">
+    <link rel="manifest" href="branding/fav/site.webmanifest">
+    <link rel="mask-icon" href="branding/fav/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <script>
+        function togglePostContentField() {
+          var postType = document.getElementById('postType').value;
+          if (postType === 'text') {
+            document.getElementById('textContent').style.display = '';
+            document.getElementById('urlContent').style.display = 'none';
+          } else {
+            document.getElementById('textContent').style.display = 'none';
+            document.getElementById('urlContent').style.display = '';
+          }
+        }
+      </script>
+
+
+</head>
+
+<body>
+    <div class="container">
+
+        <a href="index.html"><img id="logo" src="branding/glitch8.png" /></a>
+        <h1 style="padding-top: 10px;">blink.ink</h1>
+
+     
+        <div class="submission-form">
+            <form action="/submitPost" method="POST">
+                <h2>Submit a new post</h2>
+
+              <label for="postType">Post type:</label>
+              <select id="postType" name="postType" onchange="togglePostContentField()">
+                <option value="text">Text</option>
+                <option value="url">URL</option>
+              </select>
+
+              <label for="subreddit">Subreddit:</label>
+              <select id="subreddit" name="subreddit">
+                <option value="subreddit1">Subreddit 1</option>
+                <option value="subreddit2">Subreddit 2</option>
+                <!-- Add more subreddit options here -->
+              </select>
+
+
+              <label for="postTitle">Title:</label>
+              <input type="text" id="postTitle" name="title" placeholder="Enter post title" required>
+              
+              
+              <div id="textContent" class="contentField">
+                <label for="postContentText">Text:</label>
+                <textarea id="postContentText" name="contentText" placeholder="Enter text (optional)"></textarea>
+              </div>
+              
+              <div id="urlContent" class="contentField" style="display: none;">
+                <label for="postContentUrl">URL:</label>
+                <input type="url" id="postContentUrl" name="contentUrl" placeholder="Enter URL (optional)">
+              </div>
+              
+              
+              <button type="submit">Submit</button>
+            </form>
+          </div>
+          
+   
+
+
+
+
+    </div>
+
+    <div class="sidebar">
+    
+
+
+    </div>
+
+
+
+
+</body>
+
+</html>
