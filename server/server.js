@@ -29,7 +29,47 @@ const client = new cassandra.Client({
   keyspace: 'my_keyspace'
 });
 
+let postsVoteSummary = {};
+const updateInterval = 10 * 1000; // how quickly to fetch all posts and update votes
 
+
+async function fetchPostsAndCalculateVotes() {
+  try {
+    const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+    const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE timestamp > ? ALLOW FILTERING`;
+    const posts = await client.execute(fetchPostsQuery, [fortyEightHoursAgo], { prepare: true });
+
+    for (const post of posts.rows) {
+      const fetchVotesQuery = `SELECT is_upvote FROM my_keyspace.votes WHERE post_id = ?`;
+      const votes = await client.execute(fetchVotesQuery, [post.post_id], { prepare: true });
+
+      let upvotes = 0;
+      let downvotes = 0;
+      votes.rows.forEach(vote => {
+        if (vote.is_upvote) {
+          upvotes++;
+        } else {
+          downvotes++;
+
+        }
+      });
+
+      postsVoteSummary[post.post_id] = {
+        ...post,
+        upvotes,
+        downvotes,
+        total_votes: upvotes - downvotes
+      };
+    }
+
+  //  console.log('Posts and vote summary updated.');
+  } catch (error) {
+    console.error('Error fetching posts and calculating votes:', error);
+  }
+}
+
+
+setInterval(fetchPostsAndCalculateVotes, updateInterval);
 
 
 // Define the route for form submission
@@ -64,10 +104,14 @@ app.get('/p/:subreddit/:uniqueId/:title', async (req, res) => {
 });
 
 app.post('/api/vote', async (req, res) => {
-  const { post_id, upvote } = req.body; // Assuming `upvote` is a boolean indicating upvote or downvote
+  const { post_id, upvote } = req.body; // `upvote` might be a string here
   const ip = req.ip;
+
+  // Explicitly convert `upvote` to boolean
+  const isUpvote = upvote === 'true' || upvote === true; // Handles both string and boolean inputs
+
   try {
-    await insertVote(client, post_id, upvote, ip);
+    await insertVote(client, post_id, isUpvote, ip);
     res.json({ message: 'Vote recorded successfully.' });
   } catch (error) {
     console.error('Error recording vote:', error);
@@ -98,9 +142,16 @@ app.listen(port, () => {
 
 app.get('/api/posts', async (req, res) => {
   try {
-    const query = 'SELECT * FROM my_keyspace.posts';
-    const result = await client.execute(query);
-    res.json(result.rows);
+    if (Object.keys(postsVoteSummary).length > 0) {
+      res.json(Object.values(postsVoteSummary));
+    } else {
+      const query = 'SELECT * FROM my_keyspace.posts';
+      const result = await client.execute(query);
+      res.json(result.rows);
+      
+    }
+
+
   } catch (error) {
     console.error('Failed to fetch posts', error);
     res.status(500).send('Failed to fetch posts');
@@ -112,7 +163,7 @@ async function main() {
   try {
 
     //   await flushAllTables(client,'my_keyspace'); 
-    //   await dropAllTables(client, 'my_keyspace'); 
+   //    await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);

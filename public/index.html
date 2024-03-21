@@ -113,11 +113,12 @@
                 if (isFetching)
                     return;
                 isFetching = true;
-                console.log('fetch more');
                 $.ajax({
                     url: '/api/posts',
                     type: 'GET',
                     success: function (posts) {
+                        console.log(posts);
+
                         isFetching = false;
 
                         $('.container .post.skeleton').each(function () {
