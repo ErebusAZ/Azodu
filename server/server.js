@@ -66,10 +66,8 @@ app.get('/p/:subreddit/:uniqueId/:title', async (req, res) => {
 app.post('/api/vote', async (req, res) => {
   const { post_id, upvote } = req.body; // Assuming `upvote` is a boolean indicating upvote or downvote
   const ip = req.ip;
-  console.log(ip);
   try {
-    console.log(post_id, upvote, ip);
-    await insertVote(client, post_id, upvote, '0.0.0.0');
+    await insertVote(client, post_id, upvote, ip);
     res.json({ message: 'Vote recorded successfully.' });
   } catch (error) {
     console.error('Error recording vote:', error);
