@@ -826,10 +826,12 @@ select#postType {
 
 
 #subreddit {
-    width: 80px;
+    width: 160px;
 }
 
-
+#submit_post_text .ql-editor {
+    background-color: #333333;
+}
 
 
 
