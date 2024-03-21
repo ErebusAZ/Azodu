@@ -40,7 +40,7 @@ async function fetchPostByPostID(client, post_id) {
 }
 
 
-async function fetchPostsAndCalculateVotes(client,postsVoteSummary) {
+async function fetchPostsAndCalculateVotes(client, postsVoteSummary, updateDb = true) {
   try {
     const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
     const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE timestamp > ? ALLOW FILTERING`;
@@ -53,30 +53,36 @@ async function fetchPostsAndCalculateVotes(client,postsVoteSummary) {
       let upvotes = 0;
       let downvotes = 0;
       votes.rows.forEach(vote => {
-        if (vote.is_upvote) {
-          upvotes++;
-        } else {
-          downvotes++;
-
-        }
+        if (vote.is_upvote) upvotes++;
+        else downvotes++;
       });
 
+      // Update the in-memory postsVoteSummary object
       postsVoteSummary[post.post_id] = {
         ...post,
-        upvotes,
-        downvotes,
+        upvotes: upvotes,
+        downvotes: downvotes,
         total_votes: upvotes - downvotes
       };
+
+      // Optionally update the database
+      if (updateDb) {
+        const updatePostQuery = `
+          UPDATE my_keyspace.posts
+          SET upvotes = ?, downvotes = ?
+          WHERE post_id = ?;
+        `;
+        await client.execute(updatePostQuery, [upvotes, downvotes, post.post_id], { prepare: true });
+      }
     }
 
-  //  console.log('Posts and vote summary updated.');
+    console.log('Posts and vote summary updated.');
   } catch (error) {
     console.error('Error fetching posts and calculating votes:', error);
   }
 
-  return postsVoteSummary; 
+  return postsVoteSummary;
 }
-
 
 
 module.exports = { queryAndLogUserData,fetchPostByPostID,fetchPostsAndCalculateVotes };
