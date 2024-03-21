@@ -103,9 +103,8 @@
             return comments.filter(comment => comment.parent_id === comment.post_id).map(comment => commentsMap[comment.comment_id]);
         }
 
-        function getCommentHtml(commentId, author, content, depth = 0) {
+        function getCommentHtml(commentId, author, content, depth = 0,votes) {
             const backgroundColor = depth % 2 === 0 ? '#262626' : '#2d2d2d';
-            const votes = Math.floor(Math.random() * 100); // Placeholder for votes
             const points = "0 points"; // Placeholder for points
             const timeAgo = "1 hour ago"; // Placeholder for time ago
 
@@ -148,7 +147,7 @@
 
             comments.forEach(comment => {
                 // Use getCommentHtml with individual parameters
-                html += getCommentHtml(comment.comment_id, comment.author, comment.content, depth);
+                html += getCommentHtml(comment.comment_id, comment.author, comment.content, depth,comment.upvotes - comment.downvotes);
 
                 // Check for replies and recursively render them
                 if (comment.replies && comment.replies.length > 0) {
@@ -243,7 +242,7 @@
                     contentType: 'application/json',
                     data: JSON.stringify({ post_id: truePostId, content: commentContent, parent_id: post_id }),
                     success: function (response) {
-                        var commentHTML = getCommentHtml(post_id, 'test', commentContent, depth); // Assuming your getCommentHtml can handle these parameters
+                        var commentHTML = getCommentHtml(post_id, 'test', commentContent, depth,1); // Assuming your getCommentHtml can handle these parameters
 
                         // Inserting the comment in the correct position
                         if (post_id === truePostId) {
