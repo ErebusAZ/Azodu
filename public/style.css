@@ -75,10 +75,11 @@ label {
     min-height: 60px;
 }
 
+/*
 .post:hover {
     background-color: #3a3a3a;
-    /* Slightly lighter gray on hover */
 }
+*/
 
 .post-links {
     margin-top: 3px;
