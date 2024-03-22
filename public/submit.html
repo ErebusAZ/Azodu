@@ -26,17 +26,50 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
     <script>
-        function togglePostContentField() {
-          var postType = document.getElementById('postType').value;
-          if (postType === 'text') {
-            document.getElementById('textContent').style.display = '';
-            document.getElementById('urlContent').style.display = 'none';
-          } else {
-            document.getElementById('textContent').style.display = 'none';
-            document.getElementById('urlContent').style.display = '';
-          }
+      function togglePostContentField() {
+        var postType = document.getElementById('postType').value;
+        if (postType === 'text') {
+          document.getElementById('textContent').style.display = '';
+          document.getElementById('urlContent').style.display = 'none';
+        } else {
+          document.getElementById('textContent').style.display = 'none';
+          document.getElementById('urlContent').style.display = '';
         }
-      </script>
+      }
+
+
+      $(document).ready(function () {
+        // Fetch and display categories in the select dropdown
+        function fetchAndPopulateCategories() {
+          $.ajax({
+            url: '/api/categories',
+            type: 'GET',
+            success: function (categories) {
+              const $subredditSelect = $('#subreddit');
+              $subredditSelect.empty(); // Clear existing options
+
+              categories.forEach(function (category) {
+                // Append category as an option
+                // Use the permalink as the value to be submitted with the form
+                const option = $('<option></option>').val(category.permalink).text(category.name);
+                $subredditSelect.append(option);
+              });
+            },
+            error: function (error) {
+              console.error('Failed to fetch categories:', error);
+            }
+          });
+        }
+
+
+
+        // Load categories when the document is ready
+        fetchAndPopulateCategories();
+      });
+
+
+
+    </script>
 
 
 </head>
@@ -58,12 +91,12 @@
                 <option value="url">URL</option>
               </select>
 
-              <label for="subreddit">Subreddit:</label>
-              <select id="subreddit" name="subreddit">
-                <option value="subreddit1">Subreddit 1</option>
-                <option value="subreddit2">Subreddit 2</option>
-                <!-- Add more subreddit options here -->
+              <label for="subreddit">Category:</label>
+              <select id="subreddit" name="subreddit" required>
+                  <option value="">Select a category...</option>
+                  <!-- Options will be added here by the JavaScript -->
               </select>
+              
 
 
               <label for="postTitle">Title:</label>
