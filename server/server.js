@@ -6,7 +6,7 @@ const path = require('path');
 
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable } = require('./db/db_create');
-const { insertPostData, populateTestData, insertVote,insertCommentData,generateShortId,insertCategoryData } = require('./db/db_insert');
+const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData } = require('./db/db_insert');
 const { fetchPostByPostID,fetchPostsAndCalculateVotes } = require('./db/db_query');
 
 
@@ -35,7 +35,7 @@ const updateInterval = 10 * 1000; // how quickly to fetch all posts and update v
 
 
 setInterval(() => {
-  fetchPostsAndCalculateVotes(client,postsVoteSummary).then(result => {
+  fetchPostsAndCalculateVotes(client,'everything',postsVoteSummary).then(result => {
     postsVoteSummary = result;
   }).catch(error => {
     console.error('Failed to fetch posts and calculate votes:', error);
@@ -44,10 +44,10 @@ setInterval(() => {
 
 // Define the route for form submission
 app.post('/submitPost', async (req, res) => {
-  const { title, subreddit, postType, contentText, contentUrl } = req.body;
+  const { title, category, postType, contentText, contentUrl } = req.body;
   const content = postType === 'text' ? contentText : contentUrl;
 
-  await insertPostData(client, title, 'bobert', subreddit, postType, content);
+  await insertPostData(client, title, 'bobert', category, postType, content);
 
   // Redirect to home or any other page after submission
   res.redirect('/'); // Adjust the redirect URL as needed
@@ -111,7 +111,7 @@ app.get('/c/:permalink', async (req, res) => {
           const category = categoryResult.first(); // Assuming we get one result since permalink is PRIMARY KEY
 
           // Now, fetch related posts for this category
-          const postsQuery = 'SELECT * FROM my_keyspace.posts WHERE subreddit = ?';
+          const postsQuery = 'SELECT * FROM my_keyspace.posts WHERE category = ?';
           const postsResult = await client.execute(postsQuery, ['/c/' + permalink], { prepare: true });
           const posts = postsResult.rows;
 
@@ -134,12 +134,12 @@ app.get('/c/:permalink', async (req, res) => {
 
 
 
-app.get('/p/:subreddit/:uniqueId/:title', async (req, res) => {
-  const { subreddit, uniqueId, title } = req.params;
+app.get('/p/:category/:uniqueId/:title', async (req, res) => {
+  const { category, uniqueId, title } = req.params;
   // Use the parameters to query your Cassandra database for the post data
   // For the sake of example, let's assume you have a function `fetchPostByPostID` that does this
   try {
-    const post = await fetchPostByPostID(client, uniqueId);
+    const post = await fetchPostByPostID(client,category, uniqueId);
     // Now, render an HTML page using the post data
     // If you're using a templating engine like EJS, Pug, or Handlebars, you can render a template:
     // res.render('postPage', { post: post });
@@ -224,7 +224,7 @@ function removeAllAttributes(html) {
 app.post('/api/comment', async (req, res) => {
   let { post_id, content, parent_id } = req.body; // Ensure you receive parent_id if the comment is a reply
   const author = 'username'; // This should ideally come from session or authentication mechanism
-  const commentId = generateShortId(); // Generate a unique comment ID
+  const commentId = generatePostIdTimestamp(); // Generate a unique comment ID
 
   // Clean the content of empty HTML tags
   content = cleanHtmlContent(content);
@@ -272,8 +272,8 @@ app.get('/api/posts', async (req, res) => {
 async function main() {
   try {
 
-   //    await flushAllTables(client,'my_keyspace'); 
-   //   await dropAllTables(client, 'my_keyspace'); 
+    //   await flushAllTables(client,'my_keyspace'); 
+      await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
@@ -284,7 +284,7 @@ async function main() {
     await createVotesTable(client);
     await createCategoriesTable(client);
 
-   //   await populateTestData(client,10);
+      await populateTestData(client,10);
 
   } catch (error) {
     console.error('Error:', error);

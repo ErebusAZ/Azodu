@@ -12,13 +12,16 @@ async function queryAndLogUserData() {
   }
 }
 
-async function fetchPostByPostID(client, post_id) {
-  const postQuery = 'SELECT * FROM posts WHERE post_id = ?';
-  const commentsQuery = 'SELECT * FROM comments WHERE post_id = ?';
+async function fetchPostByPostID(client, category, post_id) {
+  // Adjusted to include the category in the query for posts
+  const postQuery = 'SELECT * FROM my_keyspace.posts WHERE category = ? AND post_id = ?';
+  
+  // Assuming comments are also stored by post_id and do not require category for retrieval
+  const commentsQuery = 'SELECT * FROM my_keyspace.comments WHERE post_id = ?';
   
   try {
-    // Fetch the post
-    const postResult = await client.execute(postQuery, [post_id], { prepare: true });
+    // Fetch the post using both category and post_id
+    const postResult = await client.execute(postQuery, [category, post_id], { prepare: true });
     if (postResult.rows.length > 0) {
       const post = postResult.rows[0];
       
@@ -31,20 +34,21 @@ async function fetchPostByPostID(client, post_id) {
       
       return post;
     } else {
-      return null; // No post found with this post_id
+      return null; // No post found with this category and post_id
     }
   } catch (error) {
-    console.error('Error fetching post by post_id', error);
+    console.error(`Error fetching post by category '${category}' and post_id '${post_id}'`, error);
     throw error;
   }
 }
 
 
-async function fetchPostsAndCalculateVotes(client, postsVoteSummary, updateDb = true) {
+async function fetchPostsAndCalculateVotes(client, category, postsVoteSummary, updateDb = true) {
   try {
-    const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
-    const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE timestamp > ? ALLOW FILTERING`;
-    const posts = await client.execute(fetchPostsQuery, [fortyEightHoursAgo], { prepare: true });
+    // Fetch the latest posts within the category. Adjust the limit as needed.
+    const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT 50`;
+
+    const posts = await client.execute(fetchPostsQuery, [category], { prepare: true });
 
     for (const post of posts.rows) {
       const fetchVotesQuery = `SELECT is_upvote FROM my_keyspace.votes WHERE post_id = ?`;
@@ -70,19 +74,20 @@ async function fetchPostsAndCalculateVotes(client, postsVoteSummary, updateDb = 
         const updatePostQuery = `
           UPDATE my_keyspace.posts
           SET upvotes = ?, downvotes = ?
-          WHERE post_id = ?;
+          WHERE category = ? AND post_id = ?;
         `;
-        await client.execute(updatePostQuery, [upvotes, downvotes, post.post_id], { prepare: true });
+        await client.execute(updatePostQuery, [upvotes, downvotes, category, post.post_id], { prepare: true });
       }
     }
 
-    console.log('Posts and vote summary updated.');
+    console.log(`Posts and vote summary updated for category: ${category}.`);
   } catch (error) {
-    console.error('Error fetching posts and calculating votes:', error);
+    console.error(`Error fetching posts and calculating votes for category: ${category}`, error);
   }
 
   return postsVoteSummary;
 }
+
 
 
 module.exports = { queryAndLogUserData,fetchPostByPostID,fetchPostsAndCalculateVotes };

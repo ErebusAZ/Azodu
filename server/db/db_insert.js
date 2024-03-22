@@ -1,14 +1,28 @@
 const uuid = require('uuid');
 const { faker } = require('@faker-js/faker');
 
-function generateShortId() {
-  const timestamp = Date.now().toString(36).substr(-4); // Shorter timestamp
-  const randomPart = Math.random().toString(36).substr(2, 5); // Shorter random string
-  return `${timestamp}${randomPart}`;
+let postIdIterator = 0; // if we generate 50 posts in the same function, this will make sure the post_id/timestamps are unique
+
+function generatePostIdTimestamp() {
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0'); // getUTCMonth() returns 0-11
+    const day = String(now.getUTCDate()).padStart(2, '0');
+    const hour = String(now.getUTCHours()).padStart(2, '0');
+    const minute = String(now.getUTCMinutes()).padStart(2, '0');
+    const second = String(now.getUTCSeconds()).padStart(2, '0');
+    const millisecond = String(now.getUTCMilliseconds()).padStart(3, '0');
+
+    // Ensure the iterator is always at least two digits, resetting if it exceeds 99
+    const iterator = String(postIdIterator++ % 100).padStart(2, '0');
+    
+    // Concatenate all parts to form the ID, including the iterator
+    const timestampId = `${year}${month}${day}${hour}${minute}${second}${millisecond}${iterator}`;
+    return timestampId;
 }
 
 
-function generatePermalink(title, subreddit, postID) {
+function generatePermalink(title, category, postID) {
   // Normalize the title to a URL-friendly string
   const normalizedTitle = title
     .toLowerCase() // convert to lowercase
@@ -17,26 +31,26 @@ function generatePermalink(title, subreddit, postID) {
 
 
   // Combine the normalized title and unique suffix
-  const permalink = `/p/${subreddit}/${postID}/${normalizedTitle}`;
+  const permalink = `/p/${category}/${postID}/${normalizedTitle}`;
 
   return permalink;
 }
 
-async function insertPostData(client, title, author, subreddit, postType, content) {
+async function insertPostData(client, title, author, category, postType, content) {
   // Assuming initial values for upvotes, downvotes, and comment_count are set to 0
   const upvotes = 0;
   const downvotes = 0;
   const commentCount = 0;
-  const postID = generateShortId();
-  const permalink = generatePermalink(title, subreddit, postID);
+  const postID = generatePostIdTimestamp();
+  const permalink = generatePermalink(title, category, postID);
 
   const query = `
     INSERT INTO my_keyspace.posts (
-      post_id, title, author, subreddit, post_type, content, upvotes, downvotes, comment_count, permalink, timestamp
+      post_id, title, author, category, post_type, content, upvotes, downvotes, comment_count, permalink, timestamp
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, toTimestamp(now()));
   `;
 
-  const params = [postID, title, author, subreddit, postType, content, upvotes, downvotes, commentCount, permalink];
+  const params = [postID, title, author, category, postType, content, upvotes, downvotes, commentCount, permalink];
 
   try {
     await client.execute(query, params, { prepare: true });
@@ -82,14 +96,14 @@ async function populateTestData(client, numberOfPosts = 100) {
   for (let i = 0; i < numberOfPosts; i++) {
     const title = faker.lorem.sentence();
     const author = faker.internet.userName();
-    const subredditOptions = ['subreddit1', 'subreddit2', 'subreddit3'];
-    const subreddit = subredditOptions[Math.floor(Math.random() * subredditOptions.length)];
+    const categoryOptions = ['category1', 'category2', 'category3'];
+    const category = 'everything';
     const postTypeOptions = ['text', 'url'];
     const postType = postTypeOptions[Math.floor(Math.random() * postTypeOptions.length)];
     const content = postType === 'text' ? faker.lorem.paragraph() : faker.internet.url();
     const permalink = faker.internet.url();
 
-    await insertPostData(client, title, author, subreddit, postType, content);
+    await insertPostData(client, title, author, category, postType, content);
   }
 
   console.log(`${numberOfPosts} test posts inserted successfully.`);
@@ -132,4 +146,4 @@ async function insertVote(client, post_id, isUpvote, ip) {
 
 
 
-module.exports = { insertPostData, insertUserData, populateTestData, insertVote,insertCommentData,generateShortId,insertCategoryData,generatePermalink };
+module.exports = { insertPostData, insertUserData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,generatePermalink };

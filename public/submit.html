@@ -45,14 +45,14 @@
             url: '/api/categories',
             type: 'GET',
             success: function (categories) {
-              const $subredditSelect = $('#subreddit');
-              $subredditSelect.empty(); // Clear existing options
+              const $categorySelect = $('#category');
+              $categorySelect.empty(); // Clear existing options
 
               categories.forEach(function (category) {
                 // Append category as an option
                 // Use the permalink as the value to be submitted with the form
                 const option = $('<option></option>').val(category.permalink).text(category.name);
-                $subredditSelect.append(option);
+                $categorySelect.append(option);
               });
             },
             error: function (error) {
@@ -91,8 +91,8 @@
                 <option value="url">URL</option>
               </select>
 
-              <label for="subreddit">Category:</label>
-              <select id="subreddit" name="subreddit" required>
+              <label for="category">Category:</label>
+              <select id="category" name="category" required>
                   <option value="">Select a category...</option>
                   <!-- Options will be added here by the JavaScript -->
               </select>

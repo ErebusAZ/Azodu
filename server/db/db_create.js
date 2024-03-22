@@ -51,19 +51,20 @@ async function createCommentsTable(client) {
 
 async function createPostsTable(client) {
   const query = `
-    CREATE TABLE IF NOT EXISTS my_keyspace.posts (
-      post_id text PRIMARY KEY,
-      title text,
-      author text,
-      subreddit text,
-      post_type text,
-      content text,
-      upvotes int,
-      downvotes int,
-      comment_count int,
-      permalink text,
-      timestamp timestamp
-    );
+  CREATE TABLE IF NOT EXISTS my_keyspace.posts (
+    category text,
+    post_id text,
+    title text,
+    author text,
+    post_type text,
+    content text,
+    upvotes int,
+    downvotes int,
+    comment_count int,
+    permalink text,
+    timestamp timestamp,
+    PRIMARY KEY (category, post_id)
+  ) WITH CLUSTERING ORDER BY (post_id DESC);  
   `;
   await client.execute(query);
   console.log('Table `posts` created or already exists in `my_keyspace`');
@@ -71,14 +72,16 @@ async function createPostsTable(client) {
 
 async function createCategoriesTable(client) {
   const query = `
-    CREATE TABLE IF NOT EXISTS my_keyspace.categories (
-      permalink text PRIMARY KEY,
-      name text,
-      creator text,
-      description text,
-      date_created timestamp,
-      moderators text,
-    );
+  CREATE TABLE IF NOT EXISTS my_keyspace.categories (
+    permalink text,
+    name text,
+    creator text,
+    description text,
+    date_created timestamp,
+    moderators text,
+    isDefault boolean,
+    PRIMARY KEY (permalink, date_created)
+  ) WITH CLUSTERING ORDER BY (date_created DESC);  
   `;
   await client.execute(query);
   console.log('Table `posts` created or already exists in `my_keyspace`');
