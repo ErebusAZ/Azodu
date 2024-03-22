@@ -893,7 +893,7 @@ i.fas.fa-plus, i.fas.fa-minus {
 }
 
 
-.post:hover i.fas.fa-plus, .post:hover i.fas.fa-minus {
+i.fas.fa-plus:hover, i.fas.fa-minus:hover {
     background-color: #1f1f1f;
 
 }
