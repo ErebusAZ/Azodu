@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= category.name %>
+    </title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Include stylesheet -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <!-- Include the Quill library -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+
+
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/branding/fav/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/branding/fav/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/branding/fav/favicon-16x16.png">
+    <link rel="manifest" href="/branding/fav/site.webmanifest">
+    <link rel="mask-icon" href="/branding/fav/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <script>
+
+   // Convert the post object to a JSON string and parse it back to an object
+   var category = JSON.parse('<%- JSON.stringify(category).replace(/'/g, "\\'").replace(/"/g, '\\"') %>');
+        console.log(category);
+
+  
+        $(document).ready(function () {
+
+            $('body').on('click', '.upvote, .downvote', function (event) {
+                event.preventDefault();
+
+                const $this = $(this);
+                const $votingContext = $this.closest('.voting');
+                const isUpvote = $this.hasClass('upvote');
+                let currentVoteState = $votingContext.data('voteState') || 'none';
+
+                let newVoteState = 'none';
+                // Determine the new vote state based on the current state and the action
+                if (isUpvote && currentVoteState !== 'up') {
+                    newVoteState = 'up';
+                } else if (!isUpvote && currentVoteState !== 'down') {
+                    newVoteState = 'down';
+                }
+
+                // Update vote state or toggle off if the same button was clicked again
+                if (newVoteState === currentVoteState) {
+                    newVoteState = 'none'; // Toggle off if the same state was clicked again
+                }
+
+                // Find the current vote count
+                const $voteCountSpan = $votingContext.find('.votes');
+                let currentCount = parseInt($voteCountSpan.text(), 10);
+
+                // Adjust the vote count based on the new vote state
+                switch (newVoteState) {
+                    case 'up':
+                        currentCount = currentVoteState === 'down' ? currentCount + 2 : currentVoteState === 'none' ? currentCount + 1 : currentCount - 1;
+                        break;
+                    case 'down':
+                        currentCount = currentVoteState === 'up' ? currentCount - 2 : currentVoteState === 'none' ? currentCount - 1 : currentCount + 1;
+                        break;
+                    case 'none':
+                        // Undo the vote
+                        currentCount = currentVoteState === 'up' ? currentCount - 1 : currentVoteState === 'down' ? currentCount + 1 : currentCount;
+                        break;
+                }
+
+                // Update the vote count and state
+                $voteCountSpan.text(currentCount);
+                $votingContext.data('voteState', newVoteState);
+
+                // Reset visual state for all buttons
+                $votingContext.find('.upvote, .downvote').removeClass('upvote-active downvote-active');
+                // Apply the active class to the current button, if applicable
+                if (newVoteState !== 'none') {
+                    $this.addClass(newVoteState + 'vote-active');
+                }
+
+
+                $.ajax({
+                    url: `/api/vote/`,
+                    type: 'POST',
+                    data: {
+                        upvote: isUpvote,
+                        post_id: $this.data('postid')
+                    },
+                    success: function (response) {
+                        console.log('Vote recorded successfully.');
+                        // You might still want to log the success or handle any sync issues here
+                    },
+                    error: function (error) {
+                        console.error('Failed to record vote:', error);
+                        // Since we're optimistically updating the UI, consider how to handle errors
+                    }
+                });
+            });
+
+
+
+
+
+
+        });
+
+
+    </script>
+
+
+
+
+</head>
+
+<body>
+    <div class="container">
+        <a href="/"><img id="logo_blink1" src="/branding/blink1.png" /></a>
+        <div style="clear:both;"></div>
+
+        <div class="sort-container">
+            <select id="sort-by" name="sort-by">
+                <option value="top">Top</option>
+                <option value="new" selected>Latest</option>
+                <option value="hot">Hot</option>
+            </select>
+        </div>
+
+   
+
+
+
+
+    </div>
+
+    <div class="sidebar">
+        <p style="margin-top:0;">Register an account</p>
+        <form class="login-form">
+            <input type="text" id="username" placeholder="username" required>
+            <input type="password" id="password" placeholder="password" required>
+            <input type="submit" value="Login">
+        </form>
+        <ul>
+            <li class="earn-voc">Earn $VOC</li>
+            <li class="censorship">Censorship resistant</li>
+            <li class="bot-proof">Bot-proof</li>
+        </ul>
+
+
+    </div>
+
+
+
+
+</body>
+
+</html>

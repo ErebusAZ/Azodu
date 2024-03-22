@@ -99,6 +99,28 @@ app.post('/submitCategory', async (req, res) => {
 });
 
 
+app.get('/c/:permalink', async (req, res) => {
+  let { permalink } = req.params;
+  permalink = '/c/' + permalink; 
+  const query = 'SELECT * FROM my_keyspace.categories WHERE permalink = ?';
+
+  try {
+      const result = await client.execute(query, [permalink], { prepare: true });
+
+      if (result.rowLength > 0) {
+          // Category exists
+          const category = result.first(); // Assuming we get one result since permalink is PRIMARY KEY
+          res.render('category', { category: category });
+      } else {
+          // Category does not exist
+          res.status(404).send('Category not found');
+      }
+  } catch (error) {
+      console.error('Error fetching category:', error);
+      res.status(500).send('Internal Server Error');
+  }
+});
+
 
 
 
@@ -126,16 +148,31 @@ app.get('/p/:subreddit/:uniqueId/:title', async (req, res) => {
 
 app.get('/api/categories', async (req, res) => {
   try {
-    const query = 'SELECT * FROM my_keyspace.categories';
-    const result = await client.execute(query);
+      const categoriesQuery = 'SELECT * FROM my_keyspace.categories';
+      const categoriesResult = await client.execute(categoriesQuery);
+      const categories = categoriesResult.rows;
 
-    // Send the result rows back as the response
-    res.json(result.rows);
+      // Initialize an array to hold promises for fetching posts for each category
+      const categoryPostPromises = categories.map(async (category) => {
+          const postsQuery = 'SELECT * FROM my_keyspace.posts WHERE subreddit = ?';
+          const postsResult = await client.execute(postsQuery, [category.name], { prepare: true });
+          // Attach the posts array to the category object
+          category.posts = postsResult.rows;
+          return category;
+      });
+
+      // Wait for all post-fetching promises to resolve
+      const categoriesWithPosts = await Promise.all(categoryPostPromises);
+
+      res.json(categoriesWithPosts);
   } catch (error) {
-    console.error('Failed to fetch categories:', error);
-    res.status(500).send('Failed to fetch categories');
+      console.error('Failed to fetch categories and posts:', error);
+      res.status(500).send('Failed to fetch categories and posts');
   }
 });
+
+
+
 
 
 app.post('/api/vote', async (req, res) => {
