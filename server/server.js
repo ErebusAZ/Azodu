@@ -6,7 +6,7 @@ const path = require('path');
 
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable } = require('./db/db_create');
-const { insertPostData, populateTestData, insertVote,insertCommentData,generateShortId } = require('./db/db_insert');
+const { insertPostData, populateTestData, insertVote,insertCommentData,generateShortId,insertCategoryData } = require('./db/db_insert');
 const { fetchPostByPostID,fetchPostsAndCalculateVotes } = require('./db/db_query');
 
 
@@ -52,6 +52,55 @@ app.post('/submitPost', async (req, res) => {
   // Redirect to home or any other page after submission
   res.redirect('/'); // Adjust the redirect URL as needed
 });
+
+
+function generateCategoryPermalink(title) {
+  const basePath = "/c/";
+  const cleanedTitle = title
+    .replace(/[^\w\s]/gi, '') // Remove non-alphanumeric characters except spaces
+    .trim() // Remove leading and trailing spaces
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .toLowerCase(); // Convert to lowercase
+
+  const truncatedTitle = cleanedTitle.substring(0, 147); // Truncate to 147 characters to leave room for "/c/"
+  return basePath + truncatedTitle;
+}
+
+
+
+
+app.post('/submitCategory', async (req, res) => {
+  const { name, creator, description } = req.body;
+  const permalink = generateCategoryPermalink(name);
+
+  try {
+    // Check if permalink already exists
+    const permalinkCheckQuery = 'SELECT permalink FROM my_keyspace.categories WHERE permalink = ?';
+    const permalinkResult = await client.execute(permalinkCheckQuery, [permalink], { prepare: true });
+
+    if (permalinkResult.rowLength > 0) {
+      // Permalink already exists
+      return res.send('A category with this permalink already exists.');
+    } else {
+      // Insert new category
+      const insertQuery = `
+        INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created)
+        VALUES (?, ?, ?, ?, toTimestamp(now()));
+      `;
+      console.log(permalink, name, creator, description); 
+      await client.execute(insertQuery, [permalink, name, creator, description], { prepare: true });
+      console.log('Category created successfully');
+      res.redirect('/'); // Adjust the redirect as needed
+    }
+  } catch (error) {
+    console.error('Error creating category:', error);
+    res.send('Failed to create category.');
+  }
+});
+
+
+
+
 
 app.get('/p/:subreddit/:uniqueId/:title', async (req, res) => {
   const { subreddit, uniqueId, title } = req.params;
@@ -133,7 +182,7 @@ async function main() {
   try {
 
        await flushAllTables(client,'my_keyspace'); 
-   //    await dropAllTables(client, 'my_keyspace'); 
+       await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
@@ -144,7 +193,7 @@ async function main() {
     await createVotesTable(client);
     await createCategoriesTable(client);
 
-      await populateTestData(client,50);
+      await populateTestData(client,10);
 
   } catch (error) {
     console.error('Error:', error);

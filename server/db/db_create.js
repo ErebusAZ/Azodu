@@ -72,10 +72,10 @@ async function createPostsTable(client) {
 async function createCategoriesTable(client) {
   const query = `
     CREATE TABLE IF NOT EXISTS my_keyspace.categories (
-      name text PRIMARY KEY,
+      permalink text PRIMARY KEY,
+      name text,
       creator text,
       description text,
-      permalink text,
       date_created timestamp,
       moderators text,
     );

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Category - blink.ink</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="branding/fav/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="branding/fav/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="branding/fav/favicon-16x16.png">
+    <link rel="manifest" href="branding/fav/site.webmanifest">
+    <link rel="mask-icon" href="branding/fav/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script>
+      function generateCategoryPermalink() {
+          const title = document.getElementById('suggestedPermalink').value;
+          const basePath = "/c/";
+          const cleanedTitle = title
+              .replace(/[^\w\s]/gi, '') // Remove non-alphanumeric characters except spaces
+              .trim() // Remove leading and trailing spaces
+              .replace(/\s+/g, '-') // Replace spaces with hyphens
+              .toLowerCase(); // Convert to lowercase
+
+          const truncatedTitle = cleanedTitle.substring(0, 147); // Truncate to 147 characters to leave room for "/c/"
+          const permalink = basePath + truncatedTitle;
+
+          document.getElementById('displayPermalink').textContent = `${permalink}`;
+          // Update hidden input to send to server
+          document.getElementById('finalPermalink').value = permalink;
+      }
+  </script>
+</head>
+<body class="submitCategoryPage">
+  <div class="container">
+    <a href="/"><img id="logo_blink1" src="branding/blink1.png" /></a>
+    <div class="submission-form">
+        <form action="/submitCategory" method="POST">
+            <h2>Create a new category</h2>
+
+            <label for="categoryName">Name:</label>
+            <input type="text" id="categoryName" name="name" placeholder="Enter category name" required>
+
+            <label for="suggestedPermalink">Link:</label>
+            <input type="text" id="suggestedPermalink" name="suggestedPermalink" placeholder="" oninput="generateCategoryPermalink()" required>
+            
+            <p id="displayPermalink">/c/</p>
+            <input type="hidden" id="finalPermalink" name="permalink">
+
+            <label for="categoryDescription">Description:</label>
+            <div id="categoryDescription" class="contentField">
+                <textarea id="categoryDescText" name="description" placeholder="Describe the category (optional)"></textarea>
+            </div>
+
+            <!--
+            <label for="categoryModerators">Moderators:</label>
+            <input type="text" id="categoryModerators" name="moderators" placeholder="Enter moderator usernames, separated by commas">
+            -->
+            <button type="submit" id="create_category_submit_button">Create Category</button>
+        </form>
+    </div>
+</div>
+
+    <script>
+      new Quill('#categoryDescription', {
+          modules: {
+              toolbar: [
+                  ['bold', 'italic', 'underline', 'strike'],        // formatting options
+                  [{ 'list': 'ordered' }, { 'list': 'bullet' }],    // lists
+                  ['link']                                          // links
+              ]
+          },
+          theme: 'snow', // Specify theme in configuration
+          placeholder: 'Describe the category (optional)',
+      });
+    </script>
+</body>
+</html>

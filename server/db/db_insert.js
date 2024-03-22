@@ -46,6 +46,25 @@ async function insertPostData(client, title, author, subreddit, postType, conten
   }
 }
 
+async function insertCategoryData(client, name, creator, description, permalink, dateCreated, moderators) {
+  const query = `
+    INSERT INTO my_keyspace.categories (
+      name, creator, description, permalink, date_created, moderators
+    ) VALUES (?, ?, ?, ?, ?, ?);
+  `;
+  
+  const params = [name, creator, description, permalink, dateCreated, moderators];
+
+  try {
+    await client.execute(query, params, { prepare: true });
+    console.log('Category data inserted successfully');
+  } catch (error) {
+    console.error('Failed to insert category data', error);
+    throw error; // Rethrow the error to be caught by the calling function
+  }
+}
+
+
 async function insertCommentData(client, comment_id, post_id, author, parent_id, post_type, content, upvotes, downvotes, permalink, timestamp) {
   const query = `
     INSERT INTO my_keyspace.comments (comment_id, post_id, author, parent_id, post_type, content, upvotes, downvotes, permalink, timestamp)
@@ -113,4 +132,4 @@ async function insertVote(client, post_id, isUpvote, ip) {
 
 
 
-module.exports = { insertPostData, insertUserData, populateTestData, insertVote,insertCommentData,generateShortId };
+module.exports = { insertPostData, insertUserData, populateTestData, insertVote,insertCommentData,generateShortId,insertCategoryData,generatePermalink };

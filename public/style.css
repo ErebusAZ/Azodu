@@ -780,6 +780,33 @@ text-decoration: underline;
 /* Submission page */
 
 
+#displayPermalink {
+background-color: #1a1a1a;
+    display: inline-block;
+    clear: both;
+    min-width: 150px;
+    padding: 10px;
+}
+
+#categoryDescription .ql-editor {
+background-color: #333333;
+
+}
+
+
+.submitCategoryPage .submission-form button,.ql-toolbar {
+margin-top: 0 !important;
+}
+
+#create_category_submit_button {
+margin-top: 20px !important; 
+}
+
+.submitCategoryPage .submission-form {
+    padding: 50px 50px;
+}
+
+
 .submission-form {
     background-color: #252525;
     color: #d7dadc;
