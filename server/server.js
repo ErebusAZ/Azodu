@@ -138,10 +138,50 @@ app.post('/api/vote', async (req, res) => {
   }
 });
 
+function cleanHtmlContent(content) {
+
+  // replace space with empty string
+  content = content.replace(/&nbsp;/gi, ' ');
+
+  // trim leading and trailing spaces
+  content = content.replace(/(>)[\s]+/g, '$1').replace(/[\s]+(<)/g, '$1');
+
+  // This regex removes tags that contain only whitespace or a single <br> tag, in addition to entirely empty tags
+  return content.replace(/<(\w+)(?:\s+[^>]*)?>\s*(<br\s*\/?>)?\s*<\/\1>/g, '');
+}
+
+function removeDangerousTags(html) {
+  // Remove script tags and their content
+  html = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+  // You can add more lines here to remove other potentially dangerous tags
+  // Example: Remove iframe tags
+  // html = html.replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '');
+  
+  return html;
+}
+
+function removeAllAttributes(html) {
+  // This regex looks for HTML tags and attempts to remove attributes inside them
+  // Be cautious: this might not work correctly for complex or malformed HTML
+  const cleanHtml = html.replace(/<(\w+)(\s+[^>]+)?(>)/g, '<$1$3');
+  return cleanHtml;
+}
+
+
+
+
 app.post('/api/comment', async (req, res) => {
-  const { post_id, content, parent_id } = req.body; // Ensure you receive parent_id if the comment is a reply
+  let { post_id, content, parent_id } = req.body; // Ensure you receive parent_id if the comment is a reply
   const author = 'username'; // This should ideally come from session or authentication mechanism
   const commentId = generateShortId(); // Generate a unique comment ID
+
+  // Clean the content of empty HTML tags
+  content = cleanHtmlContent(content);
+  content = removeDangerousTags(content); 
+  content = removeAllAttributes(content); 
+
+  console.log(content);
   try {
     await insertCommentData(client, commentId, post_id, author, parent_id || post_id, 'text', content, 0, 0, '/comments/' + commentId, new Date());
     res.json({ message: 'Comment added successfully.', commentId: commentId });
@@ -150,6 +190,7 @@ app.post('/api/comment', async (req, res) => {
     res.status(500).send('Failed to insert comment');
   }
 });
+
 
 
 
