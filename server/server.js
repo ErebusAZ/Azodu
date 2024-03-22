@@ -222,8 +222,8 @@ app.get('/api/posts', async (req, res) => {
 async function main() {
   try {
 
-       await flushAllTables(client,'my_keyspace'); 
-       await dropAllTables(client, 'my_keyspace'); 
+  //     await flushAllTables(client,'my_keyspace'); 
+  //     await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
@@ -234,7 +234,7 @@ async function main() {
     await createVotesTable(client);
     await createCategoriesTable(client);
 
-      await populateTestData(client,10);
+   //   await populateTestData(client,10);
 
   } catch (error) {
     console.error('Error:', error);
