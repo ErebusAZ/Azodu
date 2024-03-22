@@ -29,6 +29,21 @@
 
     <script>
 
+function timeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const secondsAgo = Math.round((now - date) / 1000);
+
+            const minutesAgo = Math.round(secondsAgo / 60);
+            const hoursAgo = Math.round(minutesAgo / 60);
+            const daysAgo = Math.round(hoursAgo / 24);
+
+            if (secondsAgo < 60) return `${secondsAgo} seconds ago`;
+            else if (minutesAgo < 60) return `${minutesAgo} minutes ago`;
+            else if (hoursAgo < 24) return `${hoursAgo} hours ago`;
+            else return `${daysAgo} days ago`;
+        }
+
    // Convert the post object to a JSON string and parse it back to an object
    var category = JSON.parse('<%- JSON.stringify(category).replace(/'/g, "\\'").replace(/"/g, '\\"') %>');
         console.log(category);
@@ -36,82 +51,114 @@
   
         $(document).ready(function () {
 
-            $('body').on('click', '.upvote, .downvote', function (event) {
-                event.preventDefault();
+                $('body').on('click', '.upvote, .downvote', function (event) {
+                    event.preventDefault();
 
-                const $this = $(this);
-                const $votingContext = $this.closest('.voting');
-                const isUpvote = $this.hasClass('upvote');
-                let currentVoteState = $votingContext.data('voteState') || 'none';
+                    const $this = $(this);
+                    const $votingContext = $this.closest('.voting');
+                    const isUpvote = $this.hasClass('upvote');
+                    let currentVoteState = $votingContext.data('voteState') || 'none';
 
-                let newVoteState = 'none';
-                // Determine the new vote state based on the current state and the action
-                if (isUpvote && currentVoteState !== 'up') {
-                    newVoteState = 'up';
-                } else if (!isUpvote && currentVoteState !== 'down') {
-                    newVoteState = 'down';
-                }
-
-                // Update vote state or toggle off if the same button was clicked again
-                if (newVoteState === currentVoteState) {
-                    newVoteState = 'none'; // Toggle off if the same state was clicked again
-                }
-
-                // Find the current vote count
-                const $voteCountSpan = $votingContext.find('.votes');
-                let currentCount = parseInt($voteCountSpan.text(), 10);
-
-                // Adjust the vote count based on the new vote state
-                switch (newVoteState) {
-                    case 'up':
-                        currentCount = currentVoteState === 'down' ? currentCount + 2 : currentVoteState === 'none' ? currentCount + 1 : currentCount - 1;
-                        break;
-                    case 'down':
-                        currentCount = currentVoteState === 'up' ? currentCount - 2 : currentVoteState === 'none' ? currentCount - 1 : currentCount + 1;
-                        break;
-                    case 'none':
-                        // Undo the vote
-                        currentCount = currentVoteState === 'up' ? currentCount - 1 : currentVoteState === 'down' ? currentCount + 1 : currentCount;
-                        break;
-                }
-
-                // Update the vote count and state
-                $voteCountSpan.text(currentCount);
-                $votingContext.data('voteState', newVoteState);
-
-                // Reset visual state for all buttons
-                $votingContext.find('.upvote, .downvote').removeClass('upvote-active downvote-active');
-                // Apply the active class to the current button, if applicable
-                if (newVoteState !== 'none') {
-                    $this.addClass(newVoteState + 'vote-active');
-                }
-
-
-                $.ajax({
-                    url: `/api/vote/`,
-                    type: 'POST',
-                    data: {
-                        upvote: isUpvote,
-                        post_id: $this.data('postid')
-                    },
-                    success: function (response) {
-                        console.log('Vote recorded successfully.');
-                        // You might still want to log the success or handle any sync issues here
-                    },
-                    error: function (error) {
-                        console.error('Failed to record vote:', error);
-                        // Since we're optimistically updating the UI, consider how to handle errors
+                    let newVoteState = 'none';
+                    // Determine the new vote state based on the current state and the action
+                    if (isUpvote && currentVoteState !== 'up') {
+                        newVoteState = 'up';
+                    } else if (!isUpvote && currentVoteState !== 'down') {
+                        newVoteState = 'down';
                     }
+
+                    // Update vote state or toggle off if the same button was clicked again
+                    if (newVoteState === currentVoteState) {
+                        newVoteState = 'none'; // Toggle off if the same state was clicked again
+                    }
+
+                    // Find the current vote count
+                    const $voteCountSpan = $votingContext.find('.votes');
+                    let currentCount = parseInt($voteCountSpan.text(), 10);
+
+                    // Adjust the vote count based on the new vote state
+                    switch (newVoteState) {
+                        case 'up':
+                            currentCount = currentVoteState === 'down' ? currentCount + 2 : currentVoteState === 'none' ? currentCount + 1 : currentCount - 1;
+                            break;
+                        case 'down':
+                            currentCount = currentVoteState === 'up' ? currentCount - 2 : currentVoteState === 'none' ? currentCount - 1 : currentCount + 1;
+                            break;
+                        case 'none':
+                            // Undo the vote
+                            currentCount = currentVoteState === 'up' ? currentCount - 1 : currentVoteState === 'down' ? currentCount + 1 : currentCount;
+                            break;
+                    }
+
+                    // Update the vote count and state
+                    $voteCountSpan.text(currentCount);
+                    $votingContext.data('voteState', newVoteState);
+
+                    // Reset visual state for all buttons
+                    $votingContext.find('.upvote, .downvote').removeClass('upvote-active downvote-active');
+                    // Apply the active class to the current button, if applicable
+                    if (newVoteState !== 'none') {
+                        $this.addClass(newVoteState + 'vote-active');
+                    }
+
+
+                    $.ajax({
+                        url: `/api/vote/`,
+                        type: 'POST',
+                        data: {
+                            upvote: isUpvote,
+                            post_id: $this.data('postid')
+                        },
+                        success: function (response) {
+                            console.log('Vote recorded successfully.');
+                            // You might still want to log the success or handle any sync issues here
+                        },
+                        error: function (error) {
+                            console.error('Failed to record vote:', error);
+                            // Since we're optimistically updating the UI, consider how to handle errors
+                        }
+                    });
                 });
+
+
+
+                // Example data structure for category.posts (you would replace this with your actual server-side data passed into the template)
+                var categoryPosts = category.posts;
+
+                function renderPosts(posts) {
+                    const container = document.querySelector('.container');
+
+
+                    posts.forEach(post => {
+                        // Adapt this to match the structure of your category.posts objects
+                        const postHtml = `
+            <div class="post">
+                <div class="voting">
+                    <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${post.post_id}"><img src="/img/up-arrow.svg" alt="Upvote"></a>
+                    <span class="votes">${post.upvotes - post.downvotes}</span>
+                    <a title="downvote" description="downvote" href="#" class="downvote" data-postid="${post.post_id}"><img src="/img/down-arrow.svg" alt="Downvote"></a>
+                </div>
+                <div class="thumbnail"></div>
+                <div class="content">
+                    <a href="${post.permalink}" class="post-title">${post.title}</a>
+                    <p class="post-description">${post.content}</p>
+                    <p class="post-submitted">submitted ${timeAgo(post.timestamp)} by <a href="#">${post.author}</a> to <a href="#">${post.category}</a></p>
+                    <div class="post-links">
+                        <a href="${post.permalink}">${post.comment_count} comments</a>
+                        <a href="#">save</a>
+                    </div>
+                </div>
+            </div>`;
+                        container.insertAdjacentHTML('beforeend', postHtml);
+                    });
+                }
+
+                // Initial call to render posts
+                renderPosts(categoryPosts);
+
+
             });
-
-
-
-
-
-
-        });
-
+        
 
     </script>
 
