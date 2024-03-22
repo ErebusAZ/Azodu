@@ -197,7 +197,7 @@
                     $communityLinks.empty(); // Clear existing categories
                     categories.forEach(function(category) {
                         // Assuming 'name' and 'permalink' are properties of the category
-                        const categoryLink = `<li><a href="/c/${category.permalink}">${category.name}</a></li>`;
+                        const categoryLink = `<li><a href="/c/${category.permalink}">/c/${category.name}</a></li>`;
                         $communityLinks.append(categoryLink);
                     });
                 },
