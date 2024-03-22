@@ -122,6 +122,22 @@ app.get('/p/:subreddit/:uniqueId/:title', async (req, res) => {
   }
 });
 
+
+
+app.get('/api/categories', async (req, res) => {
+  try {
+    const query = 'SELECT * FROM my_keyspace.categories';
+    const result = await client.execute(query);
+
+    // Send the result rows back as the response
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Failed to fetch categories:', error);
+    res.status(500).send('Failed to fetch categories');
+  }
+});
+
+
 app.post('/api/vote', async (req, res) => {
   const { post_id, upvote } = req.body; // `upvote` might be a string here
   const ip = req.ip;

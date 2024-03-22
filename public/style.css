@@ -488,6 +488,8 @@ label {
     font-size: 14px;
     display: block;
     margin-left: 20px;
+    clear: both; 
+    padding-top: 0; 
 }
 
 .hidden {

@@ -185,6 +185,34 @@
             // Initially load the default number of posts
             fetchAndDisplayPosts();
 
+
+
+            function fetchAndDisplayCategories() {
+            $.ajax({
+                url: '/api/categories',
+                type: 'GET',
+                success: function(categories) {
+                    console.log(categories); 
+                    const $communityLinks = $('.community-links');
+                    $communityLinks.empty(); // Clear existing categories
+                    categories.forEach(function(category) {
+                        // Assuming 'name' and 'permalink' are properties of the category
+                        const categoryLink = `<li><a href="${category.permalink}">${category.name}</a></li>`;
+                        $communityLinks.append(categoryLink);
+                    });
+                },
+                error: function(error) {
+                    console.error('Failed to fetch categories:', error);
+                }
+            });
+        }
+
+        fetchAndDisplayCategories();
+
+
+
+
+
             // Function to check if we're near the bottom of the page
             function nearBottomOfPage() {
                 return $(window).scrollTop() + $(window).height() > $(document).height() - 100;
@@ -350,23 +378,7 @@
 
         <h3 id="explore_heading">Communities</h3>
         <ul class="community-links">
-            <li><a href="#">Books</a></li>
-            <li><a href="#">News</a></li>
-            <li><a href="#">Politics</a></li>
-            <li><a href="#">Science</a></li>
-            <li><a href="#">Technology</a></li>
-            <li><a href="#">Music</a></li>
-            <li><a href="#">Art</a></li>
-            <li><a href="#">Movies</a></li>
-            <li><a href="#">Gaming</a></li>
-            <li><a href="#">Health</a></li>
-            <!-- Hidden links -->
-            <li class="hidden"><a href="#">Sports</a></li>
-            <li class="hidden"><a href="#">Travel</a></li>
-            <li class="hidden"><a href="#">Food</a></li>
-            <li class="hidden"><a href="#">Fashion</a></li>
-            <li class="hidden"><a href="#">Photography</a></li>
-            <li class="hidden"><a href="#">Photography</a></li>
+  
 
         </ul>
         <a href="#" class="show-more" id="showMoreBtn">Show more ...</a>
