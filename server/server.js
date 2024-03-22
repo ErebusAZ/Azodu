@@ -101,25 +101,35 @@ app.post('/submitCategory', async (req, res) => {
 
 app.get('/c/:permalink', async (req, res) => {
   let { permalink } = req.params;
-  permalink = '/c/' + permalink; 
-  const query = 'SELECT * FROM my_keyspace.categories WHERE permalink = ?';
+  const categoryQuery = 'SELECT * FROM my_keyspace.categories WHERE permalink = ?';
 
   try {
-      const result = await client.execute(query, [permalink], { prepare: true });
+      const categoryResult = await client.execute(categoryQuery, ['/c/' + permalink], { prepare: true });
 
-      if (result.rowLength > 0) {
+      if (categoryResult.rowLength > 0) {
           // Category exists
-          const category = result.first(); // Assuming we get one result since permalink is PRIMARY KEY
+          const category = categoryResult.first(); // Assuming we get one result since permalink is PRIMARY KEY
+
+          // Now, fetch related posts for this category
+          const postsQuery = 'SELECT * FROM my_keyspace.posts WHERE subreddit = ?';
+          const postsResult = await client.execute(postsQuery, ['/c/' + permalink], { prepare: true });
+          const posts = postsResult.rows;
+
+          // Attach the posts to the category object
+          category.posts = posts;
+
+          // Render the category view with the category and its posts
           res.render('category', { category: category });
       } else {
           // Category does not exist
           res.status(404).send('Category not found');
       }
   } catch (error) {
-      console.error('Error fetching category:', error);
+      console.error('Error fetching category and posts:', error);
       res.status(500).send('Internal Server Error');
   }
 });
+
 
 
 
@@ -148,29 +158,16 @@ app.get('/p/:subreddit/:uniqueId/:title', async (req, res) => {
 
 app.get('/api/categories', async (req, res) => {
   try {
-      const categoriesQuery = 'SELECT * FROM my_keyspace.categories';
-      const categoriesResult = await client.execute(categoriesQuery);
-      const categories = categoriesResult.rows;
+    const query = 'SELECT * FROM my_keyspace.categories';
+    const result = await client.execute(query);
 
-      // Initialize an array to hold promises for fetching posts for each category
-      const categoryPostPromises = categories.map(async (category) => {
-          const postsQuery = 'SELECT * FROM my_keyspace.posts WHERE subreddit = ?';
-          const postsResult = await client.execute(postsQuery, [category.name], { prepare: true });
-          // Attach the posts array to the category object
-          category.posts = postsResult.rows;
-          return category;
-      });
-
-      // Wait for all post-fetching promises to resolve
-      const categoriesWithPosts = await Promise.all(categoryPostPromises);
-
-      res.json(categoriesWithPosts);
+    // Send the result rows back as the response
+    res.json(result.rows);
   } catch (error) {
-      console.error('Failed to fetch categories and posts:', error);
-      res.status(500).send('Failed to fetch categories and posts');
+    console.error('Failed to fetch categories:', error);
+    res.status(500).send('Failed to fetch categories');
   }
 });
-
 
 
 
@@ -275,8 +272,8 @@ app.get('/api/posts', async (req, res) => {
 async function main() {
   try {
 
-  //     await flushAllTables(client,'my_keyspace'); 
-  //     await dropAllTables(client, 'my_keyspace'); 
+   //    await flushAllTables(client,'my_keyspace'); 
+   //   await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
