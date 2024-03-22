@@ -5,7 +5,7 @@ const uuid = require('uuid');
 const path = require('path');
 
 
-const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable } = require('./db/db_create');
+const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable } = require('./db/db_create');
 const { insertPostData, populateTestData, insertVote,insertCommentData,generateShortId } = require('./db/db_insert');
 const { fetchPostByPostID,fetchPostsAndCalculateVotes } = require('./db/db_query');
 
@@ -132,7 +132,7 @@ app.get('/api/posts', async (req, res) => {
 async function main() {
   try {
 
-    //   await flushAllTables(client,'my_keyspace'); 
+       await flushAllTables(client,'my_keyspace'); 
    //    await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
@@ -142,8 +142,9 @@ async function main() {
     await createCommentsTable(client);
     await createPostsTable(client);
     await createVotesTable(client);
+    await createCategoriesTable(client);
 
-    //  await populateTestData(client,50);
+      await populateTestData(client,50);
 
   } catch (error) {
     console.error('Error:', error);
