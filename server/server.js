@@ -55,7 +55,7 @@ app.post('/submitPost', async (req, res) => {
 
 
 function generateCategoryPermalink(title) {
-  const basePath = "/c/";
+  const basePath = "";
   const cleanedTitle = title
     .replace(/[^\w\s]/gi, '') // Remove non-alphanumeric characters except spaces
     .trim() // Remove leading and trailing spaces
@@ -104,7 +104,7 @@ app.get('/c/:permalink', async (req, res) => {
   const categoryQuery = 'SELECT * FROM my_keyspace.categories WHERE permalink = ?';
 
   try {
-      const categoryResult = await client.execute(categoryQuery, ['/c/' + permalink], { prepare: true });
+      const categoryResult = await client.execute(categoryQuery, [permalink], { prepare: true });
 
       if (categoryResult.rowLength > 0) {
           // Category exists
@@ -112,7 +112,7 @@ app.get('/c/:permalink', async (req, res) => {
 
           // Now, fetch related posts for this category
           const postsQuery = 'SELECT * FROM my_keyspace.posts WHERE category = ?';
-          const postsResult = await client.execute(postsQuery, ['/c/' + permalink], { prepare: true });
+          const postsResult = await client.execute(postsQuery, [permalink], { prepare: true });
           const posts = postsResult.rows;
 
           // Attach the posts to the category object
@@ -272,8 +272,8 @@ app.get('/api/posts', async (req, res) => {
 async function main() {
   try {
 
-    //   await flushAllTables(client,'my_keyspace'); 
-      await dropAllTables(client, 'my_keyspace'); 
+       await flushAllTables(client,'my_keyspace'); 
+   //   await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
