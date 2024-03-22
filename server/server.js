@@ -98,6 +98,23 @@ app.post('/submitCategory', async (req, res) => {
   }
 });
 
+function convertTimestampToDatePath(timestamp) {
+  const year = timestamp.substring(0, 4);
+  const month = timestamp.substring(4, 6);
+  const day = timestamp.substring(6, 8);
+  const hour = timestamp.substring(8, 10);
+  const minute = timestamp.substring(10, 12);
+  const second = timestamp.substring(12, 14);
+  const milliseconds = timestamp.substring(14);
+  return `${year}/${month}/${day}/${hour}${minute}${second}${milliseconds}`;
+}
+
+
+function convertDatePathToTimestamp(datePath) {
+  return datePath.replace(/\//g, '').replace(/(\d{4})(\d{2})(\d{2})\/(\d{6})(\d+)/, "$1$2$3$4$5");
+}
+
+
 
 app.get('/c/:permalink', async (req, res) => {
   let { permalink } = req.params;
@@ -272,8 +289,8 @@ app.get('/api/posts', async (req, res) => {
 async function main() {
   try {
 
-       await flushAllTables(client,'my_keyspace'); 
-   //   await dropAllTables(client, 'my_keyspace'); 
+   //    await flushAllTables(client,'my_keyspace'); 
+      await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
