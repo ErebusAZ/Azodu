@@ -268,29 +268,35 @@ app.listen(port, () => {
 });
 
 app.get('/api/posts', async (req, res) => {
+  let { startPostId, category } = req.query;
+  category = 'everything';
+  let params = [category];
+  let query = 'SELECT * FROM my_keyspace.posts WHERE category = ?';
+
+  if (startPostId) {
+    // Adjust the operator if necessary based on actual ordering and desired pagination direction
+    query += ' AND post_id < ?';
+    params.push(startPostId);
+  }
+
+  query += ' LIMIT 50';
+
   try {
-    if (Object.keys(postsVoteSummary).length > 0) {
-      res.json(Object.values(postsVoteSummary));
-    } else {
-      const query = 'SELECT * FROM my_keyspace.posts';
-      const result = await client.execute(query);
-      res.json(result.rows);
-      
-    }
-
-
+    const result = await client.execute(query, params, { prepare: true });
+    res.json(result.rows);
   } catch (error) {
-    console.error('Failed to fetch posts', error);
+    console.error('Failed to fetch posts:', error);
     res.status(500).send('Failed to fetch posts');
   }
 });
+
 
 
 async function main() {
   try {
 
    //    await flushAllTables(client,'my_keyspace'); 
-      await dropAllTables(client, 'my_keyspace'); 
+ //    await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
@@ -301,10 +307,10 @@ async function main() {
     await createVotesTable(client);
     await createCategoriesTable(client);
 
-    await populateTestData(client, 10);
+ //   await populateTestData(client, 100);
 
  
-    await createDefaultCategories(client,defaultCategories);
+ //   await createDefaultCategories(client,defaultCategories);
 
 
   } catch (error) {

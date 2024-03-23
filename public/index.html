@@ -108,18 +108,28 @@
             }
 
             var isFetching = false;
-            function fetchAndDisplayPosts() {
 
-                if (isFetching)
-                    return;
+            let lastPostId = null; // Keeps track of the last post ID fetched
+
+            function fetchAndDisplayPosts() {
+                if (isFetching) return;
                 isFetching = true;
+
+                // Include the lastPostId in the request if available
+                console.log(lastPostId); 
+                const url = lastPostId ? `/api/posts?startPostId=${lastPostId}` : '/api/posts';
+
                 $.ajax({
-                    url: '/api/posts',
+                    url: url,
                     type: 'GET',
                     success: function (posts) {
                         console.log(posts);
-
                         isFetching = false;
+
+                        if (posts.length > 0) {
+                            // Update lastPostId with the ID of the last post in the fetched array
+                            lastPostId = posts[posts.length - 1].post_id;
+                        }
 
                         $('.container .post.skeleton').each(function () {
 
@@ -141,36 +151,38 @@
 
                             const postHtml = `
 <div class="post" data-postId="${post.post_id}">
-    <div class="voting">
-        
-        <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${post.post_id}"><img src="/img/up-arrow.svg" alt="Upvote"></a>
-        <span class="votes">${post.upvotes - post.downvotes}</span>
+<div class="voting">
+
+<a title="upvote" description="upvote" href="#" class="upvote" data-postid="${post.post_id}"><img src="/img/up-arrow.svg" alt="Upvote"></a>
+<span class="votes">${post.upvotes - post.downvotes}</span>
 <a title="downvote" description="downvote" href="#" class="downvote" data-postid="${post.post_id}"><img src="/img/down-arrow.svg" alt="Downvote"></a>
 
 
 
 
-    </div>
-    <div class="thumbnail"></div>
-    <div class="content">${link} <p class="post-description">${post.post_type === 'text' ? post.content : 'Click the title to visit the linked content.'}</p>
-        <p class="post-submitted">submitted ${timeAgo(post.timestamp)} by <a href="#">${post.author}</a> to <a href="/c/${post.category}">${post.category}</a></p>
-        <div class="post-links">
-            <a href="${post.permalink}">${post.comment_count} comments</a>
-            <a href="#">save</a>
-        </div>
-        ${contentDisplay}
+</div>
+<div class="thumbnail"></div>
+<div class="content">${link} <p class="post-description">${post.post_type === 'text' ? post.content : 'Click the title to visit the linked content.'}</p>
+<p class="post-submitted">submitted ${timeAgo(post.timestamp)} by <a href="#">${post.author}</a> to <a href="/c/${post.category}">${post.category}</a></p>
+<div class="post-links">
+<a href="${post.permalink}">${post.comment_count} comments</a>
+<a href="#">save</a>
+</div>
+${contentDisplay}
 
-    </div>
+</div>
 </div>`;
                             $('.container').append(postHtml);
 
                         });
+
                     },
                     error: function (error) {
                         console.error('Failed to fetch posts:', error);
                     }
                 });
             }
+            
 
             // JavaScript for toggling the display of the content
             $('.container').on('click', '.open-content', function () {
