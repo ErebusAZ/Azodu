@@ -156,6 +156,14 @@ app.get('/submit-category/', async (req, res) => {
 
 }); 
 
+app.get('/submit-post/', async (req, res) => {
+
+
+  res.render('submitPost');
+
+
+}); 
+
 
 app.get('/p/:category/:uniqueId/:title', async (req, res) => {
   const { category, uniqueId, title } = req.params;
