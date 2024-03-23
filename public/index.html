@@ -130,9 +130,9 @@
                             // Update lastPostId with the ID of the last post in the fetched array
                             lastPostId = posts[posts.length - 1].post_id;
 
-                            if(currentPage > 1) {
-                            const pageDividerHtml = `<div style="clear:both;"></div><div class="page-divider">Page ${currentPage}</div>`;
-      $('.container').append(pageDividerHtml);
+                            if (currentPage > 1) {
+                                const pageDividerHtml = `<div style="clear:both;"></div><div class="page-divider">Page ${currentPage}</div>`;
+                                $('.container').append(pageDividerHtml);
                             }
 
                             currentPage++;
@@ -190,7 +190,7 @@ ${contentDisplay}
                     }
                 });
             }
-            
+
 
             // JavaScript for toggling the display of the content
             $('.container').on('click', '.open-content', function () {
@@ -208,26 +208,26 @@ ${contentDisplay}
 
 
             function fetchAndDisplayCategories() {
-            $.ajax({
-                url: '/api/categories',
-                type: 'GET',
-                success: function(categories) {
-                    console.log(categories); 
-                    const $communityLinks = $('.community-links');
-                    $communityLinks.empty(); // Clear existing categories
-                    categories.forEach(function(category) {
-                        // Assuming 'name' and 'permalink' are properties of the category
-                        const categoryLink = `<li><a href="/c/${category.permalink}">/c/${category.permalink}</a></li>`;
-                        $communityLinks.append(categoryLink);
-                    });
-                },
-                error: function(error) {
-                    console.error('Failed to fetch categories:', error);
-                }
-            });
-        }
+                $.ajax({
+                    url: '/api/categories',
+                    type: 'GET',
+                    success: function (categories) {
+                        console.log(categories);
+                        const $communityLinks = $('.community-links');
+                        $communityLinks.empty(); // Clear existing categories
+                        categories.forEach(function (category) {
+                            // Assuming 'name' and 'permalink' are properties of the category
+                            const categoryLink = `<li><a href="/c/${category.permalink}">/c/${category.permalink}</a></li>`;
+                            $communityLinks.append(categoryLink);
+                        });
+                    },
+                    error: function (error) {
+                        console.error('Failed to fetch categories:', error);
+                    }
+                });
+            }
 
-        fetchAndDisplayCategories();
+            fetchAndDisplayCategories();
 
 
 
@@ -251,7 +251,7 @@ ${contentDisplay}
                 $(this).hide();
             });
 
-       
+
 
             $('.container').on('click', '.upvote, .downvote', function (event) {
                 event.preventDefault();
@@ -362,15 +362,16 @@ ${contentDisplay}
 
 
     <div id="sidebar_container">
-    <div class="sidebar">
+        <div class="sidebar">
 
 
 
-        <a href="submit.html" style="margin-bottom: 20px; display: block;"><button class="sidebar_button" type="button">Submit a post</button></a>
+            <a href="submit.html" style="margin-bottom: 20px; display: block;"><button class="sidebar_button"
+                    type="button">Submit a post</button></a>
 
-        <a href="submit_category.html"><button class="sidebar_button" type="button">Submit a category</button></a>
+            <a href="submit_category.html"><button class="sidebar_button" type="button">Submit a category</button></a>
 
-        <!--
+            <!--
         <p style="margin-top:0;">Register an account</p>
         <form class="login-form">
             <input type="text" id="username" placeholder="username" required>
@@ -386,28 +387,31 @@ ${contentDisplay}
     -->
 
 
-    </div>
-
-    <div id="explore_sidebar">
-
-        <div id="rights"><i class="fas fa-scroll"></i><span id="rights_span"><a href="#">Read your rights</a></span>
         </div>
-        <div id="rules"><i class="fas fa-gavel"></i><span id="rules_span"><a href="#">Read the rules</a></span></div>
+
+        <div id="explore_sidebar">
+
+            <div id="rights"><i class="fas fa-scroll"></i><span id="rights_span"><a href="#">Read your rights</a></span>
+            </div>
+            <div id="rules"><i class="fas fa-gavel"></i><span id="rules_span"><a href="#">Read the rules</a></span>
+            </div>
 
 
 
-        <h3 id="explore_heading">Communities</h3>
-        <ul class="community-links">
-  
+            <h3 id="explore_heading">Communities</h3>
+            <ul class="community-links">
 
-        </ul>
-        <a href="#" class="show-more" id="showMoreBtn">Show more ...</a>
+
+            </ul>
+            <a href="#" class="show-more" id="showMoreBtn">Show more ...</a>
+
+        </div>
+
+
+
 
     </div>
-
-</div>
-    </div>
-
+   
 
 </body>
 
