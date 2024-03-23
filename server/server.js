@@ -47,7 +47,8 @@ app.post('/submitPost', async (req, res) => {
   const { title, category, postType, contentText, contentUrl } = req.body;
   const content = postType === 'text' ? contentText : contentUrl;
 
-  await insertPostData(client, title, 'bobert', category, postType, content);
+
+  await insertPostData(client, title, 'bobert', category, postType, processHTMLFromUsers(content));
 
   // Redirect to home or any other page after submission
   res.redirect('/'); // Adjust the redirect URL as needed
@@ -87,8 +88,7 @@ app.post('/submitCategory', async (req, res) => {
         INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created)
         VALUES (?, ?, ?, ?, toTimestamp(now()));
       `;
-      console.log(permalink, name, creator, description); 
-      await client.execute(insertQuery, [permalink, name, creator, description], { prepare: true });
+      await client.execute(insertQuery, [permalink, name, creator, processHTMLFromUsers(description)], { prepare: true });
       console.log('Category created successfully');
       res.redirect('/'); // Adjust the redirect as needed
     }
@@ -235,6 +235,15 @@ function removeAllAttributes(html) {
   return cleanHtml;
 }
 
+function processHTMLFromUsers(content) {
+
+  content = cleanHtmlContent(content);
+  content = removeDangerousTags(content); 
+  content = removeAllAttributes(content); 
+
+  return content; 
+}
+
 
 
 
@@ -243,14 +252,9 @@ app.post('/api/comment', async (req, res) => {
   const author = 'username'; // This should ideally come from session or authentication mechanism
   const commentId = generatePostIdTimestamp(); // Generate a unique comment ID
 
-  // Clean the content of empty HTML tags
-  content = cleanHtmlContent(content);
-  content = removeDangerousTags(content); 
-  content = removeAllAttributes(content); 
-
  
   try {
-    await insertCommentData(client, commentId, post_id.toString(), author, parent_id.toString() || post_id.toString(), 'text', content, 0, 0, '/comments/' + commentId, new Date());
+    await insertCommentData(client, commentId, post_id.toString(), author, parent_id.toString() || post_id.toString(), 'text', processHTMLFromUsers(content), 0, 0, '/comments/' + commentId, new Date());
     res.json({ message: 'Comment added successfully.', commentId: commentId });
   } catch (error) {
     console.error('Error inserting comment:', error);
