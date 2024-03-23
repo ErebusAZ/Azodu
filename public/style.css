@@ -754,6 +754,7 @@ text-decoration: underline;
     align-items: center;
     margin-right: 10px;
     float: left;
+    min-width: 34px;
 }
 
 .voting a, .voting .votes {
@@ -1012,6 +1013,7 @@ i.fas.fa-scroll, i.fas.fa-gavel {
     width: 60%;
     height: 20px;
     margin-top: 3px !important;
+    margin-left: 10px !important;
 }
 
 /*
@@ -1024,10 +1026,7 @@ i.fas.fa-scroll, i.fas.fa-gavel {
     margin-left: 120px;
 }
 
-.skeleton .post-links {
-
-    margin-left: 0;
-}
+.skeleton .post-links {margin-left: 10px;}
 
 
 
