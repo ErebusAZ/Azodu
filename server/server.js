@@ -148,7 +148,13 @@ app.get('/c/:permalink', async (req, res) => {
 });
 
 
+app.get('/submit-category/', async (req, res) => {
 
+
+  res.render('submitCategory');
+
+
+}); 
 
 
 app.get('/p/:category/:uniqueId/:title', async (req, res) => {
