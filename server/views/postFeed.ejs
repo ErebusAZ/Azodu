@@ -113,6 +113,17 @@
             $('.container').append(skeletonHTML);
         }
 
+
+        function getCategoryFromCurrentUrl() {
+            const pathSegments = window.location.pathname.split('/').filter(Boolean); // Split by '/', remove empty segments
+            const cIndex = pathSegments.findIndex(segment => segment === 'c'); // Find index of 'c'
+            if (cIndex !== -1 && cIndex + 1 < pathSegments.length) {
+                return pathSegments[cIndex + 1]; // Return the segment after 'c'
+            }
+            return null; // Return null if 'c' is not found or there is no segment after 'c'
+        }
+        
+
         var isFetching = false;
 
         let lastPostId = null; // Keeps track of the last post ID fetched
@@ -121,9 +132,11 @@
         function fetchAndDisplayPosts() {
             if (isFetching) return;
             isFetching = true;
-
+            const cat = getCategoryFromCurrentUrl();
             // Include the lastPostId in the request if available
-            const url = lastPostId ? `/api/posts?startPostId=${lastPostId}` : '/api/posts';
+            const url = (lastPostId ? `/api/posts?startPostId=${lastPostId}&category=` + cat : '/api/posts?category=' + cat);
+
+
 
             $.ajax({
                 url: url,

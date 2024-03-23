@@ -300,7 +300,7 @@ app.listen(port, () => {
 
 app.get('/api/posts', async (req, res) => {
   let { startPostId, category } = req.query;
-  category = 'everything';
+  category = (category && category != 'null' && category != undefined ? category : category = 'everything');
   let params = [category];
   let query = 'SELECT * FROM my_keyspace.posts WHERE category = ?';
 
