@@ -149,25 +149,7 @@ function timeAgo(dateString) {
 </head>
 
 <body>
-    <div class="container">
-        <a href="/"><img id="logo_blink1" src="/branding/blink1.png" /></a>
-        <div style="clear:both;"></div>
-
-        <div class="sort-container">
-            <select id="sort-by" name="sort-by">
-                <option value="top">Top</option>
-                <option value="new" selected>Latest</option>
-                <option value="hot">Hot</option>
-            </select>
-        </div>
-
-   
-
-
-
-
-    </div>
-
+    <%- include('postFeed') %>
 
   
     <%- include('sidebar') %>
