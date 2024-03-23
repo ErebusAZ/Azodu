@@ -248,9 +248,9 @@ app.post('/api/comment', async (req, res) => {
   content = removeDangerousTags(content); 
   content = removeAllAttributes(content); 
 
-  console.log(content);
+ 
   try {
-    await insertCommentData(client, commentId, post_id, author, parent_id || post_id, 'text', content, 0, 0, '/comments/' + commentId, new Date());
+    await insertCommentData(client, commentId, post_id.toString(), author, parent_id.toString() || post_id.toString(), 'text', content, 0, 0, '/comments/' + commentId, new Date());
     res.json({ message: 'Comment added successfully.', commentId: commentId });
   } catch (error) {
     console.error('Error inserting comment:', error);
