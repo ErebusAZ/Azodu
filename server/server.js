@@ -128,7 +128,7 @@ app.get('/c/:permalink', async (req, res) => {
           const category = categoryResult.first(); // Assuming we get one result since permalink is PRIMARY KEY
 
           // Now, fetch related posts for this category
-          const postsQuery = 'SELECT * FROM my_keyspace.posts WHERE category = ?';
+          const postsQuery = 'SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT 30';
           const postsResult = await client.execute(postsQuery, [permalink], { prepare: true });
           const posts = postsResult.rows;
 
@@ -279,7 +279,7 @@ app.get('/api/posts', async (req, res) => {
     params.push(startPostId);
   }
 
-  query += ' LIMIT 50';
+  query += ' LIMIT 30';
 
   try {
     const result = await client.execute(query, params, { prepare: true });
