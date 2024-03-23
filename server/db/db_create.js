@@ -101,6 +101,33 @@ async function createVotesTable(client) {
 }
 
 
+async function createDefaultCategories(client,defaultCategories) {
+  const queryInsertCategory = `
+    INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created, moderators, isDefault)
+    VALUES (?, ?, ?, ?, toTimestamp(now()), ?, ?) IF NOT EXISTS;
+  `;
+
+  // Loop through the defaultCategories array
+  for (const categoryName of defaultCategories) {
+    const permalink = categoryName.toLowerCase();
+    // Setting some default values for creator, description, and moderators
+    // You might want to adjust these based on your application's needs
+    const creator = "system";
+    const description = "Default category created by the system";
+    const moderators = ""; // Assuming moderators are stored as a text type, adjust accordingly
+    const isDefault = true;
+
+    try {
+      await client.execute(queryInsertCategory, [permalink, categoryName, creator, description, moderators, isDefault], { prepare: true });
+      console.log(`Default category '${categoryName}' ensured.`);
+    } catch (error) {
+      console.error(`Error ensuring default category '${categoryName}':`, error);
+    }
+  }
+}
+
+
+
 async function flushAllTables(client, keyspace) {
   try {
     // Retrieve all table names within the keyspace
@@ -142,4 +169,4 @@ async function dropAllTables(client, keyspace) {
 }
 
 
-module.exports = { createKeyspace, createUsersTable,createCommentsTable,createPostsTable,flushAllTables,dropAllTables,createVotesTable,createCategoriesTable };
+module.exports = { createKeyspace, createUsersTable,createCommentsTable,createPostsTable,flushAllTables,dropAllTables,createVotesTable,createCategoriesTable,createDefaultCategories };

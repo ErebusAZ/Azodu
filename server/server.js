@@ -5,7 +5,7 @@ const uuid = require('uuid');
 const path = require('path');
 
 
-const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable } = require('./db/db_create');
+const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories } = require('./db/db_create');
 const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData } = require('./db/db_insert');
 const { fetchPostByPostID,fetchPostsAndCalculateVotes } = require('./db/db_query');
 
@@ -31,7 +31,7 @@ const client = new cassandra.Client({
 
 let postsVoteSummary = {};
 const updateInterval = 10 * 1000; // how quickly to fetch all posts and update votes
-
+const defaultCategories = ["everything"];
 
 
 setInterval(() => {
@@ -301,7 +301,11 @@ async function main() {
     await createVotesTable(client);
     await createCategoriesTable(client);
 
-      await populateTestData(client,10);
+    await populateTestData(client, 10);
+
+ 
+    await createDefaultCategories(client,defaultCategories);
+
 
   } catch (error) {
     console.error('Error:', error);
