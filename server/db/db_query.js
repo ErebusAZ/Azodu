@@ -51,6 +51,7 @@ async function fetchPostsAndCalculateVotes(client, category, postsVoteSummary, u
     const posts = await client.execute(fetchPostsQuery, [category], { prepare: true });
 
     for (const post of posts.rows) {
+      // Fetch votes
       const fetchVotesQuery = `SELECT is_upvote FROM my_keyspace.votes WHERE post_id = ?`;
       const votes = await client.execute(fetchVotesQuery, [post.post_id], { prepare: true });
 
@@ -61,26 +62,32 @@ async function fetchPostsAndCalculateVotes(client, category, postsVoteSummary, u
         else downvotes++;
       });
 
+      // Fetch comments count for the post
+      const fetchCommentsCountQuery = `SELECT COUNT(*) AS comment_count FROM my_keyspace.comments WHERE post_id = ?`;
+      const commentsCountResult = await client.execute(fetchCommentsCountQuery, [post.post_id], { prepare: true });
+      const commentCount = commentsCountResult.first()['comment_count'] || 0;
+
       // Update the in-memory postsVoteSummary object
       postsVoteSummary[post.post_id] = {
         ...post,
         upvotes: upvotes,
         downvotes: downvotes,
-        total_votes: upvotes - downvotes
+        total_votes: upvotes - downvotes,
+        comment_count: commentCount, // Add comment count to summary
       };
 
       // Optionally update the database
       if (updateDb) {
         const updatePostQuery = `
           UPDATE my_keyspace.posts
-          SET upvotes = ?, downvotes = ?
+          SET upvotes = ?, downvotes = ?, comment_count = ?
           WHERE category = ? AND post_id = ?;
         `;
-        await client.execute(updatePostQuery, [upvotes, downvotes, category, post.post_id], { prepare: true });
+        await client.execute(updatePostQuery, [upvotes, downvotes, commentCount, category, post.post_id], { prepare: true });
       }
     }
 
-   // console.log(`Posts and vote summary updated for category: ${category}.`);
+    // console.log(`Posts and vote summary updated for category: ${category}.`);
   } catch (error) {
     console.error(`Error fetching posts and calculating votes for category: ${category}`, error);
   }
