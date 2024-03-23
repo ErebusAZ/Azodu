@@ -80,7 +80,7 @@ async function fetchPostsAndCalculateVotes(client, category, postsVoteSummary, u
       }
     }
 
-    console.log(`Posts and vote summary updated for category: ${category}.`);
+   // console.log(`Posts and vote summary updated for category: ${category}.`);
   } catch (error) {
     console.error(`Error fetching posts and calculating votes for category: ${category}`, error);
   }
