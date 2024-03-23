@@ -2,149 +2,161 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>blink.ink</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>blink.ink</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 
-    <!-- Include stylesheet -->
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <!-- Include the Quill library -->
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <!-- Include stylesheet -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <!-- Include the Quill library -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
 
 
-    <link rel="apple-touch-icon" sizes="180x180" href="branding/fav/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="branding/fav/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="branding/fav/favicon-16x16.png">
-    <link rel="manifest" href="branding/fav/site.webmanifest">
-    <link rel="mask-icon" href="branding/fav/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="apple-touch-icon" sizes="180x180" href="branding/fav/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="branding/fav/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="branding/fav/favicon-16x16.png">
+  <link rel="manifest" href="branding/fav/site.webmanifest">
+  <link rel="mask-icon" href="branding/fav/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-    <script>
-      function togglePostContentField() {
-        var postType = document.getElementById('postType').value;
-        if (postType === 'text') {
-          document.getElementById('textContent').style.display = '';
-          document.getElementById('urlContent').style.display = 'none';
-        } else {
-          document.getElementById('textContent').style.display = 'none';
-          document.getElementById('urlContent').style.display = '';
-        }
+  <script>
+    function togglePostContentField() {
+      var postType = document.getElementById('postType').value;
+      if (postType === 'text') {
+        document.getElementById('textContent').style.display = '';
+        document.getElementById('urlContent').style.display = 'none';
+      } else {
+        document.getElementById('textContent').style.display = 'none';
+        document.getElementById('urlContent').style.display = '';
+      }
+    }
+
+
+    $(document).ready(function () {
+      // Fetch and display categories in the select dropdown
+      function fetchAndPopulateCategories() {
+        $.ajax({
+          url: '/api/categories',
+          type: 'GET',
+          success: function (categories) {
+            const $categorySelect = $('#category');
+            $categorySelect.empty(); // Clear existing options
+
+            categories.forEach(function (category) {
+              // Append category as an option
+              // Use the permalink as the value to be submitted with the form
+              const option = $('<option></option>').val(category.permalink).text(category.name);
+              $categorySelect.append(option);
+            });
+          },
+          error: function (error) {
+            console.error('Failed to fetch categories:', error);
+          }
+        });
       }
 
 
-      $(document).ready(function () {
-        // Fetch and display categories in the select dropdown
-        function fetchAndPopulateCategories() {
-          $.ajax({
-            url: '/api/categories',
-            type: 'GET',
-            success: function (categories) {
-              const $categorySelect = $('#category');
-              $categorySelect.empty(); // Clear existing options
 
-              categories.forEach(function (category) {
-                // Append category as an option
-                // Use the permalink as the value to be submitted with the form
-                const option = $('<option></option>').val(category.permalink).text(category.name);
-                $categorySelect.append(option);
-              });
-            },
-            error: function (error) {
-              console.error('Failed to fetch categories:', error);
-            }
-          });
-        }
+      // Load categories when the document is ready
+      fetchAndPopulateCategories();
+    });
 
 
 
-        // Load categories when the document is ready
-        fetchAndPopulateCategories();
-      });
-
-
-
-    </script>
+  </script>
 
 
 </head>
 
 <body id="submit_post_page">
-    <div class="container">
+  <div class="container">
 
-      <a href="/"><img id="logo_blink1" src="branding/blink1.png" /></a>
-
-
-     
-        <div class="submission-form">
-            <form action="/submitPost" method="POST">
-                <h2>Submit a new post</h2>
-
-              <label for="postType">Post type:</label>
-              <select id="postType" name="postType" onchange="togglePostContentField()">
-                <option value="text">Text</option>
-                <option value="url">URL</option>
-              </select>
-
-              <label for="category">Category:</label>
-              <select id="category" name="category" required>
-                  <option value="">Select a category...</option>
-                  <!-- Options will be added here by the JavaScript -->
-              </select>
-              
-
-
-              <label for="postTitle">Title:</label>
-              <input type="text" id="postTitle" name="title" placeholder="Enter post title" required>
-              
-              
-              <div id="submit_post_text" class="contentField">
-                <textarea id="postContentText" name="contentText" placeholder="Enter text (optional)"></textarea>
-              
-              </div>
-              
-              <div id="urlContent" class="contentField" style="display: none;">
-                <label for="postContentUrl">URL:</label>
-                <input type="url" id="postContentUrl" name="contentUrl" placeholder="Enter URL (optional)">
-              </div>
-              
-              
-              <button type="submit">Submit</button>
-            </form>
-          </div>
-          
-   
+    <a href="/"><img id="logo_blink1" src="branding/blink1.png" /></a>
 
 
 
+    <div class="submission-form">
+      <form action="/submitPost" method="POST">
 
-    </div>
+        <h2>Submit a new post</h2>
 
-    <div class="sidebar">
-    
+        <label for="postType">Post type:</label>
+        <select id="postType" name="postType" onchange="togglePostContentField()">
+          <option value="text">Text</option>
+          <option value="url">URL</option>
+        </select>
+
+        <label for="category">Category:</label>
+        <select id="category" name="category" required>
+          <option value="">Select a category...</option>
+          <!-- Options will be added here by the JavaScript -->
+        </select>
 
 
+
+        <label for="postTitle">Title:</label>
+        <input type="text" id="postTitle" name="title" placeholder="Enter post title" required>
+
+
+        <div id="submit_post_text" class="contentField">
+          <textarea id="postContentText" name="contentText" placeholder="Enter text (optional)"></textarea>
+
+        </div>
+
+        <div id="urlContent" class="contentField" style="display: none;">
+          <label for="postContentUrl">URL:</label>
+          <input type="url" id="postContentUrl" name="contentUrl" placeholder="Enter URL (optional)">
+        </div>
+
+        <input type="hidden" id="quillContentText" name="contentText">
+
+        <button type="submit">Submit</button>
+
+      </form>
     </div>
 
 
-    <script>
-      new Quill('#submit_post_text', {
-          modules: {
-              toolbar: [
-                  ['bold', 'italic', 'underline', 'strike', 'blockquote'],        // grouped buttons
-                  [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                  ['link']  // links and image embed buttons
-              ]
-          },
-          theme: 'snow', // Specify theme in configuration
-          placeholder: 'Enter text (optional)',
 
-      });
+
+
+
+  </div>
+
+  <div class="sidebar">
+
+
+
+  </div>
+
+
+  <script>
+    var quill = new Quill('#submit_post_text', {
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline', 'strike', 'blockquote'], // grouped buttons
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+          ['link'] // links and image embed buttons
+        ]
+      },
+      theme: 'snow',
+      placeholder: 'Enter text (optional)',
+    });
+
+
+    document.querySelector('form').addEventListener('submit', function (e) {
+      var html = quill.root.innerHTML;
+      console.log(html); // Debug: what does Quill give us at this point?
+      document.getElementById('quillContentText').value = html;
+    });
+
+
+
   </script>
 
 </body>
