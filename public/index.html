@@ -131,7 +131,7 @@
                             lastPostId = posts[posts.length - 1].post_id;
 
                             if(currentPage > 1) {
-                            const pageDividerHtml = `<div class="page-divider">Page ${currentPage}</div>`;
+                            const pageDividerHtml = `<div style="clear:both;"></div><div class="page-divider">Page ${currentPage}</div>`;
       $('.container').append(pageDividerHtml);
                             }
 
