@@ -42,16 +42,13 @@
         <form action="/submitCategory" method="POST">
             <h2>Create a new category</h2>
 
-            <label for="categoryName">Name:</label>
             <input type="text" id="categoryName" name="name" placeholder="Enter category name" required>
 
-            <label for="suggestedPermalink">Link:</label>
-            <input type="text" id="suggestedPermalink" name="suggestedPermalink" placeholder="" oninput="generateCategoryPermalink()" required>
+            <input type="text" id="suggestedPermalink" name="suggestedPermalink" placeholder="Enter a link" oninput="generateCategoryPermalink()" required>
             
             <p id="displayPermalink">/c/</p>
             <input type="hidden" id="finalPermalink" name="permalink">
 
-            <label for="categoryDescription">Description:</label>
             <div id="categoryDescription" class="contentField">
                 <textarea id="categoryDescText" name="description" placeholder="Describe the category (optional)"></textarea>
             </div>
