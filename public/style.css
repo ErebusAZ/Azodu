@@ -783,6 +783,8 @@ text-decoration: underline;
 /* Submission page */
 
 
+
+
 #displayPermalink {
 background-color: #1a1a1a;
     display: inline-block;
@@ -807,6 +809,10 @@ margin-top: 20px !important;
 
 .submitCategoryPage .submission-form {
     padding: 50px 50px;
+}
+
+.submitCategoryPage .container,#submit_post_page .container  {
+width: 100%; 
 }
 
 
