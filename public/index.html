@@ -110,13 +110,13 @@
             var isFetching = false;
 
             let lastPostId = null; // Keeps track of the last post ID fetched
+            var currentPage = 1; // Initialize current page
 
             function fetchAndDisplayPosts() {
                 if (isFetching) return;
                 isFetching = true;
 
                 // Include the lastPostId in the request if available
-                console.log(lastPostId); 
                 const url = lastPostId ? `/api/posts?startPostId=${lastPostId}` : '/api/posts';
 
                 $.ajax({
@@ -129,6 +129,14 @@
                         if (posts.length > 0) {
                             // Update lastPostId with the ID of the last post in the fetched array
                             lastPostId = posts[posts.length - 1].post_id;
+
+                            if(currentPage > 1) {
+                            const pageDividerHtml = `<div class="page-divider">Page ${currentPage}</div>`;
+      $('.container').append(pageDividerHtml);
+                            }
+
+                            currentPage++;
+
                         }
 
                         $('.container .post.skeleton').each(function () {
