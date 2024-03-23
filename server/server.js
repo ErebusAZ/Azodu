@@ -260,6 +260,10 @@ function removeAllAttributes(html) {
 
 function processHTMLFromUsers(content) {
 
+  if ((content == undefined) || content == '') {
+    return content;  
+  }
+
   content = cleanHtmlContent(content);
   content = removeDangerousTags(content); 
   content = removeAllAttributes(content); 
