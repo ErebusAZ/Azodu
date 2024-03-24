@@ -349,21 +349,41 @@
                 $commentContent.find('.comment-text, .edit').hide();
                 $commentLinks.hide();
 
-                // Append a new Quill editor container
-                const quillContainer = $('<div>').addClass('quill-editing').appendTo($commentContent);
+
+
+                // Determine the current background color of the comment
+                const currentBgColor = $comment.css('background-color');
+                // Alternate background colors
+                const bgColor1 = 'rgb(38, 38, 38)'; // #262626
+                const bgColor2 = 'rgb(45, 45, 45)'; // #2d2d2d
+                // Determine the new background color
+                const newBgColor = currentBgColor === bgColor1 ? bgColor2 : bgColor1;
+
+                // Remove any existing Quill editors to prevent duplicates
+                $commentContent.find('.quill-editing').remove();
+                $commentContent.find('.comment-text, .edit').hide();
+
+                // Append a Quill editor container
+                const quillContainer = $('<div>').addClass('quill-editing ql-container ql-snow').appendTo($commentContent);
 
                 // Initialize Quill on the new container
                 const quillEditor = new Quill(quillContainer.get(0), {
-                    theme: 'snow', // Your Quill configuration
+                    theme: 'snow',
                     modules: {
                         toolbar: [
-                            ['bold', 'italic', 'underline', 'strike', 'blockquote'],        // grouped buttons
+                            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
                             [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                            ['link']  // links and image embed buttons
+                            ['link']
                         ]
                     },
                 });
+
+
                 quillEditor.root.innerHTML = originalContentHtml;
+
+                // Apply the determined background color directly to the '.ql-editor' inside the Quill container
+                $(quillEditor.root).css('background-color', newBgColor);
+
 
                 // Append Save and Cancel buttons
                 const actionsHtml = `
