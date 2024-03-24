@@ -260,16 +260,27 @@ function removeAllAttributesExceptLinks(html) {
 }
 
 function processHTMLFromUsers(content) {
-
-  if ((content == undefined) || content == '') {
-    return content;  
+  if (!content) {
+    return content;
   }
 
+  // Step 1: Clean the content (if needed, like removing &nbsp; or empty tags)
   content = cleanHtmlContent(content);
-  content = removeDangerousTags(content); 
-  content = removeAllAttributesExceptLinks(content); // Modified to preserve links
+  
+  // Step 2: Remove dangerous tags like <script>
+  content = removeDangerousTags(content);
 
-  return content; 
+  // Step 3: Keep only <a> tags with href and optionally target="_blank", remove all other attributes
+  content = content.replace(/<a\b[^>]*>/gi, function(match) {
+    const hrefMatch = match.match(/\bhref="[^"]*"/i);
+    const targetMatch = match.match(/\btarget="_blank"/i);
+    return `<a ${hrefMatch ? hrefMatch[0] : ''} ${targetMatch ? targetMatch[0] : ''}>`;
+  });
+
+  // Step 4: Remove attributes from all other tags
+  content = removeAllAttributesExceptLinks(content);
+
+  return content;
 }
 
 
