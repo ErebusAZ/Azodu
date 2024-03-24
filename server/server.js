@@ -234,7 +234,8 @@ function cleanHtmlContent(content) {
   content = content.replace(/&nbsp;/gi, ' ');
 
   // trim leading and trailing spaces
-  content = content.replace(/(>)[\s]+/g, '$1').replace(/[\s]+(<)/g, '$1');
+  // causes spaces removed around links
+ // content = content.replace(/(>)[\s]+/g, '$1').replace(/[\s]+(<)/g, '$1');
 
   // This regex removes tags that contain only whitespace or a single <br> tag, in addition to entirely empty tags
   return content.replace(/<(\w+)(?:\s+[^>]*)?>\s*(<br\s*\/?>)?\s*<\/\1>/g, '');
