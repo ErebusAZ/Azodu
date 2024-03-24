@@ -227,7 +227,10 @@
                     contentType: 'application/json',
                     data: JSON.stringify({ post_id: truePostId, content: commentContent, parent_id: post_id }),
                     success: function (response) {
-                        var commentHTML = getCommentHtml(post_id, 'test', commentContent, depth,1); // Assuming your getCommentHtml can handle these parameters
+
+                        const newCommentID = response.commentId;
+
+                        var commentHTML = getCommentHtml(newCommentID, 'test', commentContent, depth,1); // Assuming your getCommentHtml can handle these parameters
                         // Inserting the comment in the correct position
                         if (post_id == truePostId) {
                             $('.comments').prepend(commentHTML); // Add to the start for top-level comments
