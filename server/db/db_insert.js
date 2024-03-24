@@ -94,7 +94,7 @@ async function updateCommentData(client, comment_id, newContent, post_id) {
     UPDATE my_keyspace.comments
     SET content = ?
     WHERE comment_id = ? AND post_id = ?`;
-  await client.execute(query, [newContent, comment_id, post_id], { prepare: true });
+  await client.execute(query, [newContent, comment_id.toString(), post_id.toString()], { prepare: true });
 
   console.log('Comment updated. ID is ' + comment_id + ' for post ID ' + post_id);
 }
