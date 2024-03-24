@@ -154,6 +154,7 @@ label {
     border-radius: 5px;
     margin-top: 20px;
     margin-bottom: 30px;
+    display: none; 
 }
 
 .post-submitted {
