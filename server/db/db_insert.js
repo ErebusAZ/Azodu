@@ -152,7 +152,26 @@ async function insertVote(client, post_id, isUpvote, ip) {
 }
 
 
+async function tallyVotesForComment(client, post_id, comment_id,) {
+  // Assume entityId is comment_id for comments and post_id for posts
+  const votesQuery = `SELECT is_upvote FROM my_keyspace.votes WHERE post_id = ?`;
+  const votesResult = await client.execute(votesQuery, [comment_id], { prepare: true });
+  const votes = votesResult.rows;
+
+  let upvotes = 0;
+  let downvotes = 0;
+  votes.forEach(vote => {
+    vote.is_upvote ? upvotes++ : downvotes++;
+  });
+
+  const updateQuery = `UPDATE my_keyspace.comments SET upvotes = ?, downvotes = ? WHERE post_id = ? AND comment_id = ?`;
+  await client.execute(updateQuery, [upvotes, downvotes, post_id, comment_id], { prepare: true });
+
+ // console.log(`Updated votes for entity ${comment_id}: ${upvotes} upvotes, ${downvotes} downvotes`);
+}
 
 
 
-module.exports = { insertPostData, insertUserData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,generatePermalink,updateCommentData };
+
+
+module.exports = { insertPostData, insertUserData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,generatePermalink,updateCommentData,tallyVotesForComment };

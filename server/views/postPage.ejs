@@ -315,7 +315,8 @@
                     type: 'POST',
                     data: {
                         upvote: isUpvote,
-                        post_id: $this.data('postid')
+                        post_id: $this.data('postid'),
+                        root_post_id: '<%= post.post_id %>'
                     },
                     success: function (response) {
                         console.log('Vote recorded successfully.');

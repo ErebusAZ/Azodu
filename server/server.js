@@ -6,7 +6,7 @@ const path = require('path');
 
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories } = require('./db/db_create');
-const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,updateCommentData } = require('./db/db_insert');
+const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,updateCommentData,tallyVotesForComment } = require('./db/db_insert');
 const { fetchPostByPostID,fetchPostsAndCalculateVotes } = require('./db/db_query');
 
 
@@ -213,7 +213,7 @@ app.get('/api/categories', async (req, res) => {
 
 
 app.post('/api/vote', async (req, res) => {
-  const { post_id, upvote } = req.body; // `upvote` might be a string here
+  const { post_id, upvote,root_post_id } = req.body; // `upvote` might be a string here
   const ip = req.ip;
 
   // Explicitly convert `upvote` to boolean
@@ -221,6 +221,9 @@ app.post('/api/vote', async (req, res) => {
 
   try {
     await insertVote(client, post_id, isUpvote, ip);
+    if((root_post_id && post_id) && (root_post_id != post_id)) // only comments are tallied here as posts are tallied elsewhere
+    await tallyVotesForComment(client,root_post_id, post_id); // Indicate it's a comment
+
     res.json({ message: 'Vote recorded successfully.' });
   } catch (error) {
     console.error('Error recording vote:', error);
