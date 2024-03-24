@@ -54,6 +54,13 @@ button {
     font-weight: bold;
 }
 */
+
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+}
+
+
 label {
     font-size: 14px;
 }
@@ -1064,6 +1071,33 @@ i.fas.fa-scroll, i.fas.fa-gavel {
 
 
 /* Quill */
+
+
+
+/* Link pop-up */
+.ql-snow .ql-tooltip {
+box-shadow: none !important; 
+border: 3px solid #1a1a1a !important;
+color: gray !important;
+background-color: #262626 !important;
+}
+
+
+.ql-snow .ql-tooltip .ql-action {
+color: gray;
+}
+
+
+.ql-snow .ql-tooltip input {
+    background-color: #1a1a1a;
+    border: none !important;
+    color: #d7dadc;
+
+}
+
+
+
+
 
 .ql-toolbar.ql-snow, .ql-container.ql-snow {
     border: none !important;
