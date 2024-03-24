@@ -35,6 +35,11 @@ a:hover {
     text-decoration: none !important;
 }
 
+a, .ql-snow a {
+    color: white !important;
+    text-decoration: underline;
+}
+
 h1 {
     color: #ffffff;
     font-size: 24px;
