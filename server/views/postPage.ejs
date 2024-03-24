@@ -46,8 +46,8 @@
                     <span class="points">${points}</span>
                     <span class="time">${timeAgo}</span>
                 </div>
-                <p>This is a comment. It could be very interesting and contain lots of insightful information. Or it could be asking for more details.</p>
-                <div class="comment-links">
+                <div class="comment-text" style="display: none;"><p>This is a comment. It could be very interesting and contain lots of insightful information. Or it could be asking for more details.</p>
+                </div><div class="comment-links">
                     <a href="#">link</a>
                     <a href="#">save</a>
                     <a href="#edit" class="edit">edit</a>
@@ -108,7 +108,7 @@
                 <span class="points">${points}</span>
                 <span class="time">${timeAgo}</span>
             </div>
-            ${content}
+            <div class="comment-text"">${content}</div>
             <div class="comment-links">
                 <a href="#">link</a>
                 <a href="#">save</a>
@@ -337,7 +337,7 @@
 
                 const $comment = $(this).closest('.comment');
                 const $commentContent = $comment.find('.comment-content');
-                const originalContentHtml = $commentContent.find('p').html(); // Assuming the comment text is in <p>
+                const originalContentHtml = $commentContent.find('.comment-text').html(); // Assuming the comment text is in <p>
                 const $commentLinks = $comment.find('.comment-links');
                 const postID = $comment.data('commentid');
 
@@ -346,7 +346,7 @@
                 $commentContent.find('.quill-editing, .edit-actions').remove();
 
                 // Hide the original comment content and links
-                $commentContent.find('p, .edit').hide();
+                $commentContent.find('.comment-text, .edit').hide();
                 $commentLinks.hide();
 
                 // Append a new Quill editor container
@@ -381,7 +381,7 @@
                     quillContainer.remove(); // This should correctly remove the Quill editor container
                     $toolbar.remove();
                     $commentContent.find('.edit-actions').remove(); // Remove the action buttons
-                    $commentContent.find('p, .edit').show(); // Show the original content and edit link
+                    $commentContent.find('.comment-text, .edit').show(); // Show the original content and edit link
                     $commentLinks.show(); // Show the comment links again
                 });
 
@@ -405,7 +405,7 @@
 
                             console.log(updatedContent);
 
-                            $commentContent.find('p').html(updatedContent).show();
+                            $commentContent.find('.comment-text').html(updatedContent).show();
                             quillEditor.container.remove();
                             saveBtn.remove();
                             cancelBtn.remove();
