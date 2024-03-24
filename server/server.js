@@ -6,7 +6,7 @@ const path = require('path');
 
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories } = require('./db/db_create');
-const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData } = require('./db/db_insert');
+const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,updateCommentData } = require('./db/db_insert');
 const { fetchPostByPostID,fetchPostsAndCalculateVotes } = require('./db/db_query');
 
 
@@ -275,17 +275,31 @@ function processHTMLFromUsers(content) {
 
 
 app.post('/api/comment', async (req, res) => {
-  let { post_id, content, parent_id } = req.body; // Ensure you receive parent_id if the comment is a reply
-  const author = 'username'; // This should ideally come from session or authentication mechanism
-  const commentId = generatePostIdTimestamp(); // Generate a unique comment ID
+  let { post_id, content, parent_id, isEdit, commentId } = req.body;
+  const author = 'username'; // Ideally, this comes from the session or authentication mechanism
 
- 
-  try {
-    await insertCommentData(client, commentId, post_id.toString(), author, parent_id.toString() || post_id.toString(), 'text', processHTMLFromUsers(content), 0, 0, '/comments/' + commentId, new Date());
-    res.json({ message: 'Comment added successfully.', commentId: commentId });
-  } catch (error) {
-    console.error('Error inserting comment:', error);
-    res.status(500).send('Failed to insert comment');
+  // Check if the action is to edit an existing comment
+  if (isEdit) {
+    try {
+      // Assuming updateCommentData is a function you will define to update comments in your database
+
+      await updateCommentData(client, commentId, content, post_id);
+      res.json({ message: 'Comment updated successfully.', commentId: commentId });
+    } catch (error) {
+      console.error('Error updating comment:', error);
+      res.status(500).send('Failed to update comment');
+    }
+  } else {
+    // Handle new comment insertion
+    const generatedCommentId = generatePostIdTimestamp(); // Generate a unique comment ID
+
+    try {
+      await insertCommentData(client, generatedCommentId, post_id.toString(), author, parent_id.toString() || post_id.toString(), 'text', processHTMLFromUsers(content), 0, 0, '/comments/' + generatedCommentId, new Date());
+      res.json({ message: 'Comment added successfully.', commentId: generatedCommentId });
+    } catch (error) {
+      console.error('Error inserting comment:', error);
+      res.status(500).send('Failed to insert comment');
+    }
   }
 });
 

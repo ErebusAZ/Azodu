@@ -89,6 +89,15 @@ async function insertCommentData(client, comment_id, post_id, author, parent_id,
   console.log('post_id is' + post_id); 
 }
 
+async function updateCommentData(client, comment_id, newContent, post_id) {
+  const query = `
+    UPDATE my_keyspace.comments
+    SET content = ?
+    WHERE comment_id = ? AND post_id = ?`;
+  await client.execute(query, [newContent, comment_id, post_id], { prepare: true });
+
+  console.log('Comment updated. ID is ' + comment_id + ' for post ID ' + post_id);
+}
 
 
 
@@ -146,4 +155,4 @@ async function insertVote(client, post_id, isUpvote, ip) {
 
 
 
-module.exports = { insertPostData, insertUserData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,generatePermalink };
+module.exports = { insertPostData, insertUserData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,generatePermalink,updateCommentData };

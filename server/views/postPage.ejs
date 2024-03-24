@@ -50,7 +50,8 @@
                 <div class="comment-links">
                     <a href="#">link</a>
                     <a href="#">save</a>
-                    <a href="#">edit</a>
+                    <a href="#edit" class="edit">edit</a>
+
                     <a href="#reply" class="reply">reply</a>
                 </div>
                 <div class="reply-form" style="display: none;">
@@ -111,7 +112,7 @@
             <div class="comment-links">
                 <a href="#">link</a>
                 <a href="#">save</a>
-                <a href="#">report</a>
+                <a href="#edit" class="edit">edit</a>
                 <a href="#reply" class="reply">reply</a>
             </div>
             <div class="reply-form" style="display: none;">
@@ -322,6 +323,105 @@
                         // Since we're optimistically updating the UI, consider how to handle errors
                     }
                 });
+            });
+
+
+          
+
+
+            $('body').on('click', '.edit', function (e) {
+                e.preventDefault();
+
+                const $comment = $(this).closest('.comment');
+                const $commentContent = $comment.find('.comment-content');
+                const originalContentHtml = $commentContent.find('p').html(); // Assuming the comment text is in <p>
+                const $commentLinks = $comment.find('.comment-links');
+                const postID = $comment.data('commentid');
+
+
+                // Remove any existing editor to prevent duplicates
+                $commentContent.find('.quill-editing, .edit-actions').remove();
+
+                // Hide the original comment content and links
+                $commentContent.find('p, .edit').hide();
+                $commentLinks.hide();
+
+                // Append a new Quill editor container
+                const quillContainer = $('<div>').addClass('quill-editing').appendTo($commentContent);
+
+                // Initialize Quill on the new container
+                const quillEditor = new Quill(quillContainer.get(0), {
+                    theme: 'snow', // Your Quill configuration
+                    modules: {
+                        toolbar: [
+                            ['bold', 'italic', 'underline', 'strike', 'blockquote'],        // grouped buttons
+                            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                            ['link']  // links and image embed buttons
+                        ]
+                    },
+                });
+                quillEditor.root.innerHTML = originalContentHtml;
+
+                // Append Save and Cancel buttons
+                const actionsHtml = `
+    <div class="edit-actions">
+        <button class="save-edit">Save</button>
+        <button class="cancel-edit">Cancel</button>
+    </div>`;
+                $(actionsHtml).appendTo($commentContent);
+                const $toolbar = $comment.find('.ql-toolbar');
+
+
+                // Handle the cancel action
+                $commentContent.find('.cancel-edit').on('click', function () {
+
+                    quillContainer.remove(); // This should correctly remove the Quill editor container
+                    $toolbar.remove();
+                    $commentContent.find('.edit-actions').remove(); // Remove the action buttons
+                    $commentContent.find('p, .edit').show(); // Show the original content and edit link
+                    $commentLinks.show(); // Show the comment links again
+                });
+
+                // Handle save (similar to your submit logic but for updating existing comments)
+                const saveBtn = $comment.find('.save-edit');
+                const cancelBtn = $comment.find('.cancel-edit');
+
+
+
+                saveBtn.on('click', function () {
+                    const updatedContent = quillEditor.root.innerHTML;
+                    $.ajax({
+                        url: '/api/comment',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ commentId: postID, post_id: '<%= post.post_id %>', content: updatedContent, isEdit: true }),
+                        success: function (response) {
+                            console.log('edit comment success');
+                            quillContainer.remove();
+                            $toolbar.remove();
+
+                            console.log(updatedContent);
+
+                            $commentContent.find('p').html(updatedContent).show();
+                            quillEditor.container.remove();
+                            saveBtn.remove();
+                            cancelBtn.remove();
+                            $commentContent.find('.edit').show();
+                            $commentLinks.show();
+
+                        },
+                        error: function (xhr, status, error) {
+                            var $statusMessage = $comment.find('.status-message');
+                            console.error('Error submitting comment', error);
+                            $statusMessage.text('Error submitting comment').css('color', 'red').show().delay(3000).fadeOut();
+                        }
+                    });
+
+
+                });
+
+
+
             });
 
 

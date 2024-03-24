@@ -1113,3 +1113,22 @@ blockquote {
     margin-left: 10px;
     color: gray;
 }
+
+
+
+
+
+.edit-actions button {
+    background-color: #555;
+    color: #d7dadc;
+    border: none;
+    padding: 5px 12px;
+    margin-top: 10px;
+    margin-right: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.edit-actions button:hover {
+    background-color: #676767;
+}
