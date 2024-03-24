@@ -174,7 +174,7 @@ app.get('/submit-post/', async (req, res) => {
 }); 
 
 
-app.get('/p/:category/:uniqueId/:title', async (req, res) => {
+app.get('/c/:category/:uniqueId/:title', async (req, res) => {
   const { category, uniqueId, title } = req.params;
   // Use the parameters to query your Cassandra database for the post data
   // For the sake of example, let's assume you have a function `fetchPostByPostID` that does this
@@ -341,7 +341,7 @@ async function main() {
   try {
 
    //    await flushAllTables(client,'my_keyspace'); 
- //    await dropAllTables(client, 'my_keyspace'); 
+     await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
@@ -352,10 +352,10 @@ async function main() {
     await createVotesTable(client);
     await createCategoriesTable(client);
 
- //   await populateTestData(client, 100);
+    await populateTestData(client, 100);
 
  
- //   await createDefaultCategories(client,defaultCategories);
+    await createDefaultCategories(client,defaultCategories);
 
 
   } catch (error) {

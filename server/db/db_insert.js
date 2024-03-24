@@ -31,7 +31,7 @@ function generatePermalink(title, category, postID) {
 
 
   // Combine the normalized title and unique suffix
-  const permalink = `/p/${category}/${postID}/${normalizedTitle}`;
+  const permalink = `/c/${category}/${postID}/${normalizedTitle}`;
 
   return permalink;
 }
