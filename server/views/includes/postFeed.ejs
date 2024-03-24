@@ -226,32 +226,6 @@ ${contentDisplay}
 
 
 
-        function fetchAndDisplayCategories() {
-            $.ajax({
-                url: '/api/categories',
-                type: 'GET',
-                success: function (categories) {
-                    console.log(categories);
-                    const $communityLinks = $('.community-links');
-                    $communityLinks.empty(); // Clear existing categories
-                    categories.forEach(function (category) {
-                        // Assuming 'name' and 'permalink' are properties of the category
-                        const categoryLink = `<li><a href="/c/${category.permalink}">/c/${category.permalink}</a></li>`;
-                        $communityLinks.append(categoryLink);
-                    });
-                },
-                error: function (error) {
-                    console.error('Failed to fetch categories:', error);
-                }
-            });
-        }
-
-        fetchAndDisplayCategories();
-
-
-
-
-
         // Function to check if we're near the bottom of the page
         function nearBottomOfPage() {
             return $(window).scrollTop() + $(window).height() > $(document).height() - 100;
