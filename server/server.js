@@ -251,10 +251,10 @@ function removeDangerousTags(html) {
   return html;
 }
 
-function removeAllAttributes(html) {
-  // This regex looks for HTML tags and attempts to remove attributes inside them
-  // Be cautious: this might not work correctly for complex or malformed HTML
-  const cleanHtml = html.replace(/<(\w+)(\s+[^>]+)?(>)/g, '<$1$3');
+function removeAllAttributesExceptLinks(html) {
+  // This regex looks for HTML tags that are not <a> and attempts to remove attributes inside them
+  // It will leave <a href="..."> tags untouched
+  const cleanHtml = html.replace(/<((?!a\b)\w+)(\s+[^>]+)?(>)/g, '<$1$3');
   return cleanHtml;
 }
 
@@ -266,7 +266,7 @@ function processHTMLFromUsers(content) {
 
   content = cleanHtmlContent(content);
   content = removeDangerousTags(content); 
-  content = removeAllAttributes(content); 
+  content = removeAllAttributesExceptLinks(content); // Modified to preserve links
 
   return content; 
 }
@@ -341,7 +341,7 @@ async function main() {
   try {
 
    //    await flushAllTables(client,'my_keyspace'); 
-     await dropAllTables(client, 'my_keyspace'); 
+ //    await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
@@ -352,10 +352,10 @@ async function main() {
     await createVotesTable(client);
     await createCategoriesTable(client);
 
-    await populateTestData(client, 100);
+   // await populateTestData(client, 100);
 
  
-    await createDefaultCategories(client,defaultCategories);
+  //  await createDefaultCategories(client,defaultCategories);
 
 
   } catch (error) {
