@@ -227,9 +227,8 @@
                     data: JSON.stringify({ post_id: truePostId, content: commentContent, parent_id: post_id }),
                     success: function (response) {
                         var commentHTML = getCommentHtml(post_id, 'test', commentContent, depth,1); // Assuming your getCommentHtml can handle these parameters
-
                         // Inserting the comment in the correct position
-                        if (post_id === truePostId) {
+                        if (post_id == truePostId) {
                             $('.comments').prepend(commentHTML); // Add to the start for top-level comments
                         } else {
                             $thisButton.closest('.comment').after(commentHTML); // Add after the parent comment for nested replies
