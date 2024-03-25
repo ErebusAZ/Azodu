@@ -18,6 +18,22 @@
         console.log(post);
  
 
+            function scrollToComment() {
+                const commentId = window.location.hash; // e.g., "#comment-12345"
+                if (commentId) {
+                    const commentElement = document.querySelector(commentId);
+
+                    if (commentElement) {
+                        commentElement.scrollIntoView({ behavior: "smooth", block: "start" });
+                        commentElement.style.backgroundColor = "#5b5703";
+
+                    } else {
+                    
+                        console.log('Comment not loaded yet. Implement logic to load the comment.');
+                    }
+                }
+            }
+
 
         function generateTestComments(count, depth = 0) {
             if (depth > 4) return ''; // Limit depth to 4
@@ -93,7 +109,7 @@
             const points = "0 points"; // Placeholder for points
             const timeAgo = "1 hour ago"; // Placeholder for time ago
 
-            return `<div data-depth="${depth}" data-commentid="${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">
+            return `<div data-depth="${depth}" data-commentid="${commentId}" id="comment-${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">
         <div class="voting">
 
             <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${commentId}"><img src="/img/up-arrow.svg" alt="Upvote"></a>
@@ -110,7 +126,7 @@
             </div>
             <div class="comment-text"">${content}</div>
             <div class="comment-links">
-                <a href="#">link</a>
+                <a href="#comment-${commentId}">link</a>
                 <a href="#">save</a>
                 <a href="#edit" class="edit">edit</a>
                 <a href="#reply" class="reply">reply</a>
@@ -155,6 +171,8 @@
             const organizedComments = organizeComments(post.comments);
             const commentsHTML = renderComments(organizedComments);
             $('.comments').append(commentsHTML);
+
+            scrollToComment();
 
             // Assuming this code is placed inside a document ready function and the reply link click handler
             $(document).on('click', '.reply', function (e) {
