@@ -117,6 +117,10 @@ label {
     min-height: 50px;
 }
 
+#post_title_container {
+    padding-top: 10px;
+}
+
 .post-title {
     color: #d7dadc;
     font-size: 18px;
@@ -128,6 +132,13 @@ label {
 
 .post-title:hover {
     text-decoration: underline !important;
+}
+
+div#post_meta {
+    font-size: 12px;
+    color: gray;
+    position: absolute;
+    left: 64px;
 }
 
 .post-description {
@@ -527,11 +538,7 @@ label {
 
 /* Internal Pages */
 
-h2#post-title {
-font-size: 19px;
-    position: relative;
-    bottom: 5px;
-}
+h2#post-title {font-size: 19px;position: relative;bottom: 5px;display: inline;}
 
 
 div#op_comment_form {
@@ -597,8 +604,6 @@ text-decoration: underline;
 .post-content h2 {
     color: #ffffff;
     margin-bottom: 10px;
-    padding-top: 22px;
-    margin-top: 0;
 }
 
 .post-content .voting {

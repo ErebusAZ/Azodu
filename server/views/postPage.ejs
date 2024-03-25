@@ -474,10 +474,23 @@
 
         var quillEditors = {};
 
+        function timeAgo(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const secondsAgo = Math.round((now - date) / 1000);
+
+        const minutesAgo = Math.round(secondsAgo / 60);
+        const hoursAgo = Math.round(minutesAgo / 60);
+        const daysAgo = Math.round(hoursAgo / 24);
+
+        if (secondsAgo < 60) return `${secondsAgo} seconds ago`;
+        else if (minutesAgo < 60) return `${minutesAgo} minutes ago`;
+        else if (hoursAgo < 24) return `${hoursAgo} hours ago`;
+        else return `${daysAgo} days ago`;
+    }
+
 
     </script>
-
-
 
 
 </head>
@@ -507,10 +520,15 @@
                     data-postid="<%= post.post_id %>"><img src="/img/down-arrow.svg" alt="Downvote"></a>
 
             </div>
+
+            <div id="post_title_container">
             <h2 id="post-title">
                 <%= post.title %>
             </h2>
 
+            <div id="post_meta">submitted by <%= post.author %> <span class="timeago" data-timestamp="<%= post.timestamp %>">Loading...</span></div>
+
+        </div>
             <div id="selftext">
                 
                     <%- post.content %>
@@ -557,6 +575,14 @@
             placeholder: 'Write a comment...',
 
         });
+
+
+        document.querySelectorAll('.timeago').forEach(function(el) {
+        var timestamp = el.getAttribute('data-timestamp');
+        el.innerText = timeAgo(new Date(timestamp));
+    });
+
+
     </script>
 
 
