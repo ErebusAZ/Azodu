@@ -77,8 +77,8 @@ label {
 .post {
     background-color: #2b2b2b;
     /* Dark gray background for each post */
-    margin-bottom: 10px;
-    padding: 15px;
+    margin-bottom: 5px;
+    padding: 5px 15px;
     /* Adds some padding inside each post for spacing */
     border-radius: 5px;
     /* Slightly rounded corners for a modern look */
