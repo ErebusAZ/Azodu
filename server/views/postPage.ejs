@@ -84,31 +84,56 @@
             return commentsHtml;
         }
 
-    function organizeComments(comments) {
-        const commentsMap = {};
+        function organizeComments(comments, sortBy = 'top') {
+                const commentsMap = {};
 
-        // Initialize each comment with an empty 'replies' array
-        comments.forEach(comment => {
-            commentsMap[comment.comment_id] = { ...comment, replies: [] };
-        });
+                // Initialize each comment with an empty 'replies' array and calculate points
+                comments.forEach(comment => {
+                    const points = comment.upvotes - comment.downvotes;
+                    const controversialScore = Math.min(comment.upvotes, comment.downvotes); // For 'controversial' sorting
 
-        // Populate the 'replies' array for parent comments
-        comments.forEach(comment => {
-            if (comment.parent_id !== comment.post_id) {
-                // Check if parent comment exists in commentsMap before adding a reply
-                if (commentsMap[comment.parent_id]) {
-                    commentsMap[comment.parent_id].replies.push(commentsMap[comment.comment_id]);
-                } else {
-                    // Handle the case where the parent comment does not exist
-                    // You could log an error, or consider adding a placeholder for missing comments
-                    console.error(`Missing parent comment for comment_id: ${comment.comment_id} with parent_id: ${comment.parent_id}`);
-                }
+                    commentsMap[comment.comment_id] = { ...comment, replies: [], points, controversialScore };
+                });
+
+                // Populate the 'replies' array for parent comments
+                comments.forEach(comment => {
+                    if (comment.parent_id !== comment.post_id) {
+                        if (commentsMap[comment.parent_id]) {
+                            commentsMap[comment.parent_id].replies.push(commentsMap[comment.comment_id]);
+                        } else {
+                            console.error(`Missing parent comment for comment_id: ${comment.comment_id} with parent_id: ${comment.parent_id}`);
+                        }
+                    }
+                });
+
+                // Define a sorting function based on the sortBy parameter
+                const sortFunction = (a, b) => {
+                    switch (sortBy) {
+                        case 'top':
+                            return b.points - a.points;
+                        case 'newest':
+                            return new Date(b.timestamp) - new Date(a.timestamp);
+                        case 'controversial':
+                            return b.controversialScore - a.controversialScore;
+                        default:
+                            return b.points - a.points; // Default to sorting by 'top'
+                    }
+                };
+
+                // Sort replies of each comment
+                Object.values(commentsMap).forEach(comment => {
+                    if (comment.replies.length > 0) {
+                        comment.replies.sort(sortFunction);
+                    }
+                });
+
+                // Filter out top-level comments (direct replies to the post), sort them, and return
+                return comments.filter(comment => comment.parent_id === comment.post_id)
+                    .map(comment => commentsMap[comment.comment_id])
+                    .sort(sortFunction);
             }
-        });
 
-        // Filter out top-level comments (direct replies to the post)
-        return comments.filter(comment => comment.parent_id === comment.post_id).map(comment => commentsMap[comment.comment_id]);
-    }
+
 
         function getCommentHtml(commentId, author, content, depth = 0,votes,timestamp) {
             const backgroundColor = depth % 2 === 0 ? '#262626' : '#2d2d2d';
