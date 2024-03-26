@@ -100,7 +100,7 @@ label {
 }
 
 .post {
-    background-color: #2b2b2b;
+    background-color: #2d2d2d;
     /* Dark gray background for each post */
     margin-bottom: 5px;
     padding: 5px 15px;
@@ -381,7 +381,7 @@ div#post_meta {
 
 #sort-by {
     padding: 7px 15px;
-    background-color: #2b2b2b;
+    background-color: #2d2d2d;
     /* Dark background for the dropdown */
     color: #d7dadc;
     /* Light text color */
@@ -656,7 +656,7 @@ div#op_comment_form {
 }
 
 .comment {
-    background-color: #333;
+    background-color: #2d2d2d !important;
     padding: 10px;
     margin-top: 3px;
     border-radius: 5px;
@@ -845,7 +845,7 @@ div#op_comment_form {
 #selftext {
     clear: both;
     margin-top: 30px;
-    background-color: #2f2f2f;
+    background-color: #2d2d2d;
     padding: 2px 15px;
     border-radius: 5px;
     font-size: 14px;
@@ -1366,7 +1366,7 @@ i.fas.fa-scroll, i.fas.fa-gavel {
 }
 
 .ql-editor {
-    background-color: #262626;
+    background-color: #2d2d2d;
     width: 400px;
     min-height: 100px;
     resize: both;
