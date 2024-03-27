@@ -17,10 +17,11 @@ async function createTables(client) {
 async function createUsersTable(client) {
   const query = `
     CREATE TABLE IF NOT EXISTS my_keyspace.users (
-      user_id uuid PRIMARY KEY,
-      first_name text,
-      last_name text,
-      email text
+      username text PRIMARY KEY,
+      password text,
+      email text,
+      date_registered timestamp,
+
     );
   `;
   await client.execute(query);

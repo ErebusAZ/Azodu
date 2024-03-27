@@ -3,6 +3,20 @@ const bodyParser = require('body-parser');
 const cassandra = require('cassandra-driver');
 const uuid = require('uuid');
 const path = require('path');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const fs = require('fs');
+
+
+let secrets;
+try {
+  const secretsRaw = fs.readFileSync('secrets.json');
+  secrets = JSON.parse(secretsRaw);
+} catch (err) {
+  console.error('Error reading secrets.json:', err);
+  process.exit(1); // Exit the application if the secrets cannot be loaded
+}
+jwtSecret = secrets.JWT_SECRET;
 
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories } = require('./db/db_create');
@@ -41,6 +55,60 @@ setInterval(() => {
     console.error('Failed to fetch posts and calculate votes:', error);
   });
 }, updateInterval);
+
+app.post('/api/register', async (req, res) => {
+  const { username, password, email } = req.body;
+  if (!username || !password || !email) {
+    return res.status(400).send('Username, password, and email are required.');
+  }
+
+  // Hash the password before saving it to the database
+  const hashedPassword = await bcrypt.hash(password, 8);
+  const dateRegistered = new Date();
+  console.log(username, hashedPassword, email, dateRegistered); 
+  try {
+    const insertUserQuery = `
+      INSERT INTO my_keyspace.users (username, password, email, date_registered)
+      VALUES (?, ?, ?, ?) IF NOT EXISTS;
+    `;
+    await client.execute(insertUserQuery, [username, hashedPassword, email, dateRegistered], { prepare: true });
+    
+    res.status(201).send('User created successfully. The form will close ...');
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).send('Error registering user.');
+  }
+});
+
+
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const queryUser = 'SELECT * FROM my_keyspace.users WHERE username = ?';
+    const result = await client.execute(queryUser, [username], { prepare: true });
+
+    if (result.rowLength > 0) {
+      const user = result.first();
+
+      const passwordIsValid = await bcrypt.compare(password, user.password);
+      if (!passwordIsValid) return res.status(401).send('Invalid password.');
+
+      const token = jwt.sign({ id: user.id }, jwtSecret, {
+        expiresIn: 86400, // 24 hours
+      });
+
+      res.status(200).send({ auth: true, token: token });
+    } else {
+      res.status(404).send('No user found.');
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).send('Error logging in.');
+  }
+});
+
+
 
 // Define the route for form submission
 app.post('/submitPost', async (req, res) => {
@@ -355,7 +423,7 @@ app.get('/api/posts', async (req, res) => {
 async function main() {
   try {
 
-   //    await flushAllTables(client,'my_keyspace'); 
+ //      await flushAllTables(client,'my_keyspace'); 
  //    await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
@@ -367,7 +435,7 @@ async function main() {
     await createVotesTable(client);
     await createCategoriesTable(client);
 
-   // await populateTestData(client, 100);
+  //  await populateTestData(client, 100);
 
  
   //  await createDefaultCategories(client,defaultCategories);
