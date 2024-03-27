@@ -136,7 +136,7 @@ label {
 */
 
 .post-links {
-    margin-top: 10px;
+    margin-top: 3px;
     /* margin-left: 87px; */
     clear: both;
 }
@@ -990,6 +990,7 @@ i.fas.fa-plus, i.fas.fa-minus {
     border-radius: 3px;
     margin-right: 6px;
     font-size: 14px;
+    margin-bottom: 3px;
 }
 
 
