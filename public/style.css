@@ -1456,6 +1456,12 @@ blockquote {
 
 /* Login & Register */
 
+
+div#loginRegisterForm {
+    font-size: 14px;
+}
+
+
 button#loginRegisterButton {
     margin-bottom: 20px;
 }
