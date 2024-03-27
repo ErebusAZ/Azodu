@@ -1531,3 +1531,15 @@ p#switchAuthMode {
 h2#formTitle {
 margin-top: 0; 
 }
+
+
+
+
+
+
+div#userDisplay {
+    font-size: 14px;
+    position: absolute;
+    right: 20px;
+    top: 5px;
+}

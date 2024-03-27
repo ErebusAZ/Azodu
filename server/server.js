@@ -59,30 +59,46 @@ setInterval(() => {
 app.post('/api/register', async (req, res) => {
   const { username, password, email } = req.body;
   if (!username || !password || !email) {
-    return res.status(400).send('Username, password, and email are required.');
+    return res.status(400).json({ message: 'Username, password, and email are required.' });
   }
 
   // Hash the password before saving it to the database
   const hashedPassword = await bcrypt.hash(password, 8);
   const dateRegistered = new Date();
-  console.log(username, hashedPassword, email, dateRegistered); 
+
   try {
     const insertUserQuery = `
       INSERT INTO my_keyspace.users (username, password, email, date_registered)
       VALUES (?, ?, ?, ?) IF NOT EXISTS;
     `;
-    await client.execute(insertUserQuery, [username, hashedPassword, email, dateRegistered], { prepare: true });
+    const insertResult = await client.execute(insertUserQuery, [username, hashedPassword, email, dateRegistered], { prepare: true });
     
-    res.status(201).send('User created successfully. The form will close ...');
+    // Check if the user was actually created
+    if (insertResult && insertResult.rows && insertResult.rows[0] && !insertResult.rows[0]['[applied]']) {
+      return res.status(409).json({ message: 'User already exists.' });
+    }
+
+    // Use username as the unique identifier in the JWT token
+    const token = jwt.sign({ username: username }, process.env.JWT_SECRET, {
+        expiresIn: 86400, // 24 hours
+    });
+
+    // Send the token with the success message
+    res.status(201).json({ auth: true, token: token, message: 'User created successfully. Redirecting...' });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).send('Error registering user.');
+    res.status(500).json({ message: 'Error registering user.' });
   }
 });
 
 
+
+
+
 app.post('/api/login', async (req, res) => {
+
   const { username, password } = req.body;
+  console.log(username, password); 
 
   try {
     const queryUser = 'SELECT * FROM my_keyspace.users WHERE username = ?';
@@ -92,21 +108,24 @@ app.post('/api/login', async (req, res) => {
       const user = result.first();
 
       const passwordIsValid = await bcrypt.compare(password, user.password);
-      if (!passwordIsValid) return res.status(401).send('Invalid password.');
+      if (!passwordIsValid) {
+        return res.status(200).json({ message: 'Incorrect password.' });
+      }
 
       const token = jwt.sign({ id: user.id }, jwtSecret, {
         expiresIn: 86400, // 24 hours
       });
 
-      res.status(200).send({ auth: true, token: token });
+      res.status(200).json({ auth: true, token: token, message: 'Login successful.' });
     } else {
-      res.status(404).send('No user found.');
+      res.status(200).json({ message: 'No user found.' });
     }
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).send('Error logging in.');
+    res.status(500).json({ message: 'Error logging in.' });
   }
 });
+
 
 
 

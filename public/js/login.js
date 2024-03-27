@@ -1,6 +1,9 @@
 $(document).ready(function () {
 
 
+    updateUIBasedOnAuthStatus();
+
+
     const loginRegisterButton = document.getElementById('loginRegisterButton');
     const loginRegisterForm = document.getElementById('loginRegisterForm');
     const formTitle = document.getElementById('formTitle');
@@ -24,7 +27,7 @@ $(document).ready(function () {
 
 
     function handleFormSubmission(isLoginMode, username, password, email) {
-        // Disable form elements to prevent multiple submissions
+        // Elements disabling
         document.getElementById('username').disabled = true;
         document.getElementById('password').disabled = true;
         const emailField = document.getElementById('email');
@@ -40,35 +43,97 @@ $(document).ready(function () {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
-            .then(response => response.text())
+            .then(response => response.json()) // Expecting JSON response now
             .then(data => {
-                formMessage.textContent = data; // Display success or error message
-                formMessage.style.color = 'limegreen'; // Success color
+                if (data.auth === true || (data.message && data.message.includes('successful'))) {
+                    // Handle both login and registration success
+                    localStorage.setItem('authToken', data.token || ''); // Fallback to empty string if no token is present
+                    localStorage.setItem('username', username); // Store username for displaying
+                    displayUsername(username); // Update UI with username
+                    formMessage.textContent = data.message || 'Action successful. Redirecting...';
+                    formMessage.style.color = 'limegreen';
 
-                if (!isLoginMode || (isLoginMode && data.includes('successful'))) {
                     // Optionally close the form after a delay on success
-                    setTimeout(() => { loginRegisterForm.style.display = 'none'; }, 3000);
+                    setTimeout(() => { loginRegisterForm.style.display = 'none'; }, 1000);
                 } else {
-                    // If login fails, do not close the form
-                    // Re-enable form elements
-                    document.getElementById('username').disabled = false;
-                    document.getElementById('password').disabled = false;
-                    if (emailField) emailField.disabled = false;
-                    document.getElementById('submitAuth').disabled = false;
+                    // Display error or informative message from server
+                    formMessage.textContent = data.message;
+                    formMessage.style.color = 'red';
+                    resetFormFields();
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                formMessage.textContent = 'An error occurred, please try again.'; // Display error message
-                formMessage.style.color = 'red'; // Error color
-
-                // Re-enable form elements on failure
-                document.getElementById('username').disabled = false;
-                document.getElementById('password').disabled = false;
-                if (emailField) emailField.disabled = false;
-                document.getElementById('submitAuth').disabled = false;
+                formMessage.textContent = 'An error occurred, please try again.';
+                formMessage.style.color = 'red';
+                resetFormFields();
             });
     }
+
+    function displayUsername(username) {
+        // Assuming you have a place in your UI to display the username
+        const userDisplayElement = document.getElementById('userDisplay'); // Ensure this element exists in your HTML
+        if (userDisplayElement) {
+            userDisplayElement.textContent = `Logged in as ${username}`;
+            loginRegisterButton.style.display = 'none';
+        }
+    }
+
+    function isJwtExpired(token) {
+        if (!token) return true; // No token means "expired"
+
+        try {
+            const base64Url = token.split('.')[1]; // JWT structure: Header.Payload.Signature
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(window.atob(base64));
+
+            // JWT exp is in seconds
+            const now = new Date().getTime() / 1000; // Convert to seconds
+            return payload.exp < now;
+        } catch (error) {
+            console.error("Error decoding token:", error);
+            return true; // Assume expired on any error
+        }
+    }
+
+
+    function updateUIBasedOnAuthStatus() {
+        const authToken = localStorage.getItem('authToken');
+        const loginRegisterButton = document.getElementById('loginRegisterButton');
+        const userDisplayElement = document.getElementById('userDisplay');
+
+        if (authToken && !isJwtExpired(authToken)) {
+            // Token is present and not expired
+            const username = localStorage.getItem('username');
+            if (username && userDisplayElement) {
+                userDisplayElement.innerHTML = 'Logged in as <a href="#">' + username + '</a>';
+                userDisplayElement.style.display = '';
+                loginRegisterButton.style.display = 'none';
+            }
+        } else {
+            // No token, or it is expired
+            localStorage.removeItem('authToken'); // Clean up
+            localStorage.removeItem('username');
+            if (userDisplayElement) {
+                userDisplayElement.style.display = 'none';
+            }
+            loginRegisterButton.style.display = '';
+        }
+    }
+
+
+    function resetFormFields() {
+        document.getElementById('username').disabled = false;
+        document.getElementById('password').disabled = false;
+        const emailField = document.getElementById('email');
+        if (emailField) emailField.disabled = false;
+        document.getElementById('submitAuth').disabled = false;
+        // Clear form message color
+        const formMessage = document.getElementById('formMessage');
+        formMessage.style.color = '';
+    }
+
+
 
 
 
@@ -112,5 +177,5 @@ $(document).ready(function () {
         }
     }
 
-  
+
 });
