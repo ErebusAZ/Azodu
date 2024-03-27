@@ -178,27 +178,31 @@
 
                         const postHtml = `
 <div class="post" data-postId="${post.post_id}">
-<div class="voting">
-
-<a title="upvote" description="upvote" href="#" class="upvote" data-postid="${post.post_id}"><img src="/img/up-arrow.svg" alt="Upvote"></a>
-<span class="votes">${post.upvotes - post.downvotes}</span>
-<a title="downvote" description="downvote" href="#" class="downvote" data-postid="${post.post_id}"><img src="/img/down-arrow.svg" alt="Downvote"></a>
-
-
-
-
-</div>
-<div class="thumbnail"></div>
-<div class="content">${link}
-<p class="post-submitted">submitted ${timeAgo(post.timestamp)} by <a href="#">${post.author}</a> to <a href="/c/${post.category}">${post.category}</a></p>
-<div class="post-links">
-<a href="${post.permalink}">${post.comment_count} comments</a>
-<a href="#">save</a>
-</div>
-${contentDisplay}
-
-</div>
+    <div class="post-left">
+        <div class="voting">
+            <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${post.post_id}">
+                <img src="/img/up-arrow.svg" alt="Upvote">
+            </a>
+            <span class="votes">${post.upvotes - post.downvotes}</span>
+            <a title="downvote" description="downvote" href="#" class="downvote" data-postid="${post.post_id}">
+                <img src="/img/down-arrow.svg" alt="Downvote">
+            </a>
+        </div>
+        <div class="thumbnail">
+            <!-- Thumbnail Image Here -->
+        </div>
+    </div>
+    <div class="post-content">
+        ${link}
+        <p class="post-submitted">submitted ${timeAgo(post.timestamp)} by <a href="#">${post.author}</a> to <a href="/c/${post.category}">${post.category}</a></p>
+        <div class="post-links">
+            <a href="${post.permalink}">${post.comment_count} comments</a>
+            <a href="#">save</a>
+        </div>
+        ${contentDisplay}
+    </div>
 </div>`;
+
                         $('.container').append(postHtml);
 
                     });

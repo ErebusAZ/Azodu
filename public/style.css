@@ -116,8 +116,18 @@ label {
     width: 100%;
     min-height: 60px;
     padding-left: 0;
-    padding-right: 0;
 }
+
+
+.post-left {
+    float: left; /* Float the left column */
+}
+
+.post-content {
+    overflow: hidden; /* Prevent wrapping around the floated element */
+}
+
+
 
 /*
 .post:hover {
@@ -126,8 +136,9 @@ label {
 */
 
 .post-links {
-    margin-top: 4px;
-    margin-left: 87px;
+    margin-top: 10px;
+    /* margin-left: 87px; */
+    clear: both;
 }
 
 .thumbnail {
@@ -155,7 +166,7 @@ label {
     display: block;
     /* Make the title take its own line */
     /* margin-bottom: 5px; */
-    padding-top: 4px;
+    /* padding-top: 4px; */
 }
 
 .post-title:hover {
@@ -380,7 +391,7 @@ div#post_meta {
 }
 
 .post-content {
-    margin-top: 10px;
+    /* margin-top: 10px; */
 }
 
 
@@ -399,7 +410,7 @@ div#post_meta {
     margin-top: 22px;
     width: 100%;
     padding: 8px;
-    padding-right: 0;
+    padding-right: 15px;
     padding-left: 0;
 }
 
@@ -1007,7 +1018,7 @@ i.fas.fa-external-link-alt {
     margin-top: 33px;
     font-size: 14px;
     line-height: 18px;
-    margin-left: 110px;
+    margin-left: 0;
     padding: 6px 18px;
 }
 
@@ -1438,3 +1449,5 @@ blockquote {
 .edit-actions button:hover {
     background-color: #676767;
 }
+
+
