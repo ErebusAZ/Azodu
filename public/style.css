@@ -1111,8 +1111,8 @@ i.fas.fa-scroll, i.fas.fa-gavel {
 .post.skeleton .post-title {
     width: 60%;
     height: 20px;
-    margin-top: 3px !important;
-    margin-left: 10px !important;
+    margin-top: 5px !important;
+    margin-left: 0px !important;
 }
 
 /*
@@ -1126,7 +1126,9 @@ i.fas.fa-scroll, i.fas.fa-gavel {
 }
 
 .skeleton .post-links {
-    margin-left: 10px;
+    margin-left: 0px;
+    position: relative;
+    bottom: 20px;
 }
 
 
