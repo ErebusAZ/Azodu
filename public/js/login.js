@@ -112,34 +112,5 @@ $(document).ready(function () {
         }
     }
 
-    function loginUser(username, password) {
-        fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        })
-            .then(response => response.text()) // Handle as text
-            .then(data => {
-                console.log('Login successful', data); // Data is now plain text
-                // Handle login success, e.g., storing the received token (if any) and redirecting
-            })
-            .catch(error => console.error('Error logging in:', error));
-    }
-
-
-    function registerUser(username, password, email) {
-        fetch('/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password, email })
-        })
-            .then(response => response.text()) // Handle as text
-            .then(data => {
-                console.log('Registration successful', data); // Data is now plain text
-                // Handle success, e.g., showing a success message or redirecting
-            })
-            .catch(error => console.error('Error registering:', error));
-    }
-
-
+  
 });
