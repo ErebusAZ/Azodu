@@ -166,7 +166,7 @@ label {
     display: block;
     /* Make the title take its own line */
     /* margin-bottom: 5px; */
-    /* padding-top: 4px; */
+    padding-top: 2px;
 }
 
 .post-title:hover {
