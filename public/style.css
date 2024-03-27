@@ -1501,6 +1501,7 @@ button#loginRegisterButton {
     background-color: #3c3c3c; /* Darker gray for input fields */
     color: #d7dadc; /* Off-white text */
   /*  border: 1px solid #555; */
+  border: none; 
     padding: 8px; /* Padding for input fields */
     margin-bottom: 10px; /* Space between inputs */
     width: 100%; /* Full width minus padding */
