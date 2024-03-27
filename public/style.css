@@ -150,7 +150,7 @@ label {
 
 .post-title {
     color: #d7dadc;
-    font-size: 14px;
+    font-size: 16px;
     text-decoration: none;
     display: block;
     /* Make the title take its own line */
@@ -378,6 +378,11 @@ div#post_meta {
     /* Align the dropdown to the right */
     display: none;
 }
+
+.post-content {
+    margin-top: 10px;
+}
+
 
 #sort-by {
     padding: 7px 15px;
@@ -1120,6 +1125,10 @@ i.fas.fa-scroll, i.fas.fa-gavel {
 
 
 @media (max-width: 600px) {
+
+    .post-title {
+        font-size: 14px;
+    }
 
     .voting {
         display: none;
