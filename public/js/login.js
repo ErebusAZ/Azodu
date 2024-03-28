@@ -5,14 +5,16 @@ $(document).ready(function () {
 
     const logoutButton = document.getElementById('logoutButton');
 
-    logoutButton.addEventListener('click', () => {
-        // Remove the token
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('username'); // If you're also storing the username
+    if (logoutButton) {
+        logoutButton.addEventListener('click', () => {
+            // Remove the token
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('username'); // If you're also storing the username
 
         
-        window.location.href = '/'; // Redirect to login page or home page
-    });
+            window.location.href = '/'; // Redirect to login page or home page
+        });
+    }
 
 
     const loginRegisterButton = document.getElementById('loginRegisterButton');
@@ -23,9 +25,13 @@ $(document).ready(function () {
     let isLoginMode = true;
 
     // Toggle form display
-    loginRegisterButton.addEventListener('click', function () {
-        loginRegisterForm.style.display = 'flex'; // Show the form
-    });
+
+    if (loginRegisterButton) {
+        loginRegisterButton.addEventListener('click', function () {
+            loginRegisterForm.style.display = 'flex'; // Show the form
+        });
+        
+    }
 
     // Switch between login and registration
     document.addEventListener('click', function (e) {
@@ -106,7 +112,9 @@ $(document).ready(function () {
             if (userDisplayElement) {
                 userDisplayElement.style.display = 'none';
             }
-            loginRegisterButton.style.display = '';
+            if(loginRegisterButton)
+                loginRegisterButton.style.display = '';
+            if(logoutButton)
             logoutButton.style.display = 'none'; // Hide the logout button
         }
     }

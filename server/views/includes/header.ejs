@@ -74,6 +74,22 @@
         return true; // User is logged in, continue with the action
     }
 
+    $(document).on('click', 'form, textarea, .ql-editor', function(e) {
+    // Check if the clicked element or any of its parents is #loginRegisterForm
+    if ($(e.target).closest('#loginRegisterForm').length) {
+        // If true, it means the click originated from inside #loginRegisterForm or is #loginRegisterForm itself
+        // Do nothing and return early
+        return;
+    }
+
+    console.log('hi');
+    if (!localStorage.getItem('authToken') || isJwtExpired(localStorage.getItem('authToken'))) {
+        e.preventDefault(); // Prevent the default action
+        // Display the login form
+        $('#loginRegisterForm').css('display', 'flex');
+    }
+});
+
 
 
 
@@ -83,4 +99,18 @@
 </head>
 
 <body>
+
+
+    <div id="loginRegisterForm" class="lightbox" style="display: none;">
+        <div class="lightbox-content">
+            <h2 id="formTitle">Login</h2>
+            <form id="authForm">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <input type="submit" id="submitAuth" value="Login">
+                <div id="formMessage" style="color: #d7dadc; margin-top: 10px;"></div> <!-- Message placeholder -->
+                <p id="switchAuthMode">Don't have an account? <a href="#" id="switchForm">Register here.</a></p>
+            </form>
+        </div>
+    </div>
     
