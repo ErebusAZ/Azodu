@@ -111,7 +111,7 @@ $(document).ready(function () {
             // Token is present and not expired
             const username = localStorage.getItem('username');
             if (username && userDisplayElement) {
-                userDisplayElement.innerHTML = `Logged in as <a href="#">${username}</a>`;
+                userDisplayElement.innerHTML = `<i style="position:relative;top:1px" class="fa fa-user-circle" aria-hidden="true"></i> <a href="#">${username}</a>`;
                 userDisplayElement.style.display = '';
                 loginRegisterButton.style.display = 'none';
                 logoutButton.style.display = ''; // Show the logout button
