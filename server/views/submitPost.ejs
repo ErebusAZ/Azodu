@@ -62,7 +62,7 @@
 
 
     <div class="submission-form">
-      <form action="/submitPost" method="POST">
+      <form id="submit_post_form" action="/submitPost" method="POST">
 
         <h2>Submit a new post</h2>
 
@@ -142,7 +142,7 @@
 
 
 // Override the default form submission
-$('form').on('submit', function(e) {
+$('form#submit_post_form').on('submit', function(e) {
     e.preventDefault(); // Prevent the form from submitting through the browser
 
     var postType = $('#postType').val();

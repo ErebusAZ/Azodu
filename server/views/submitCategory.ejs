@@ -27,100 +27,97 @@
             }
         </script>
 
-    <div class="container submitCategoryPage">
-        <a href="/"><img id="logo_satori1" src="branding/thunk3.png" /></a>
-        <div class="submission-form">
-            <form action="/submitCategory" method="POST">
-                <h2>Create a new category</h2>
+        <div class="container submitCategoryPage">
+            <a href="/"><img id="logo_satori1" src="branding/thunk3.png" /></a>
+            <div class="submission-form">
+                <form id="submit_category_form" action="/submitCategory" method="POST">
+                    <h2>Create a new category</h2>
 
-                <input type="text" id="categoryName" name="name" placeholder="Enter category name" required>
+                    <input type="text" id="categoryName" name="name" placeholder="Enter category name" required>
 
-                <input type="text" id="suggestedPermalink" name="suggestedPermalink" placeholder="Enter a link"
-                    oninput="generateCategoryPermalink()" required>
+                    <input type="text" id="suggestedPermalink" name="suggestedPermalink" placeholder="Enter a link"
+                        oninput="generateCategoryPermalink()" required>
 
-                <p id="displayPermalink">/c/</p>
-                <input type="hidden" id="finalPermalink" name="permalink">
+                    <p id="displayPermalink">/c/</p>
+                    <input type="hidden" id="finalPermalink" name="permalink">
 
-                <div id="categoryDescription" class="contentField">
-                    <textarea id="categoryDescText" name="description"
-                        placeholder="Describe the category (optional)"></textarea>
-                </div>
+                    <div id="categoryDescription" class="contentField">
+                        <textarea id="categoryDescText" name="description"
+                            placeholder="Describe the category (optional)"></textarea>
+                    </div>
 
-                <!--
+                    <!--
             <label for="categoryModerators">Moderators:</label>
             <input type="text" id="categoryModerators" name="moderators" placeholder="Enter moderator usernames, separated by commas">
             -->
-                <button type="submit" id="create_category_submit_button">Create Category</button>
-            </form>
+                    <button type="submit" id="create_category_submit_button">Create Category</button>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <script>
-        new Quill('#categoryDescription', {
-            modules: {
-                toolbar: [
-                    ['bold', 'italic', 'underline', 'strike'],        // formatting options
-                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],    // lists
-                    ['link']                                          // links
-                ]
-            },
-            theme: 'snow', // Specify theme in configuration
-            placeholder: 'Describe the category (optional)',
-        });
-
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.querySelector('form');
-
-            form.addEventListener('submit', (e) => {
-                e.preventDefault(); // Prevent default form submission
-
-                // Retrieve values from form elements
-                const name = document.getElementById('categoryName').value;
-                const permalinkFromClient = document.getElementById('finalPermalink').value;
-                const description = document.querySelector('.ql-editor').innerHTML; // Assuming you're using Quill for the description
-
-                // Prepare data to be sent
-                const formData = {
-                    name,
-                    permalinkFromClient,
-                    description
-                };
-
-                // Retrieve the authToken from local storage
-                const authToken = localStorage.getItem('authToken');
-
-                // Use fetch API to submit the form data along with the authToken in the header
-                fetch('/submitCategory', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}` // Include the auth token in the request headers
-                    },
-                    body: JSON.stringify(formData) // Convert formData object to JSON string
-                })
-                    .then(response => response.json()) // First, parse JSON response
-                    .then(data => {
-                        if (data.message) {
-                            // Check if there is a message property in the response data
-                            showNotification(data.message, data.error ? 'error' : 'success', 3000, () => {
-                                if (!data.error) {
-                                    console.log('success!');
-                                    // Redirect only on success
-                                    document.location.href = "/";
-                                }
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showNotification('There was an error processing your request.', 'error', 3000);
-                    });
+        <script>
+            new Quill('#categoryDescription', {
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],        // formatting options
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],    // lists
+                        ['link']                                          // links
+                    ]
+                },
+                theme: 'snow', // Specify theme in configuration
+                placeholder: 'Describe the category (optional)',
             });
-        });
+
+            $(document).ready(function () {
+                $('#submit_category_form').on('submit', function (e) {
+                    e.preventDefault(); // Prevent default form submission
+
+                    // Retrieve values from form elements using jQuery
+                    const name = $('#categoryName').val();
+                    const permalinkFromClient = $('#finalPermalink').val();
+                    const description = $('.ql-editor').html(); // Assuming you're using Quill for the description
+
+                    // Prepare data to be sent
+                    const formData = {
+                        name,
+                        permalinkFromClient,
+                        description
+                    };
+
+                    // Retrieve the authToken from local storage
+                    const authToken = localStorage.getItem('authToken');
+
+                    // Use fetch API to submit the form data along with the authToken in the header
+                    fetch('/submitCategory', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}` // Include the auth token in the request headers
+                        },
+                        body: JSON.stringify(formData) // Convert formData object to JSON string
+                    })
+                        .then(response => response.json()) // First, parse JSON response
+                        .then(data => {
+                            if (data.message) {
+                                // Check if there is a message property in the response data
+                                showNotification(data.message, data.error ? 'error' : 'success', 3000, () => {
+                                    if (!data.error) {
+                                        // Redirect only on success
+                                        window.location.href = "/";
+                                    }
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showNotification('There was an error processing your request.', 'error', 3000);
+                        });
+                });
+            });
 
 
-    </script>
-</body>
+
+        </script>
+        </body>
 
 </html>
