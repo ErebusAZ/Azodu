@@ -401,9 +401,9 @@ function processHTMLFromUsers(content) {
 
 
 
-app.post('/api/comment', async (req, res) => {
+app.post('/api/comment',authenticateToken, async (req, res) => {
   let { post_id, content, parent_id, isEdit, commentId } = req.body;
-  const author = 'username'; // Ideally, this comes from the session or authentication mechanism
+  const author =  req.user.username; // Ideally, this comes from the session or authentication mechanism
 
   // Check if the action is to edit an existing comment
   if (isEdit) {
