@@ -57,31 +57,17 @@ setInterval(() => {
 }, updateInterval);
 
 function authenticateToken(req, res, next) {
-  console.log('Authenticating token...');
-
-  // Typically, the token is sent in the "Authorization" header
   const authHeader = req.headers['authorization'];
-  console.log('Authorization Header:', authHeader);
-
-  const token = authHeader && authHeader.split(' ')[1]; // Format: "Bearer TOKEN"
-  console.log('Token extracted:', token);
-
-  if (token == null) {
-    console.log('No token provided, sending 401 Unauthorized');
-    return res.sendStatus(401); // If no token, unauthorized
-  }
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.sendStatus(401);
 
   jwt.verify(token, jwtSecret, (err, user) => {
-    if (err) {
-      console.log('Token verification failed:', err.message);
-      return res.sendStatus(403); // If token is not valid or expired, forbidden
-    }
-
-    console.log('Token verified successfully, user:', user);
-    req.user = user; // Attach the user payload to the request
-    next(); // Proceed to the next middleware or route handler
+    if (err) return res.sendStatus(403);
+      req.user = user; // Assuming user payload has a 'username' field
+      next();
   });
 }
+
 
 
 app.post('/api/register', async (req, res) => {
@@ -107,7 +93,7 @@ app.post('/api/register', async (req, res) => {
     }
 
     // Use username as the unique identifier in the JWT token
-    const token = jwt.sign({ username: username }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ username: username }, jwtSecret, {
         expiresIn: 86400, // 24 hours
     });
 
@@ -140,7 +126,7 @@ app.post('/api/login', async (req, res) => {
         return res.status(200).json({ message: 'Incorrect password.' });
       }
 
-      const token = jwt.sign({ id: user.id }, jwtSecret, {
+      const token = jwt.sign({ username: user.username }, jwtSecret, {
         expiresIn: 86400, // 24 hours
       });
 
@@ -158,11 +144,13 @@ app.post('/api/login', async (req, res) => {
 
 
 app.post('/submitPost', authenticateToken, async (req, res) => {
+  const creator = req.user.username; 
+  
   const { title, category, postType, contentText, contentUrl } = req.body;
   const content = postType === 'text' ? contentText : contentUrl;
 
   try {
-    await insertPostData(client, title, req.user.username, category, postType, processHTMLFromUsers(content));
+    await insertPostData(client, title, creator, category, postType, processHTMLFromUsers(content));
     // Instead of redirecting, send a JSON response indicating success
     res.status(200).json({ message: 'Post submitted successfully' });
   } catch (error) {
@@ -190,8 +178,9 @@ function generateCategoryPermalink(title) {
 
 
 app.post('/submitCategory', authenticateToken, async (req, res) => {
-  const { name, creator, description } = req.body;
-  const permalink = generateCategoryPermalink(name);
+  const creator = req.user.username; 
+  const { name, permalinkFromClient, description } = req.body;
+  const permalink = generateCategoryPermalink(permalinkFromClient);
 
   try {
     // Check if permalink already exists

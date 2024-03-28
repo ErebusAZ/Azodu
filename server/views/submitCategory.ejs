@@ -79,13 +79,13 @@
 
                 // Retrieve values from form elements
                 const name = document.getElementById('categoryName').value;
-                const permalink = document.getElementById('finalPermalink').value;
+                const permalinkFromClient = document.getElementById('finalPermalink').value;
                 const description = document.querySelector('.ql-editor').innerHTML; // Assuming you're using Quill for the description
 
                 // Prepare data to be sent
                 const formData = {
                     name,
-                    permalink,
+                    permalinkFromClient,
                     description
                 };
 
