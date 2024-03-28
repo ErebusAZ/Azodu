@@ -95,6 +95,21 @@ async function fetchPostsAndCalculateVotes(client, category, postsVoteSummary, u
   return postsVoteSummary;
 }
 
+async function getCommentDetails(client, post_id, comment_id) {
+  // Use both post_id and comment_id to uniquely identify the comment
+  const query = `
+    SELECT * FROM my_keyspace.comments
+    WHERE post_id = ? AND comment_id = ?`;
+  const result = await client.execute(query, [post_id.toString(), comment_id.toString()], { prepare: true });
+
+  if (result.rows.length > 0) {
+    return result.rows[0]; // Assuming the first row contains the needed comment details
+  } else {
+    throw new Error('Comment not found');
+  }
+}
 
 
-module.exports = { queryAndLogUserData,fetchPostByPostID,fetchPostsAndCalculateVotes };
+
+
+module.exports = { queryAndLogUserData,fetchPostByPostID,fetchPostsAndCalculateVotes,getCommentDetails };

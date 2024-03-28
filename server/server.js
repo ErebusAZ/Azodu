@@ -21,7 +21,7 @@ jwtSecret = secrets.JWT_SECRET;
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories } = require('./db/db_create');
 const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,updateCommentData,tallyVotesForComment } = require('./db/db_insert');
-const { fetchPostByPostID,fetchPostsAndCalculateVotes } = require('./db/db_query');
+const { fetchPostByPostID,fetchPostsAndCalculateVotes,getCommentDetails } = require('./db/db_query');
 
 
 const app = express();
@@ -401,20 +401,27 @@ function processHTMLFromUsers(content) {
 
 
 
-app.post('/api/comment',authenticateToken, async (req, res) => {
+app.post('/api/comment', authenticateToken, async (req, res) => {
   let { post_id, content, parent_id, isEdit, commentId } = req.body;
-  const author =  req.user.username; // Ideally, this comes from the session or authentication mechanism
+  const author = req.user.username; // Ideally, this comes from the session or authentication mechanism
 
   // Check if the action is to edit an existing comment
   if (isEdit) {
     try {
-      // Assuming updateCommentData is a function you will define to update comments in your database
+      // Fetch the current details of the comment from the database
+      const commentDetails = await getCommentDetails(client, post_id, commentId);
+      // Verify if the author of the request is the same as the author of the comment
+      console.log(commentDetails.author, author);
+      if (commentDetails.author !== author) {
+        return res.status(403).send('Forbidden: You are not authorized to edit this comment.');
+      }
 
+      // If the author matches, proceed with updating the comment
       await updateCommentData(client, commentId, content, post_id);
       res.json({ message: 'Comment updated successfully.', commentId: commentId });
     } catch (error) {
-      console.error('Error updating comment:', error);
-      res.status(500).send('Failed to update comment');
+      console.error('Error in operation:', error);
+      res.status(500).send('Failed to perform operation');
     }
   } else {
     // Handle new comment insertion
