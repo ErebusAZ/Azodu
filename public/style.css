@@ -9,9 +9,9 @@
 #logo_satori1 {
     /* width: 159px; */
     height: auto;
-    float: left;
-    position: relative;
-    bottom: 10px;
+    /* float: left; */
+    /* position: relative; */
+    /* bottom: 10px; */
     margin-left: 0px;
     margin-bottom: 0px;
     margin-top: 10px;
@@ -307,6 +307,7 @@ div#post_meta {
     float: left;
     padding: 20px;
     padding-bottom: 200px;
+    margin-top: 8px;
 }
 
 .sidebar {
@@ -315,7 +316,7 @@ div#post_meta {
     background-color: #2d2d2d;
     /* Slightly lighter than the body for contrast */
     padding: 20px;
-    margin-top: 70px;
+    margin-top: 97px;
     /* Adjusted to position the sidebar */
     float: right;
     /* Float to the right of the container */
@@ -393,7 +394,7 @@ div#post_meta {
 }
 
 .post-content {
-    /* margin-top: 10px; */
+     margin-top: 10px; 
 }
 
 
@@ -900,24 +901,18 @@ div#op_comment_form {
     margin-top: 20px !important;
 }
 
-.submitCategoryPage .submission-form {
-    padding: 50px 50px;
-}
 
-.submitCategoryPage.container, #submit_post_page.container {
-    width: 100%;
+form#submit_post_form,form#submit_category_form {
+    padding: 33px 50px;
 }
 
 
 .submission-form {
     background-color: #252525;
     color: #d7dadc;
-    padding: 20px 50px;
     border-radius: 5px;
     width: 100%;
-    max-width: 600px;
-    margin: auto;
-    margin-top: 160px;
+    margin-top: 22px;
 }
 
 .submission-form h2 {
@@ -932,13 +927,15 @@ div#op_comment_form {
 .submission-form input[type="text"],
 .submission-form textarea,
 .submission-form select, #postContentUrl {
-    width: 90%;
+    width: 290px;
     padding: 10px;
     margin-top: 5px;
     background-color: #333;
     border: none;
     color: #d7dadc;
     border-radius: 4px;
+    clear: both;
+    display: block;
 }
 
 .submission-form button {
