@@ -120,11 +120,13 @@ label {
 
 
 .post-left {
-    float: left; /* Float the left column */
+    float: left;
+    /* Float the left column */
 }
 
 .post-content {
-    overflow: hidden; /* Prevent wrapping around the floated element */
+    overflow: hidden;
+    /* Prevent wrapping around the floated element */
 }
 
 
@@ -1476,7 +1478,8 @@ button#loginRegisterButton {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Ensure it's above other content */
+    z-index: 1000;
+    /* Ensure it's above other content */
 }
 
 .lightbox-content {
@@ -1492,35 +1495,47 @@ button#loginRegisterButton {
 
 /* Lightbox and Form Styling */
 .lightbox-content {
-    color: #d7dadc; /* Off-white text */
-    background-color: #2d2d2d; /* Muted dark gray */
+    color: #d7dadc;
+    /* Off-white text */
+    background-color: #2d2d2d;
+    /* Muted dark gray */
 }
 
 /* Inputs */
 #authForm input[type="text"], #authForm input[type="password"], #authForm input[type="email"] {
-    background-color: #3c3c3c; /* Darker gray for input fields */
-    color: #d7dadc; /* Off-white text */
-  /*  border: 1px solid #555; */
-  border: none; 
-    padding: 8px; /* Padding for input fields */
-    margin-bottom: 10px; /* Space between inputs */
-    width: 100%; /* Full width minus padding */
-    box-sizing: border-box; /* Include padding and border in width */
+    background-color: #3c3c3c;
+    /* Darker gray for input fields */
+    color: #d7dadc;
+    /* Off-white text */
+    /*  border: 1px solid #555; */
+    border: none;
+    padding: 8px;
+    /* Padding for input fields */
+    margin-bottom: 10px;
+    /* Space between inputs */
+    width: 100%;
+    /* Full width minus padding */
+    box-sizing: border-box;
+    /* Include padding and border in width */
 }
 
 /* Submit Button */
 #authForm input[type="submit"] {
-    background-color: #555; /* Dark gray button */
-    color: #d7dadc; /* Off-white text */
+    background-color: #555;
+    /* Dark gray button */
+    color: #d7dadc;
+    /* Off-white text */
     padding: 10px 15px;
     border: none;
     width: 100%;
     cursor: pointer;
-    border-radius: 4px; /* Rounded corners */
+    border-radius: 4px;
+    /* Rounded corners */
 }
 
 #authForm input[type="submit"]:hover {
-    background-color: #676767; /* Slightly lighter gray on hover */
+    background-color: #676767;
+    /* Slightly lighter gray on hover */
 }
 
 
@@ -1529,12 +1544,8 @@ p#switchAuthMode {
 }
 
 h2#formTitle {
-margin-top: 0; 
+    margin-top: 0;
 }
-
-
-
-
 
 
 div#userDisplay {
