@@ -1,70 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
     <title>Create Category - thunk.space</title>
-  
+
     <%- include('includes/header') %>
 
 
-    <script>
-      function generateCategoryPermalink() {
-          const title = document.getElementById('suggestedPermalink').value;
-          const basePath = "";
-          const cleanedTitle = title
-              .replace(/[^\w\s]/gi, '') // Remove non-alphanumeric characters except spaces
-              .trim() // Remove leading and trailing spaces
-              .replace(/\s+/g, '-') // Replace spaces with hyphens
-              .toLowerCase(); // Convert to lowercase
+        <script>
+            function generateCategoryPermalink() {
+                const title = document.getElementById('suggestedPermalink').value;
+                const basePath = "";
+                const cleanedTitle = title
+                    .replace(/[^\w\s]/gi, '') // Remove non-alphanumeric characters except spaces
+                    .trim() // Remove leading and trailing spaces
+                    .replace(/\s+/g, '-') // Replace spaces with hyphens
+                    .toLowerCase(); // Convert to lowercase
 
-          const truncatedTitle = cleanedTitle.substring(0, 147); // Truncate to 147 characters to leave room for "/c/"
-          const permalink = basePath + truncatedTitle;
+                const truncatedTitle = cleanedTitle.substring(0, 147); // Truncate to 147 characters to leave room for "/c/"
+                const permalink = basePath + truncatedTitle;
 
-          document.getElementById('displayPermalink').textContent = `${permalink}`;
-          // Update hidden input to send to server
-          document.getElementById('finalPermalink').value = permalink;
-      }
-  </script>
+                document.getElementById('displayPermalink').textContent = `${permalink}`;
+                // Update hidden input to send to server
+                document.getElementById('finalPermalink').value = permalink;
+            }
+        </script>
 </head>
+
 <body class="submitCategoryPage">
-  <div class="container">
-    <a href="/"><img id="logo_satori1" src="branding/thunk1b.png" /></a>
-    <div class="submission-form">
-        <form action="/submitCategory" method="POST">
-            <h2>Create a new category</h2>
+    <div class="container">
+        <a href="/"><img id="logo_satori1" src="branding/thunk1b.png" /></a>
+        <div class="submission-form">
+            <form action="/submitCategory" method="POST">
+                <h2>Create a new category</h2>
 
-            <input type="text" id="categoryName" name="name" placeholder="Enter category name" required>
+                <input type="text" id="categoryName" name="name" placeholder="Enter category name" required>
 
-            <input type="text" id="suggestedPermalink" name="suggestedPermalink" placeholder="Enter a link" oninput="generateCategoryPermalink()" required>
-            
-            <p id="displayPermalink">/c/</p>
-            <input type="hidden" id="finalPermalink" name="permalink">
+                <input type="text" id="suggestedPermalink" name="suggestedPermalink" placeholder="Enter a link"
+                    oninput="generateCategoryPermalink()" required>
 
-            <div id="categoryDescription" class="contentField">
-                <textarea id="categoryDescText" name="description" placeholder="Describe the category (optional)"></textarea>
-            </div>
+                <p id="displayPermalink">/c/</p>
+                <input type="hidden" id="finalPermalink" name="permalink">
 
-            <!--
+                <div id="categoryDescription" class="contentField">
+                    <textarea id="categoryDescText" name="description"
+                        placeholder="Describe the category (optional)"></textarea>
+                </div>
+
+                <!--
             <label for="categoryModerators">Moderators:</label>
             <input type="text" id="categoryModerators" name="moderators" placeholder="Enter moderator usernames, separated by commas">
             -->
-            <button type="submit" id="create_category_submit_button">Create Category</button>
-        </form>
+                <button type="submit" id="create_category_submit_button">Create Category</button>
+            </form>
+        </div>
     </div>
-</div>
 
     <script>
-      new Quill('#categoryDescription', {
-          modules: {
-              toolbar: [
-                  ['bold', 'italic', 'underline', 'strike'],        // formatting options
-                  [{ 'list': 'ordered' }, { 'list': 'bullet' }],    // lists
-                  ['link']                                          // links
-              ]
-          },
-          theme: 'snow', // Specify theme in configuration
-          placeholder: 'Describe the category (optional)',
-      });
+        new Quill('#categoryDescription', {
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline', 'strike'],        // formatting options
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],    // lists
+                    ['link']                                          // links
+                ]
+            },
+            theme: 'snow', // Specify theme in configuration
+            placeholder: 'Describe the category (optional)',
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.querySelector('form');
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault(); // Prevent default form submission
+
+                // Retrieve values from form elements
+                const name = document.getElementById('categoryName').value;
+                const permalink = document.getElementById('finalPermalink').value;
+                const description = document.querySelector('.ql-editor').innerHTML; // Assuming you're using Quill for the description
+
+                // Prepare data to be sent
+                const formData = {
+                    name,
+                    permalink,
+                    description
+                };
+
+                // Retrieve the authToken from local storage
+                const authToken = localStorage.getItem('authToken');
+
+                // Use fetch API to submit the form data along with the authToken in the header
+                fetch('/submitCategory', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}` // Include the auth token in the request headers
+                    },
+                    body: JSON.stringify(formData) // Convert formData object to JSON string
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(data);
+                        // Handle success response here, such as redirecting to a new page or displaying a success message
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Handle errors, such as displaying an error message to the user
+                    });
+            });
+        });
+
+
     </script>
 </body>
+
 </html>

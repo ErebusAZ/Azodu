@@ -56,6 +56,34 @@ setInterval(() => {
   });
 }, updateInterval);
 
+function authenticateToken(req, res, next) {
+  console.log('Authenticating token...');
+
+  // Typically, the token is sent in the "Authorization" header
+  const authHeader = req.headers['authorization'];
+  console.log('Authorization Header:', authHeader);
+
+  const token = authHeader && authHeader.split(' ')[1]; // Format: "Bearer TOKEN"
+  console.log('Token extracted:', token);
+
+  if (token == null) {
+    console.log('No token provided, sending 401 Unauthorized');
+    return res.sendStatus(401); // If no token, unauthorized
+  }
+
+  jwt.verify(token, jwtSecret, (err, user) => {
+    if (err) {
+      console.log('Token verification failed:', err.message);
+      return res.sendStatus(403); // If token is not valid or expired, forbidden
+    }
+
+    console.log('Token verified successfully, user:', user);
+    req.user = user; // Attach the user payload to the request
+    next(); // Proceed to the next middleware or route handler
+  });
+}
+
+
 app.post('/api/register', async (req, res) => {
   const { username, password, email } = req.body;
   if (!username || !password || !email) {
@@ -129,17 +157,21 @@ app.post('/api/login', async (req, res) => {
 
 
 
-// Define the route for form submission
-app.post('/submitPost', async (req, res) => {
+app.post('/submitPost', authenticateToken, async (req, res) => {
   const { title, category, postType, contentText, contentUrl } = req.body;
   const content = postType === 'text' ? contentText : contentUrl;
 
-
-  await insertPostData(client, title, 'bobert', category, postType, processHTMLFromUsers(content));
-
-  // Redirect to home or any other page after submission
-  res.redirect('/'); // Adjust the redirect URL as needed
+  try {
+    await insertPostData(client, title, req.user.username, category, postType, processHTMLFromUsers(content));
+    // Instead of redirecting, send a JSON response indicating success
+    res.status(200).json({ message: 'Post submitted successfully' });
+  } catch (error) {
+    console.error('Error submitting post:', error);
+    // Send a JSON response indicating an error
+    res.status(500).json({ message: 'Failed to submit post' });
+  }
 });
+
 
 
 function generateCategoryPermalink(title) {
@@ -157,33 +189,36 @@ function generateCategoryPermalink(title) {
 
 
 
-app.post('/submitCategory', async (req, res) => {
+app.post('/submitCategory', authenticateToken, async (req, res) => {
   const { name, creator, description } = req.body;
   const permalink = generateCategoryPermalink(name);
 
   try {
-    // Check if permalink already exists
-    const permalinkCheckQuery = 'SELECT permalink FROM my_keyspace.categories WHERE permalink = ?';
-    const permalinkResult = await client.execute(permalinkCheckQuery, [permalink], { prepare: true });
+      // Check if permalink already exists
+      const permalinkCheckQuery = 'SELECT permalink FROM my_keyspace.categories WHERE permalink = ?';
+      const permalinkResult = await client.execute(permalinkCheckQuery, [permalink], { prepare: true });
 
-    if (permalinkResult.rowLength > 0) {
-      // Permalink already exists
-      return res.send('A category with this permalink already exists.');
-    } else {
-      // Insert new category
-      const insertQuery = `
-        INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created)
-        VALUES (?, ?, ?, ?, toTimestamp(now()));
-      `;
-      await client.execute(insertQuery, [permalink, name, creator, processHTMLFromUsers(description)], { prepare: true });
-      console.log('Category created successfully');
-      res.redirect('/'); // Adjust the redirect as needed
-    }
+      if (permalinkResult.rowLength > 0) {
+          // Permalink already exists
+          return res.status(409).json({ message: 'A category with this permalink already exists.' });
+      } else {
+          // Insert new category
+          const insertQuery = `
+              INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created)
+              VALUES (?, ?, ?, ?, toTimestamp(now()));
+          `;
+          await client.execute(insertQuery, [permalink, name, creator, processHTMLFromUsers(description)], { prepare: true });
+          console.log('Category created successfully');
+          // Instead of redirect, send a success message as JSON
+          res.json({ message: 'Category created successfully' });
+      }
   } catch (error) {
-    console.error('Error creating category:', error);
-    res.send('Failed to create category.');
+      console.error('Error creating category:', error);
+      // Send an error message as JSON
+      res.status(500).json({ message: 'Failed to create category.' });
   }
 });
+
 
 function convertTimestampToDatePath(timestamp) {
   const year = timestamp.substring(0, 4);
