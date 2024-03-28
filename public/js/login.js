@@ -60,7 +60,7 @@ $(document).ready(function () {
                     // Handle both login and registration success
                     localStorage.setItem('authToken', data.token || ''); // Fallback to empty string if no token is present
                     localStorage.setItem('username', username); // Store username for displaying
-                    displayUsername(username); // Update UI with username
+                    updateUIBasedOnAuthStatus();
                     formMessage.textContent = data.message || 'Action successful. Redirecting...';
                     formMessage.style.color = 'limegreen';
 
@@ -81,15 +81,7 @@ $(document).ready(function () {
             });
     }
 
-    function displayUsername(username) {
-        // Assuming you have a place in your UI to display the username
-        const userDisplayElement = document.getElementById('userDisplay'); // Ensure this element exists in your HTML
-        if (userDisplayElement) {
-            userDisplayElement.textContent = `Logged in as ${username}`;
-            loginRegisterButton.style.display = 'none';
-        }
-    }
-
+ 
     function isJwtExpired(token) {
         if (!token) return true; // No token means "expired"
 
