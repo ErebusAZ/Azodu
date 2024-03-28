@@ -14,7 +14,11 @@
     display: block;
 }
 
-#logo_cont a {display: block;margin: 20px;margin-bottom: 0;}
+#logo_cont a {
+    display: block;
+    margin: 20px;
+    margin-bottom: 0;
+}
 
 
 #satori_logo {
@@ -115,6 +119,7 @@ label {
     width: 100%;
     min-height: 60px;
     padding-left: 0;
+    padding-right: 0;
 }
 
 
@@ -394,7 +399,7 @@ div#post_meta {
 }
 
 .post-content {
-     margin-top: 10px; 
+    margin-top: 10px;
 }
 
 
@@ -413,7 +418,7 @@ div#post_meta {
     margin-top: 22px;
     width: 100%;
     padding: 8px;
-    padding-right: 15px;
+    padding-right: 0;
     padding-left: 0;
 }
 
@@ -902,7 +907,7 @@ div#op_comment_form {
 }
 
 
-form#submit_post_form,form#submit_category_form {
+form#submit_post_form, form#submit_category_form {
     padding: 33px 50px;
 }
 
@@ -1138,6 +1143,8 @@ i.fas.fa-scroll, i.fas.fa-gavel {
 
 
 @media (max-width: 600px) {
+
+
 
     .post-title {
         font-size: 14px;
@@ -1553,7 +1560,7 @@ h2#formTitle {
 }
 
 #userDisplay {
-display: inline; 
+    display: inline;
 }
 
 #logoutButton {
