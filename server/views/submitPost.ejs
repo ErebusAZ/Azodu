@@ -34,7 +34,7 @@
             categories.forEach(function (category) {
               // Append category as an option
               // Use the permalink as the value to be submitted with the form
-              const option = $('<option></option>').val(category.permalink).text(category.name);
+              const option = $('<option></option>').val(category.permalink).text(category.name + ' - /c/' + category.permalink);
               $categorySelect.append(option);
             });
           },
