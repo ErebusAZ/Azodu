@@ -17,3 +17,31 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
+<script>
+function showNotification(message, type = 'info', duration = 3000, callback = null) {
+    let baseClass = 'notificationBar';
+    let typeClass = `notification-${type}`;
+
+    // Check if the notificationBar already exists, if not, create it
+    let $notificationBar = $('#' + baseClass);
+    if ($notificationBar.length === 0) {
+        $notificationBar = $('<div></div>', {
+            id: baseClass,
+            class: baseClass
+        }).appendTo('body');
+    }
+
+    // Update message and class based on the type
+    $notificationBar.text(message).removeClass().addClass(baseClass + ' ' + typeClass).fadeIn(200);
+
+    // Hide the notificationBar after 'duration' milliseconds and execute the callback if provided
+    setTimeout(function () {
+        $notificationBar.fadeOut(200, function () {
+            if (typeof callback === 'function') {
+                callback();
+            }
+        });
+    }, duration);
+}
+
+</script>

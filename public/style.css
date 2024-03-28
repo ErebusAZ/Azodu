@@ -1554,3 +1554,37 @@ div#userDisplay {
     right: 20px;
     top: 5px;
 }
+
+
+
+
+/* Notification */
+
+
+.notificationBar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    text-align: center;
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+}
+
+.notification-success {
+    background-color: #0d970d;
+    color: #fff;
+}
+
+.notification-error {
+    background-color: red;
+    color: white;
+}
+
+.notification-info {
+    background-color: black;
+    color: white;
+}

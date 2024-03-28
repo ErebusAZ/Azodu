@@ -144,54 +144,50 @@
 
 
 
+// Override the default form submission
+$('form').on('submit', function(e) {
+    e.preventDefault(); // Prevent the form from submitting through the browser
 
-    // Override the default form submission
-    $('form').on('submit', function(e) {
-        e.preventDefault(); // Prevent the form from submitting through the browser
+    var postType = $('#postType').val();
+    var title = $('#postTitle').val();
+    var category = $('#category').val();
+    var contentText = postType === 'text' ? quill.root.innerHTML : null;
+    var contentUrl = postType === 'url' ? $('#postContentUrl').val() : null;
 
-        var postType = $('#postType').val();
-        var title = $('#postTitle').val();
-        var category = $('#category').val();
-        var contentText = postType === 'text' ? quill.root.innerHTML : null;
-        var contentUrl = postType === 'url' ? $('#postContentUrl').val() : null;
+    // Prepare the formData object
+    var formData = {
+        title: title,
+        category: category,
+        postType: postType,
+        contentText: contentText,
+        contentUrl: contentUrl
+    };
 
-        // Prepare the formData object
-        var formData = {
-            title: title,
-            category: category,
-            postType: postType,
-            contentText: contentText,
-            contentUrl: contentUrl
-        };
+    // Get the authToken from local storage
+    var authToken = localStorage.getItem('authToken');
 
-        // Get the authToken from local storage
-        var authToken = localStorage.getItem('authToken');
-
-        // Make the Fetch API request to submit the post data
-        fetch('/submitPost', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + authToken  // Include the auth token in the request headers
-            },
-            body: JSON.stringify(formData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log(data);
-            // Handle success response
-            // You might want to redirect the user or display a success message
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            // Handle errors, such as displaying an error message to the user
-        });
+    // Make the Fetch API request to submit the post data
+    fetch('/submitPost', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + authToken  // Include the auth token in the request headers
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json()) // Always parse JSON, regardless of the response status
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.message); // Use the server-provided error message
+        }
+        console.log(data.message); // Log success message from server
+        showNotification(data.message, 'success', 3000, function() { window.location.href = "/"; });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification(error.message || 'There was an error submitting your post.', 'error', 3000);
     });
+});
 
 
 

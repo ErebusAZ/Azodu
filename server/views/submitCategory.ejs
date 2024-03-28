@@ -101,19 +101,22 @@
                     },
                     body: JSON.stringify(formData) // Convert formData object to JSON string
                 })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
+                    .then(response => response.json()) // First, parse JSON response
                     .then(data => {
-                        console.log(data);
-                        // Handle success response here, such as redirecting to a new page or displaying a success message
+                        if (data.message) {
+                            // Check if there is a message property in the response data
+                            showNotification(data.message, data.error ? 'error' : 'success', 3000, () => {
+                                if (!data.error) {
+                                    console.log('success!');
+                                    // Redirect only on success
+                                    document.location.href = "/";
+                                }
+                            });
+                        }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        // Handle errors, such as displaying an error message to the user
+                        showNotification('There was an error processing your request.', 'error', 3000);
                     });
             });
         });

@@ -194,30 +194,31 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
   const permalink = generateCategoryPermalink(name);
 
   try {
-      // Check if permalink already exists
-      const permalinkCheckQuery = 'SELECT permalink FROM my_keyspace.categories WHERE permalink = ?';
-      const permalinkResult = await client.execute(permalinkCheckQuery, [permalink], { prepare: true });
+    // Check if permalink already exists
+    const permalinkCheckQuery = 'SELECT permalink FROM my_keyspace.categories WHERE permalink = ?';
+    const permalinkResult = await client.execute(permalinkCheckQuery, [permalink], { prepare: true });
 
-      if (permalinkResult.rowLength > 0) {
-          // Permalink already exists
-          return res.status(409).json({ message: 'A category with this permalink already exists.' });
-      } else {
-          // Insert new category
-          const insertQuery = `
-              INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created)
-              VALUES (?, ?, ?, ?, toTimestamp(now()));
-          `;
-          await client.execute(insertQuery, [permalink, name, creator, processHTMLFromUsers(description)], { prepare: true });
-          console.log('Category created successfully');
-          // Instead of redirect, send a success message as JSON
-          res.json({ message: 'Category created successfully' });
-      }
+    if (permalinkResult.rowLength > 0) {
+      // Permalink already exists
+      return res.status(409).json({ error: true, message: 'A category with this permalink already exists.' });
+    } else {
+      // Insert new category
+      const insertQuery = `
+            INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created)
+            VALUES (?, ?, ?, ?, toTimestamp(now()));
+        `;
+      await client.execute(insertQuery, [permalink, name, creator, processHTMLFromUsers(description)], { prepare: true });
+      console.log('Category created successfully');
+      // Instead of redirect, send a success message as JSON
+      res.json({ error: false, message: 'Category created successfully' });
+    }
   } catch (error) {
-      console.error('Error creating category:', error);
-      // Send an error message as JSON
-      res.status(500).json({ message: 'Failed to create category.' });
+    console.error('Error creating category:', error);
+    // Send an error message as JSON
+    res.status(500).json({ error: true, message: 'Failed to create category.' });
   }
 });
+
 
 
 function convertTimestampToDatePath(timestamp) {
