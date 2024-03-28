@@ -1548,14 +1548,20 @@ h2#formTitle {
 }
 
 
-div#userDisplay {
+#account_info {
     font-size: 14px;
     position: absolute;
     right: 20px;
     top: 5px;
 }
 
+#userDisplay {
+display: inline; 
+}
 
+#logoutButton {
+    color: gray;
+}
 
 
 /* Notification */

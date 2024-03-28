@@ -3,6 +3,17 @@ $(document).ready(function () {
 
     updateUIBasedOnAuthStatus();
 
+    const logoutButton = document.getElementById('logoutButton');
+
+    logoutButton.addEventListener('click', () => {
+        // Remove the token
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('username'); // If you're also storing the username
+
+        
+        window.location.href = '/'; // Redirect to login page or home page
+    });
+
 
     const loginRegisterButton = document.getElementById('loginRegisterButton');
     const loginRegisterForm = document.getElementById('loginRegisterForm');
@@ -97,18 +108,21 @@ $(document).ready(function () {
     }
 
 
+
     function updateUIBasedOnAuthStatus() {
         const authToken = localStorage.getItem('authToken');
         const loginRegisterButton = document.getElementById('loginRegisterButton');
+        const logoutButton = document.getElementById('logoutButton'); // Get the logout button
         const userDisplayElement = document.getElementById('userDisplay');
-
+    
         if (authToken && !isJwtExpired(authToken)) {
             // Token is present and not expired
             const username = localStorage.getItem('username');
             if (username && userDisplayElement) {
-                userDisplayElement.innerHTML = 'Logged in as <a href="#">' + username + '</a>';
+                userDisplayElement.innerHTML = `Logged in as <a href="#">${username}</a>`;
                 userDisplayElement.style.display = '';
                 loginRegisterButton.style.display = 'none';
+                logoutButton.style.display = ''; // Show the logout button
             }
         } else {
             // No token, or it is expired
@@ -118,8 +132,10 @@ $(document).ready(function () {
                 userDisplayElement.style.display = 'none';
             }
             loginRegisterButton.style.display = '';
+            logoutButton.style.display = 'none'; // Hide the logout button
         }
     }
+    
 
 
     function resetFormFields() {
