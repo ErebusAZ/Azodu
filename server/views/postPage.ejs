@@ -43,7 +43,7 @@
                 const points = `${Math.floor(Math.random() * 10) + 1} points`;
                 const timeAgo = `${Math.floor(Math.random() * 59) + 1} minutes ago`;
                 // Determine background color based on depth
-                const backgroundColor = depth % 2 === 0 ? '#262626' : '#2d2d2d';
+                const backgroundColor = depth % 2 === 0 ? '#2d2d2d' : '#2d2d2d';
 
                 commentsHtml += `
         <div class="comment" style="background-color: ${backgroundColor};">
@@ -136,7 +136,7 @@
 
 
         function getCommentHtml(commentId, author, content, depth = 0,votes,timestamp) {
-            const backgroundColor = depth % 2 === 0 ? '#262626' : '#2d2d2d';
+            const backgroundColor = depth % 2 === 0 ? '#2d2d2d' : '#2d2d2d';
             const points = "0 points"; // Placeholder for points
 
             return `<div data-depth="${depth}" data-commentid="${commentId}" id="comment-${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">

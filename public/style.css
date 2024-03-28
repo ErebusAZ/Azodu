@@ -674,7 +674,7 @@ div#op_comment_form {
 }
 
 .comment {
-    background-color: #2d2d2d !important;
+    background-color: #2d2d2d;
     padding: 10px;
     margin-top: 3px;
     border-radius: 5px;
