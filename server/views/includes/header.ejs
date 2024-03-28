@@ -74,21 +74,20 @@
         return true; // User is logged in, continue with the action
     }
 
-    $(document).on('click', 'form, textarea, .ql-editor', function(e) {
-    // Check if the clicked element or any of its parents is #loginRegisterForm
-    if ($(e.target).closest('#loginRegisterForm').length) {
-        // If true, it means the click originated from inside #loginRegisterForm or is #loginRegisterForm itself
-        // Do nothing and return early
-        return;
-    }
+    $(document).on('click', 'form, textarea, .ql-editor', function (e) {
+        // Check if the clicked element or any of its parents is #loginRegisterForm
+        if ($(e.target).closest('#loginRegisterForm').length) {
+            // If true, it means the click originated from inside #loginRegisterForm or is #loginRegisterForm itself
+            // Do nothing and return early
+            return;
+        }
 
-    console.log('hi');
-    if (!localStorage.getItem('authToken') || isJwtExpired(localStorage.getItem('authToken'))) {
-        e.preventDefault(); // Prevent the default action
-        // Display the login form
-        $('#loginRegisterForm').css('display', 'flex');
-    }
-});
+        if (!localStorage.getItem('authToken') || isJwtExpired(localStorage.getItem('authToken'))) {
+            e.preventDefault(); // Prevent the default action
+            // Display the login form
+            $('#loginRegisterForm').css('display', 'flex');
+        }
+    });
 
 
 
@@ -113,4 +112,3 @@
             </form>
         </div>
     </div>
-    
