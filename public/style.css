@@ -904,7 +904,7 @@ div#op_comment_form {
     padding: 50px 50px;
 }
 
-.submitCategoryPage .container, #submit_post_page .container {
+.submitCategoryPage.container, #submit_post_page.container {
     width: 100%;
 }
 

@@ -82,23 +82,6 @@ $(document).ready(function () {
     }
 
  
-    function isJwtExpired(token) {
-        if (!token) return true; // No token means "expired"
-
-        try {
-            const base64Url = token.split('.')[1]; // JWT structure: Header.Payload.Signature
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const payload = JSON.parse(window.atob(base64));
-
-            // JWT exp is in seconds
-            const now = new Date().getTime() / 1000; // Convert to seconds
-            return payload.exp < now;
-        } catch (error) {
-            console.error("Error decoding token:", error);
-            return true; // Assume expired on any error
-        }
-    }
-
 
 
     function updateUIBasedOnAuthStatus() {
