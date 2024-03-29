@@ -144,11 +144,18 @@ app.post('/api/login', async (req, res) => {
 
 
 app.post('/submitPost', authenticateToken, async (req, res) => {
-  const creator = req.user.username; 
-  
+  const creator = req.user.username;
+
   const { title, category, postType, contentText, contentUrl } = req.body;
   const content = postType === 'text' ? contentText : contentUrl;
 
+  if (postType === 'text') {
+    const result = validateComment(content);
+    if (!result.isValid) {
+      res.status(400).json({ message: 'Failed to submit post. Reason: ' + result.message, error: true });
+      return;
+    }
+  }
   try {
     await insertPostData(client, title, creator, category, postType, processHTMLFromUsers(content));
     // Instead of redirecting, send a JSON response indicating success
