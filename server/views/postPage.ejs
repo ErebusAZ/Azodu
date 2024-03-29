@@ -255,7 +255,7 @@
                 var $thisButton = $(this);
                 var post_id = $thisButton.data('postid'); // The ID of the post or parent comment
                 var truePostId = '<%= post.post_id %>'; // Assuming this is provided by your server-side template
-                var commentContent = quillEditors[post_id].root.innerHTML; // Content from Quill editor
+                var commentContent = processHTMLFromUsers(quillEditors[post_id].root.innerHTML); // Content from Quill editor
                 var $statusMessage = $thisButton.siblings('.status-message'); // Status message related to this comment form
 
                 // Determine depth for new comment
@@ -468,7 +468,7 @@
 
 
                 saveBtn.on('click', function () {
-                    const updatedContent = quillEditor.root.innerHTML;
+                    const updatedContent = processHTMLFromUsers(quillEditor.root.innerHTML);
                     $.ajax({
                         url: '/api/comment',
                         type: 'POST',
@@ -482,7 +482,6 @@
                             quillContainer.remove();
                             $toolbar.remove();
 
-                            console.log(updatedContent);
 
                             $commentContent.find('.comment-text').html(updatedContent).show();
                             quillEditor.container.remove();

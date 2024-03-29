@@ -343,50 +343,50 @@ app.post('/api/vote', async (req, res) => {
   }
 });
 
-function cleanHtmlContent(content) {
-
-  // replace space with empty string
-  content = content.replace(/&nbsp;/gi, ' ');
-
-  // trim leading and trailing spaces
-  // causes spaces removed around links
- // content = content.replace(/(>)[\s]+/g, '$1').replace(/[\s]+(<)/g, '$1');
-
-  // This regex removes tags that contain only whitespace or a single <br> tag, in addition to entirely empty tags
-  return content.replace(/<(\w+)(?:\s+[^>]*)?>\s*(<br\s*\/?>)?\s*<\/\1>/g, '');
-}
-
-function removeDangerousTags(html) {
-  // Remove script tags and their content
-  html = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-
-  // You can add more lines here to remove other potentially dangerous tags
-  // Example: Remove iframe tags
-  // html = html.replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '');
-  
-  return html;
-}
-
-function removeAllAttributesExceptLinks(html) {
-  // This regex looks for HTML tags that are not <a> and attempts to remove attributes inside them
-  // It will leave <a href="..."> tags untouched
-  const cleanHtml = html.replace(/<((?!a\b)\w+)(\s+[^>]+)?(>)/g, '<$1$3');
-  return cleanHtml;
-}
-
 function processHTMLFromUsers(content) {
   if (!content) {
-    return content;
+      return content;
+  }
+
+  function cleanHtmlContent(content) {
+
+    // replace space with empty string
+    content = content.replace(/&nbsp;/gi, ' ');
+
+    // trim leading and trailing spaces
+    // causes spaces removed around links
+    // content = content.replace(/(>)[\s]+/g, '$1').replace(/[\s]+(<)/g, '$1');
+
+    // This regex removes tags that contain only whitespace or a single <br> tag, in addition to entirely empty tags
+    return content.replace(/<(\w+)(?:\s+[^>]*)?>\s*(<br\s*\/?>)?\s*<\/\1>/g, '');
+  }
+
+  function removeDangerousTags(html) {
+    // Remove script tags and their content
+    html = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+    // You can add more lines here to remove other potentially dangerous tags
+    // Example: Remove iframe tags
+    // html = html.replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '');
+
+    return html;
+  }
+
+  function removeAllAttributesExceptLinks(html) {
+    // This regex looks for HTML tags that are not <a> and attempts to remove attributes inside them
+    // It will leave <a href="..."> tags untouched
+    const cleanHtml = html.replace(/<((?!a\b)\w+)(\s+[^>]+)?(>)/g, '<$1$3');
+    return cleanHtml;
   }
 
   // Step 1: Clean the content (if needed, like removing &nbsp; or empty tags)
   content = cleanHtmlContent(content);
-  
+
   // Step 2: Remove dangerous tags like <script>
   content = removeDangerousTags(content);
 
   // Step 3: Keep only <a> tags with href and optionally target="_blank", remove all other attributes
-  content = content.replace(/<a\b[^>]*>/gi, function(match) {
+  content = content.replace(/<a\b[^>]*>/gi, function (match) {
     const hrefMatch = match.match(/\bhref="[^"]*"/i);
     const targetMatch = match.match(/\btarget="_blank"/i);
     return `<a ${hrefMatch ? hrefMatch[0] : ''} ${targetMatch ? targetMatch[0] : ''}>`;
