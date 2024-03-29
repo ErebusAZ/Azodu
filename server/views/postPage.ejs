@@ -33,56 +33,6 @@ var post = <%- JSON.stringify(post) %>;
                 }
             }
 
-
-        function generateTestComments(count, depth = 0) {
-            if (depth > 4) return ''; // Limit depth to 4
-            let commentsHtml = '';
-            for (let i = 0; i < count; i++) {
-                const username = `user${Math.floor(Math.random() * 100)}`;
-                const points = `${Math.floor(Math.random() * 10) + 1} points`;
-                const timeAgo = `${Math.floor(Math.random() * 59) + 1} minutes ago`;
-                // Determine background color based on depth
-                const backgroundColor = depth % 2 === 0 ? '#2d2d2d' : '#2d2d2d';
-
-                commentsHtml += `
-        <div class="comment" style="background-color: ${backgroundColor};">
-            <div class="voting">
-    
-                <a title="upvote" description="upvote" href="#" class="upvote" data-postid="123"><img src="/img/up-arrow.svg" alt="Upvote"></a>
-        <span class="votes">123</span>
-<a title="downvote" description="downvote" href="#" class="downvote" data-postid="123"><img src="/img/down-arrow.svg" alt="Downvote"></a>
-
-
-
-            </div>
-            <div class="comment-content">
-                <div class="comment-header">
-                    <a href="#" class="username">${username}</a>
-                    <span class="time">${timeAgo}</span>
-                </div>
-                <div class="comment-text" style="display: none;"><p>This is a comment. It could be very interesting and contain lots of insightful information. Or it could be asking for more details.</p>
-                </div><div class="comment-links">
-                    <a href="#">link</a>
-                    <a href="#">save</a>
-                    <a href="#edit" class="edit">edit</a>
-
-                    <a href="#reply" class="reply">reply</a>
-                </div>
-                <div class="reply-form" style="display: none;">
-                    <div class="reply-input"></div>
-                    <div class="status-message" style="color: red; display: none;"></div>
-                    <button type="button" class="submit-reply">Submit</button>
-                    <button type="button" class="cancel-reply">Cancel</button>
-
-                </div>
-                ${generateTestComments(Math.floor(Math.random() * 3), depth + 1)}
-            </div>
-        </div>
-        `;
-            }
-            return commentsHtml;
-        }
-
         function organizeComments(comments, sortBy = 'top') {
                 const commentsMap = {};
 
@@ -202,7 +152,6 @@ var post = <%- JSON.stringify(post) %>;
         if(Object.keys(post.comments).length > 0)
         $('.sort-container').css({'display':'block'}); 
 
-            //    $('.comments').append(generateTestComments(100)); // Start with 10 top-level comments
             const organizedComments = organizeComments(post.comments);
             const commentsHTML = renderComments(organizedComments);
             $('.comments').append(commentsHTML);
