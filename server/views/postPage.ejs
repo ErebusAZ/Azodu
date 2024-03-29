@@ -6,16 +6,16 @@
     <title>
         <%= post.title %>
     </title>
-   
+
 
     <%- include('includes/header') %>
 
 
-    <script>
+        <script>
 
-var post = <%- JSON.stringify(post) %>;
+            var post = <%- JSON.stringify(post) %>;
 
- 
+
 
             function scrollToComment() {
                 const commentId = window.location.hash; // e.g., "#comment-12345"
@@ -27,13 +27,13 @@ var post = <%- JSON.stringify(post) %>;
                         commentElement.style.backgroundColor = "#5b5703";
 
                     } else {
-                    
+
                         console.log('Comment not loaded yet. Implement logic to load the comment.');
                     }
                 }
             }
 
-        function organizeComments(comments, sortBy = 'top') {
+            function organizeComments(comments, sortBy = 'top') {
                 const commentsMap = {};
 
                 // Initialize each comment with an empty 'replies' array and calculate points
@@ -87,12 +87,12 @@ var post = <%- JSON.stringify(post) %>;
             function getCommentHtml(commentId, author, content, depth = 0, votes, timestamp) {
 
                 const currentUser = localStorage.getItem('username');
-    const backgroundColor = depth % 2 === 0 ? '#2d2d2d' : '#2d2d2d';
-    
-    // Check if the currentUser is the author of the comment
-    const isAuthor = currentUser === author;
+                const backgroundColor = depth % 2 === 0 ? '#2d2d2d' : '#2d2d2d';
 
-    return `<div data-depth="${depth}" data-commentid="${commentId}" id="comment-${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">
+                // Check if the currentUser is the author of the comment
+                const isAuthor = currentUser === author;
+
+                return `<div data-depth="${depth}" data-commentid="${commentId}" id="comment-${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">
         <div class="voting">
             <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${commentId}"><img src="/img/up-arrow.svg" alt="Upvote"></a>
             <span class="votes">${votes}</span>
@@ -119,380 +119,173 @@ var post = <%- JSON.stringify(post) %>;
             </div>
         </div>
     </div>`;
-}
-
-
-
-
-        function renderComments(comments, depth = 0) {
-            let html = ''; // Start with an empty string
-
-            comments.forEach(comment => {
-                // Use getCommentHtml with individual parameters
-                html += getCommentHtml(comment.comment_id, comment.author, comment.content, depth,comment.upvotes - comment.downvotes,comment.timestamp);
-
-                // Check for replies and recursively render them
-                if (comment.replies && comment.replies.length > 0) {
-                    html += renderComments(comment.replies, depth + 1); // Increment depth for nested comments
-                }
-            });
-
-            return html;
-        }
-
-        // Use the functions
-        const organizedComments = organizeComments(post.comments);
-        const commentsHTML = renderComments(organizedComments);
-
-
-        // In an EJS template, you might then inject commentsHTML where appropriate
-
-
-
-
-    $(document).on('click', '.delete', function (e) {
-        e.preventDefault();
-        const $comment = $(this).closest('.comment');
-        const commentId = $comment.data('commentid');
-
-        const confirmed = confirm('Are you sure you want to delete this comment?');
-        if (confirmed) {
-            deleteComment(commentId);
-        }
-    });
-
-    function deleteComment(commentId) {
-        const authToken = localStorage.getItem('authToken');
-        // Prepare the request payload indicating a deletion action
-        const data = JSON.stringify({
-            commentId: commentId,
-            isDelete: true, // Indicate this is a delete operation
-            post_id: '<%= post.post_id %>',
-            isEdit: false
-
-        });
-
-        $.ajax({
-            url: `/api/comment`, // Adjusted to the generalized endpoint for comment management
-            type: 'POST', // Using POST as per the updated backend endpoint
-            contentType: 'application/json', // Specify the content type of the request
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            },
-            data: data, // Pass the stringified payload
-            success: function () {
-                console.log('Comment deleted successfully');
-                // Optionally remove the comment from the DOM or refresh the comments section
-                $(`#comment-${commentId}`).remove();
-            },
-            error: function (xhr, status, error) {
-                console.error('Error deleting comment', error);
-                // Handle the error (show a message to the user, log the error, etc.)
             }
-        });
-    }
 
 
 
-        $(document).ready(function () {
 
-            // hide the comment sort dropdown
-        if(Object.keys(post.comments).length > 0)
-        $('.sort-container').css({'display':'block'}); 
+            function renderComments(comments, depth = 0) {
+                let html = ''; // Start with an empty string
 
+                comments.forEach(comment => {
+                    // Use getCommentHtml with individual parameters
+                    html += getCommentHtml(comment.comment_id, comment.author, comment.content, depth, comment.upvotes - comment.downvotes, comment.timestamp);
+
+                    // Check for replies and recursively render them
+                    if (comment.replies && comment.replies.length > 0) {
+                        html += renderComments(comment.replies, depth + 1); // Increment depth for nested comments
+                    }
+                });
+
+                return html;
+            }
+
+            // Use the functions
             const organizedComments = organizeComments(post.comments);
             const commentsHTML = renderComments(organizedComments);
-            $('.comments').append(commentsHTML);
 
-            scrollToComment();
 
-            // Assuming this code is placed inside a document ready function and the reply link click handler
-            $(document).on('click', '.reply', function (e) {
+            // In an EJS template, you might then inject commentsHTML where appropriate
+
+
+
+
+            $(document).on('click', '.delete', function (e) {
                 e.preventDefault();
-                var $replyForm = $(this).closest('.comment-content').find('.reply-form').first();
-                $replyForm.show(); // Show the reply form
+                const $comment = $(this).closest('.comment');
+                const commentId = $comment.data('commentid');
 
-                if (!$replyForm.data('quill-initialized')) {
-                    var container = $replyForm.find('.reply-input')[0];
-
-
-                    // Find the submit button within the reply form
-                    var $submitButton = $replyForm.find('.submit-reply').first();
-                    console.log($submitButton);
-                    // Now $submitButton is the jQuery object for the submit button
-                    console.log('Submit button post id is:', $submitButton.data('postid'));
-
-                    // Initialize Quill editor if not already initialized
-                    quillEditors[$submitButton.data('postid')] = new Quill(container, {
-                        modules: {
-                            toolbar: [
-                                ['bold', 'italic', 'underline', 'strike', 'blockquote'],        // grouped buttons
-                                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                                ['link']  // links and image embed buttons
-                            ]
-                        },
-                        theme: 'snow', // Assuming the Snow theme
-                        // other Quill options...
-                    });
-
-
-                    // Add a specific class to the .ql-editor based on the parent's background color
-                    var editorClass = $(this).closest('.comment').css('background-color') === 'rgb(38, 38, 38)' ? 'ql-editor-dark' : 'ql-editor-light';
-                    $(container).find('.ql-editor').addClass(editorClass);
-
-                    $replyForm.data('quill-initialized', true);
+                const confirmed = confirm('Are you sure you want to delete this comment?');
+                if (confirmed) {
+                    deleteComment(commentId);
                 }
             });
 
-            $(document).on('click', '.cancel-reply', function (e) {
-                e.preventDefault();
-
-                var $replyForm = $(this).closest('.comment-content').find('.reply-form').first();
-                $replyForm.hide();
-
-
-            });
-            $(document).on('click', '#submit-comment, .submit-reply', function (e) {
-                e.preventDefault();
-
-                var $thisButton = $(this);
-                var post_id = $thisButton.data('postid'); // The ID of the post or parent comment
-                var truePostId = '<%= post.post_id %>'; // Assuming this is provided by your server-side template
-                var commentContent = processHTMLFromUsers(quillEditors[post_id].root.innerHTML); // Content from Quill editor
-                var result = validateComment(commentContent);
-                if(!result.isValid) {
-
-                 var $statusMessage = $thisButton.parent().find('.status-message');
-                    
-                $statusMessage.text(result.message).css('color', 'red').show().delay(3000).fadeOut();
-                     
-                    return; 
-                }
-                
-                var $statusMessage = $thisButton.siblings('.status-message'); // Status message related to this comment form
-
-                // Determine depth for new comment
-                var depth = 0; // Default depth for top-level comments
-                if (post_id !== truePostId) { // If it's a reply to another comment
-                    var $parentComment = $thisButton.closest('.comment');
-                    depth = parseInt($parentComment.data('depth')) + 1;
-                }
-
-                // Show submitting status
-                $statusMessage.text('Submitting...').css('color', 'white').show();
-
-                
+            function deleteComment(commentId) {
                 const authToken = localStorage.getItem('authToken');
-                const author = localStorage.getItem('username');
+                // Prepare the request payload indicating a deletion action
+                const data = JSON.stringify({
+                    commentId: commentId,
+                    isDelete: true, // Indicate this is a delete operation
+                    post_id: '<%= post.post_id %>',
+                    isEdit: false
 
+                });
 
                 $.ajax({
-                    url: '/api/comment',
-                    type: 'POST',
-                    contentType: 'application/json',
+                    url: `/api/comment`, // Adjusted to the generalized endpoint for comment management
+                    type: 'POST', // Using POST as per the updated backend endpoint
+                    contentType: 'application/json', // Specify the content type of the request
                     headers: {
-                        'Authorization': `Bearer ${authToken}` // Include the auth token in the request headers
+                        'Authorization': `Bearer ${authToken}`
                     },
-                    data: JSON.stringify({ post_id: truePostId, content: commentContent, parent_id: post_id }),
-                    success: function (response) {
-
-                        const newCommentID = response.commentId;
-
-                        var commentHTML = getCommentHtml(newCommentID, author, commentContent, depth, 1); // Assuming your getCommentHtml can handle these parameters
-                        // Inserting the comment in the correct position
-                        if (post_id == truePostId) {
-                            $('.comments').prepend(commentHTML); // Add to the start for top-level comments
-                        } else {
-                            $thisButton.closest('.comment').after(commentHTML); // Add after the parent comment for nested replies
-                        }
-
-                        // Clearing the Quill editor and hiding the reply form
-                        if (quillEditors[post_id]) {
-                            quillEditors[post_id].setContents([]);
-                        }
-                        $statusMessage.text('').hide();
-                        $thisButton.closest('.reply-form').hide();
+                    data: data, // Pass the stringified payload
+                    success: function () {
+                        console.log('Comment deleted successfully');
+                        // Optionally remove the comment from the DOM or refresh the comments section
+                        $(`#comment-${commentId}`).remove();
                     },
                     error: function (xhr, status, error) {
-                        console.error('Error submitting comment', error);
-                        $statusMessage.text('Error submitting comment').css('color', 'red').show().delay(3000).fadeOut();
+                        console.error('Error deleting comment', error);
+                        // Handle the error (show a message to the user, log the error, etc.)
                     }
                 });
-            });
+            }
 
 
-            $('.upvote, .downvote').on('click', function (event) {
-                event.preventDefault();
 
-            });
+            $(document).ready(function () {
 
+                // hide the comment sort dropdown
+                if (Object.keys(post.comments).length > 0)
+                    $('.sort-container').css({ 'display': 'block' });
 
-            $('body').on('click', '.upvote, .downvote', function (event) {
-                event.preventDefault();
+                const organizedComments = organizeComments(post.comments);
+                const commentsHTML = renderComments(organizedComments);
+                $('.comments').append(commentsHTML);
 
-                const $this = $(this);
-                const $votingContext = $this.closest('.voting');
-                const isUpvote = $this.hasClass('upvote');
-                let currentVoteState = $votingContext.data('voteState') || 'none';
+                scrollToComment();
 
-                let newVoteState = 'none';
-                // Determine the new vote state based on the current state and the action
-                if (isUpvote && currentVoteState !== 'up') {
-                    newVoteState = 'up';
-                } else if (!isUpvote && currentVoteState !== 'down') {
-                    newVoteState = 'down';
-                }
+                // Assuming this code is placed inside a document ready function and the reply link click handler
+                $(document).on('click', '.reply', function (e) {
+                    e.preventDefault();
+                    var $replyForm = $(this).closest('.comment-content').find('.reply-form').first();
+                    $replyForm.show(); // Show the reply form
 
-                // Update vote state or toggle off if the same button was clicked again
-                if (newVoteState === currentVoteState) {
-                    newVoteState = 'none'; // Toggle off if the same state was clicked again
-                }
-
-                // Find the current vote count
-                const $voteCountSpan = $votingContext.find('.votes');
-                let currentCount = parseInt($voteCountSpan.text(), 10);
-
-                // Adjust the vote count based on the new vote state
-                switch (newVoteState) {
-                    case 'up':
-                        currentCount = currentVoteState === 'down' ? currentCount + 2 : currentVoteState === 'none' ? currentCount + 1 : currentCount - 1;
-                        break;
-                    case 'down':
-                        currentCount = currentVoteState === 'up' ? currentCount - 2 : currentVoteState === 'none' ? currentCount - 1 : currentCount + 1;
-                        break;
-                    case 'none':
-                        // Undo the vote
-                        currentCount = currentVoteState === 'up' ? currentCount - 1 : currentVoteState === 'down' ? currentCount + 1 : currentCount;
-                        break;
-                }
-
-                // Update the vote count and state
-                $voteCountSpan.text(currentCount);
-                $votingContext.data('voteState', newVoteState);
-
-                // Reset visual state for all buttons
-                $votingContext.find('.upvote, .downvote').removeClass('upvote-active downvote-active');
-                // Apply the active class to the current button, if applicable
-                if (newVoteState !== 'none') {
-                    $this.addClass(newVoteState + 'vote-active');
-                }
+                    if (!$replyForm.data('quill-initialized')) {
+                        var container = $replyForm.find('.reply-input')[0];
 
 
-                $.ajax({
-                    url: `/api/vote/`,
-                    type: 'POST',
-                    data: {
-                        upvote: isUpvote,
-                        post_id: $this.data('postid'),
-                        root_post_id: '<%= post.post_id %>'
-                    },
-                    success: function (response) {
-                        console.log('Vote recorded successfully.');
-                        // You might still want to log the success or handle any sync issues here
-                    },
-                    error: function (error) {
-                        console.error('Failed to record vote:', error);
-                        // Since we're optimistically updating the UI, consider how to handle errors
+                        // Find the submit button within the reply form
+                        var $submitButton = $replyForm.find('.submit-reply').first();
+                        console.log($submitButton);
+                        // Now $submitButton is the jQuery object for the submit button
+                        console.log('Submit button post id is:', $submitButton.data('postid'));
+
+                        // Initialize Quill editor if not already initialized
+                        quillEditors[$submitButton.data('postid')] = new Quill(container, {
+                            modules: {
+                                toolbar: [
+                                    ['bold', 'italic', 'underline', 'strike', 'blockquote'],        // grouped buttons
+                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                    ['link']  // links and image embed buttons
+                                ]
+                            },
+                            theme: 'snow', // Assuming the Snow theme
+                            // other Quill options...
+                        });
+
+
+                        // Add a specific class to the .ql-editor based on the parent's background color
+                        var editorClass = $(this).closest('.comment').css('background-color') === 'rgb(38, 38, 38)' ? 'ql-editor-dark' : 'ql-editor-light';
+                        $(container).find('.ql-editor').addClass(editorClass);
+
+                        $replyForm.data('quill-initialized', true);
                     }
                 });
-            });
+
+                $(document).on('click', '.cancel-reply', function (e) {
+                    e.preventDefault();
+
+                    var $replyForm = $(this).closest('.comment-content').find('.reply-form').first();
+                    $replyForm.hide();
 
 
-          
-
-
-            $('body').on('click', '.edit', function (e) {
-                e.preventDefault();
-
-                const $comment = $(this).closest('.comment');
-                const $commentContent = $comment.find('.comment-content');
-                const originalContentHtml = $commentContent.find('.comment-text').html(); // Assuming the comment text is in <p>
-                const $commentLinks = $comment.find('.comment-links');
-                const postID = $comment.data('commentid');
-
-
-                // Remove any existing editor to prevent duplicates
-                $commentContent.find('.quill-editing, .edit-actions').remove();
-
-                // Hide the original comment content and links
-                $commentContent.find('.comment-text, .edit').hide();
-                $commentLinks.hide();
-
-
-
-                // Determine the current background color of the comment
-                const currentBgColor = $comment.css('background-color');
-                // Alternate background colors
-                const bgColor1 = 'rgb(38, 38, 38)'; // #262626
-                const bgColor2 = 'rgb(45, 45, 45)'; // #2d2d2d
-                // Determine the new background color
-                const newBgColor = currentBgColor === bgColor1 ? bgColor2 : bgColor1;
-
-                // Remove any existing Quill editors to prevent duplicates
-                $commentContent.find('.quill-editing').remove();
-                $commentContent.find('.comment-text, .edit').hide();
-
-                // Append a Quill editor container
-                const quillContainer = $('<div>').addClass('quill-editing ql-container ql-snow').appendTo($commentContent);
-
-                // Initialize Quill on the new container
-                const quillEditor = new Quill(quillContainer.get(0), {
-                    theme: 'snow',
-                    modules: {
-                        toolbar: [
-                            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-                            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                            ['link']
-                        ]
-                    },
                 });
+                $(document).on('click', '#submit-comment, .submit-reply', function (e) {
+                    e.preventDefault();
+
+                    var $thisButton = $(this);
+                    var post_id = $thisButton.data('postid'); // The ID of the post or parent comment
+                    var truePostId = '<%= post.post_id %>'; // Assuming this is provided by your server-side template
+                    var commentContent = processHTMLFromUsers(quillEditors[post_id].root.innerHTML); // Content from Quill editor
+                    var result = validateComment(commentContent);
+                    if (!result.isValid) {
+
+                        var $statusMessage = $thisButton.parent().find('.status-message');
+
+                        $statusMessage.text(result.message).css('color', 'red').show().delay(3000).fadeOut();
+
+                        return;
+                    }
+
+                    var $statusMessage = $thisButton.siblings('.status-message'); // Status message related to this comment form
+
+                    // Determine depth for new comment
+                    var depth = 0; // Default depth for top-level comments
+                    if (post_id !== truePostId) { // If it's a reply to another comment
+                        var $parentComment = $thisButton.closest('.comment');
+                        depth = parseInt($parentComment.data('depth')) + 1;
+                    }
+
+                    // Show submitting status
+                    $statusMessage.text('Submitting...').css('color', 'white').show();
 
 
-                quillEditor.root.innerHTML = originalContentHtml;
-
-                // Apply the determined background color directly to the '.ql-editor' inside the Quill container
-                $(quillEditor.root).css('background-color', newBgColor);
+                    const authToken = localStorage.getItem('authToken');
+                    const author = localStorage.getItem('username');
 
 
-                // Append Save and Cancel buttons
-                const actionsHtml = `
-    <div class="edit-actions">
-        <div class="status-message" style="color: red; display: none;"></div>
-        <button class="save-edit">Save</button>
-        <button class="cancel-edit">Cancel</button>
-    </div>`;
-                $(actionsHtml).appendTo($commentContent);
-                const $toolbar = $comment.find('.ql-toolbar');
-
-
-                // Handle the cancel action
-                $commentContent.find('.cancel-edit').on('click', function () {
-
-                    quillContainer.remove(); // This should correctly remove the Quill editor container
-                    $toolbar.remove();
-                    $commentContent.find('.edit-actions').remove(); // Remove the action buttons
-                    $commentContent.find('.comment-text, .edit').show(); // Show the original content and edit link
-                    $commentLinks.show(); // Show the comment links again
-                });
-
-                // Handle save (similar to your submit logic but for updating existing comments)
-                const saveBtn = $comment.find('.save-edit');
-                const cancelBtn = $comment.find('.cancel-edit');
-
-                const authToken = localStorage.getItem('authToken');
-
-
-                saveBtn.on('click', function () {
-                    const updatedContent = processHTMLFromUsers(quillEditor.root.innerHTML);
-                    var result = validateComment(updatedContent);
-                if(!result.isValid) {
-
-                 var $statusMessage = $(this).parent().find('.status-message');
-                    
-                $statusMessage.text(result.message).css('color', 'red').show().delay(3000).fadeOut();
-                     
-                    return; 
-                }
                     $.ajax({
                         url: '/api/comment',
                         type: 'POST',
@@ -500,208 +293,416 @@ var post = <%- JSON.stringify(post) %>;
                         headers: {
                             'Authorization': `Bearer ${authToken}` // Include the auth token in the request headers
                         },
-                        data: JSON.stringify({ commentId: postID, post_id: '<%= post.post_id %>', content: updatedContent, isEdit: true }),
+                        data: JSON.stringify({ post_id: truePostId, content: commentContent, parent_id: post_id }),
                         success: function (response) {
-                            console.log('edit comment success');
-                            quillContainer.remove();
-                            $toolbar.remove();
 
+                            const newCommentID = response.commentId;
 
-                            $commentContent.find('.comment-text').html(updatedContent).show();
-                            quillEditor.container.remove();
-                            saveBtn.remove();
-                            cancelBtn.remove();
-                            $commentContent.find('.edit').show();
-                            $commentLinks.show();
+                            var commentHTML = getCommentHtml(newCommentID, author, commentContent, depth, 1); // Assuming your getCommentHtml can handle these parameters
+                            // Inserting the comment in the correct position
+                            if (post_id == truePostId) {
+                                $('.comments').prepend(commentHTML); // Add to the start for top-level comments
+                            } else {
+                                $thisButton.closest('.comment').after(commentHTML); // Add after the parent comment for nested replies
+                            }
 
+                            // Clearing the Quill editor and hiding the reply form
+                            if (quillEditors[post_id]) {
+                                quillEditors[post_id].setContents([]);
+                            }
+                            $statusMessage.text('').hide();
+                            $thisButton.closest('.reply-form').hide();
                         },
                         error: function (xhr, status, error) {
-                            var $statusMessage = $comment.find('.status-message');
                             console.error('Error submitting comment', error);
                             $statusMessage.text('Error submitting comment').css('color', 'red').show().delay(3000).fadeOut();
                         }
                     });
+                });
 
+
+                $('.upvote, .downvote').on('click', function (event) {
+                    event.preventDefault();
 
                 });
 
 
+                $('body').on('click', '.upvote, .downvote', function (event) {
+                    event.preventDefault();
 
-            });
+                    const $this = $(this);
+                    const $votingContext = $this.closest('.voting');
+                    const isUpvote = $this.hasClass('upvote');
+                    let currentVoteState = $votingContext.data('voteState') || 'none';
 
+                    let newVoteState = 'none';
+                    // Determine the new vote state based on the current state and the action
+                    if (isUpvote && currentVoteState !== 'up') {
+                        newVoteState = 'up';
+                    } else if (!isUpvote && currentVoteState !== 'down') {
+                        newVoteState = 'down';
+                    }
 
+                    // Update vote state or toggle off if the same button was clicked again
+                    if (newVoteState === currentVoteState) {
+                        newVoteState = 'none'; // Toggle off if the same state was clicked again
+                    }
 
+                    // Find the current vote count
+                    const $voteCountSpan = $votingContext.find('.votes');
+                    let currentCount = parseInt($voteCountSpan.text(), 10);
 
+                    // Adjust the vote count based on the new vote state
+                    switch (newVoteState) {
+                        case 'up':
+                            currentCount = currentVoteState === 'down' ? currentCount + 2 : currentVoteState === 'none' ? currentCount + 1 : currentCount - 1;
+                            break;
+                        case 'down':
+                            currentCount = currentVoteState === 'up' ? currentCount - 2 : currentVoteState === 'none' ? currentCount - 1 : currentCount + 1;
+                            break;
+                        case 'none':
+                            // Undo the vote
+                            currentCount = currentVoteState === 'up' ? currentCount - 1 : currentVoteState === 'down' ? currentCount + 1 : currentCount;
+                            break;
+                    }
 
+                    // Update the vote count and state
+                    $voteCountSpan.text(currentCount);
+                    $votingContext.data('voteState', newVoteState);
 
-        });
-
-        var quillEditors = {};
-
-        function timeAgo(dateString) {
-        const date = new Date(dateString);
-        const now = new Date();
-        const secondsAgo = Math.round((now - date) / 1000);
-
-        const minutesAgo = Math.round(secondsAgo / 60);
-        const hoursAgo = Math.round(minutesAgo / 60);
-        const daysAgo = Math.round(hoursAgo / 24);
-
-        if (secondsAgo < 60) return `${secondsAgo} seconds ago`;
-        else if (minutesAgo < 60) return `${minutesAgo} minutes ago`;
-        else if (hoursAgo < 24) return `${hoursAgo} hours ago`;
-        else return `${daysAgo} days ago`;
-    }
-
-
-    </script>
-
-
-
-    <div class="container">
-        <div style="clear:both;"></div>
-
-        <div class="post-content">
-            <div class="voting" id="voting_main">
-
-                <a title="upvote" description="upvote" href="#" class="upvote" data-postid="<%= post.post_id %>"><img
-                        src="/img/up-arrow.svg" alt="Upvote"></a>
-                <span class="votes">
-                    <%= post.upvotes - post.downvotes %>
-                </span>
-                <a title="downvote" description="downvote" href="#" class="downvote"
-                    data-postid="<%= post.post_id %>"><img src="/img/down-arrow.svg" alt="Downvote"></a>
-
-            </div>
-
-            <div id="post_title_container">
-            <h2 id="post-title">
-                <%= post.title %>
-            </h2>
-
-            <div id="post_meta">submitted by <%= post.author %> <span class="timeago" data-timestamp="<%= post.timestamp %>">Loading...</span></div>
-
-        </div>
-            <div id="selftext">
-                
-                    <%- post.content %>
-                
-            </div>
-            
+                    // Reset visual state for all buttons
+                    $votingContext.find('.upvote, .downvote').removeClass('upvote-active downvote-active');
+                    // Apply the active class to the current button, if applicable
+                    if (newVoteState !== 'none') {
+                        $this.addClass(newVoteState + 'vote-active');
+                    }
 
 
-            <div class="comment-form" id="op_comment_form">
-                <textarea id="comment" placeholder="Add a comment..."></textarea>
-            </div>
-            <div class="status-message" style="color: red; display: none;"></div>
-
-            <button data-postid="<%= post.post_id %>" type="submit" id="submit-comment">Submit</button>
-
-
-            <div class="sort-container" style="display: none;">
-    <div class="dropdown">
-        <div class="dropdown-select" tabindex="0"><span class="current-sort">Top</span></div>
-        <div class="dropdown-list">
-            <div class="dropdown-item" data-sort="top">Top</div>
-            <div class="dropdown-item" data-sort="newest">Newest</div>
-            <div class="dropdown-item" data-sort="controversial">Controversial</div>
-        </div>
-    </div>
-</div>
-
-
-            <div class="comments">
-
-                <!-- Add more comments here -->
-            </div>
-
-
-        </div>
-
-    </div>
-
-
-
-    <%- include('includes/sidebar') %>
-
-</div>
-
-    <script>
-        quillEditors['<%= post.post_id %>'] = new Quill('.comment-form', {
-                modules: {
-                    toolbar: [
-                        ['bold', 'italic', 'underline', 'strike', 'blockquote'],        // grouped buttons
-                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                        ['link']  // links and image embed buttons
-                    ]
-                },
-                theme: 'snow', // Specify theme in configuration
-                placeholder: 'Write a comment...',
-
-            });
-
-
-            document.querySelectorAll('.timeago').forEach(function (el) {
-                var timestamp = el.getAttribute('data-timestamp');
-                el.innerText = timeAgo(new Date(timestamp));
-            });
-
-
-
-
-
-            // Comment sorting
-
-            document.addEventListener('DOMContentLoaded', function () {
-                var dropdownSelect = document.querySelector('.dropdown-select');
-                var dropdownList = document.querySelector('.dropdown-list');
-                var dropdownItems = document.querySelectorAll('.dropdown-item');
-
-                // Function to clear current comments
-                function clearComments() {
-                    document.querySelector('.comments').innerHTML = '';
-                }
-
-                // Function to render comments based on sort criteria
-                function sortAndDisplayComments(sortBy) {
-                    clearComments();
-                    // Assuming 'post.comments' contains your initial comments array
-                    // This could also be a fetch request if comments are not stored in the page
-                    const sortedComments = organizeComments(post.comments, sortBy);
-                    const commentsHTML = renderComments(sortedComments);
-                    document.querySelector('.comments').innerHTML = commentsHTML;
-                }
-
-                // Dropdown interactions
-                dropdownSelect.addEventListener('click', function () {
-                    dropdownList.style.display = dropdownList.style.display === 'block' ? 'none' : 'block';
-                });
-
-                dropdownItems.forEach(function (item) {
-                    item.addEventListener('click', function () {
-                        // Update the dropdown select label
-                        dropdownSelect.querySelector('.current-sort').textContent = this.textContent;
-                        dropdownList.style.display = 'none';
-
-                        // Sort and display comments based on selected criteria
-                        const sortBy = this.getAttribute('data-sort');
-                        sortAndDisplayComments(sortBy);
+                    $.ajax({
+                        url: `/api/vote/`,
+                        type: 'POST',
+                        data: {
+                            upvote: isUpvote,
+                            post_id: $this.data('postid'),
+                            root_post_id: '<%= post.post_id %>'
+                        },
+                        success: function (response) {
+                            console.log('Vote recorded successfully.');
+                            // You might still want to log the success or handle any sync issues here
+                        },
+                        error: function (error) {
+                            console.error('Failed to record vote:', error);
+                            // Since we're optimistically updating the UI, consider how to handle errors
+                        }
                     });
                 });
 
-                // Close dropdown when clicked outside
-                document.addEventListener('click', function (e) {
-                    if (!dropdownSelect.contains(e.target)) {
-                        dropdownList.style.display = 'none';
-                    }
-                }, true);
+
+
+
+
+                $('body').on('click', '.edit', function (e) {
+                    e.preventDefault();
+
+                    const $comment = $(this).closest('.comment');
+                    const $commentContent = $comment.find('.comment-content');
+                    const originalContentHtml = $commentContent.find('.comment-text').html(); // Assuming the comment text is in <p>
+                    const $commentLinks = $comment.find('.comment-links');
+                    const postID = $comment.data('commentid');
+
+
+                    // Remove any existing editor to prevent duplicates
+                    $commentContent.find('.quill-editing, .edit-actions').remove();
+
+                    // Hide the original comment content and links
+                    $commentContent.find('.comment-text, .edit').hide();
+                    $commentLinks.hide();
+
+
+
+                    // Determine the current background color of the comment
+                    const currentBgColor = $comment.css('background-color');
+                    // Alternate background colors
+                    const bgColor1 = 'rgb(38, 38, 38)'; // #262626
+                    const bgColor2 = 'rgb(45, 45, 45)'; // #2d2d2d
+                    // Determine the new background color
+                    const newBgColor = currentBgColor === bgColor1 ? bgColor2 : bgColor1;
+
+                    // Remove any existing Quill editors to prevent duplicates
+                    $commentContent.find('.quill-editing').remove();
+                    $commentContent.find('.comment-text, .edit').hide();
+
+                    // Append a Quill editor container
+                    const quillContainer = $('<div>').addClass('quill-editing ql-container ql-snow').appendTo($commentContent);
+
+                    // Initialize Quill on the new container
+                    const quillEditor = new Quill(quillContainer.get(0), {
+                        theme: 'snow',
+                        modules: {
+                            toolbar: [
+                                ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+                                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                ['link']
+                            ]
+                        },
+                    });
+
+
+                    quillEditor.root.innerHTML = originalContentHtml;
+
+                    // Apply the determined background color directly to the '.ql-editor' inside the Quill container
+                    $(quillEditor.root).css('background-color', newBgColor);
+
+
+                    // Append Save and Cancel buttons
+                    const actionsHtml = `
+    <div class="edit-actions">
+        <div class="status-message" style="color: red; display: none;"></div>
+        <button class="save-edit">Save</button>
+        <button class="cancel-edit">Cancel</button>
+    </div>`;
+                    $(actionsHtml).appendTo($commentContent);
+                    const $toolbar = $comment.find('.ql-toolbar');
+
+
+                    // Handle the cancel action
+                    $commentContent.find('.cancel-edit').on('click', function () {
+
+                        quillContainer.remove(); // This should correctly remove the Quill editor container
+                        $toolbar.remove();
+                        $commentContent.find('.edit-actions').remove(); // Remove the action buttons
+                        $commentContent.find('.comment-text, .edit').show(); // Show the original content and edit link
+                        $commentLinks.show(); // Show the comment links again
+                    });
+
+                    // Handle save (similar to your submit logic but for updating existing comments)
+                    const saveBtn = $comment.find('.save-edit');
+                    const cancelBtn = $comment.find('.cancel-edit');
+
+                    const authToken = localStorage.getItem('authToken');
+
+
+                    saveBtn.on('click', function () {
+                        const updatedContent = processHTMLFromUsers(quillEditor.root.innerHTML);
+                        var result = validateComment(updatedContent);
+                        if (!result.isValid) {
+
+                            var $statusMessage = $(this).parent().find('.status-message');
+
+                            $statusMessage.text(result.message).css('color', 'red').show().delay(3000).fadeOut();
+
+                            return;
+                        }
+                        $.ajax({
+                            url: '/api/comment',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            headers: {
+                                'Authorization': `Bearer ${authToken}` // Include the auth token in the request headers
+                            },
+                            data: JSON.stringify({ commentId: postID, post_id: '<%= post.post_id %>', content: updatedContent, isEdit: true }),
+                            success: function (response) {
+                                console.log('edit comment success');
+                                quillContainer.remove();
+                                $toolbar.remove();
+
+
+                                $commentContent.find('.comment-text').html(updatedContent).show();
+                                quillEditor.container.remove();
+                                saveBtn.remove();
+                                cancelBtn.remove();
+                                $commentContent.find('.edit').show();
+                                $commentLinks.show();
+
+                            },
+                            error: function (xhr, status, error) {
+                                var $statusMessage = $comment.find('.status-message');
+                                console.error('Error submitting comment', error);
+                                $statusMessage.text('Error submitting comment').css('color', 'red').show().delay(3000).fadeOut();
+                            }
+                        });
+
+
+                    });
+
+
+
+                });
+
+
+
+
+
+
             });
-        
 
-    </script>
+            var quillEditors = {};
+
+            function timeAgo(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const secondsAgo = Math.round((now - date) / 1000);
+
+                const minutesAgo = Math.round(secondsAgo / 60);
+                const hoursAgo = Math.round(minutesAgo / 60);
+                const daysAgo = Math.round(hoursAgo / 24);
+
+                if (secondsAgo < 60) return `${secondsAgo} seconds ago`;
+                else if (minutesAgo < 60) return `${minutesAgo} minutes ago`;
+                else if (hoursAgo < 24) return `${hoursAgo} hours ago`;
+                else return `${daysAgo} days ago`;
+            }
+
+
+        </script>
 
 
 
-</body>
+        <div class="container">
+            <div style="clear:both;"></div>
+
+            <div class="post-content">
+                <div class="voting" id="voting_main">
+
+                    <a title="upvote" description="upvote" href="#" class="upvote"
+                        data-postid="<%= post.post_id %>"><img src="/img/up-arrow.svg" alt="Upvote"></a>
+                    <span class="votes">
+                        <%= post.upvotes - post.downvotes %>
+                    </span>
+                    <a title="downvote" description="downvote" href="#" class="downvote"
+                        data-postid="<%= post.post_id %>"><img src="/img/down-arrow.svg" alt="Downvote"></a>
+
+                </div>
+
+                <div id="post_title_container">
+                    <h2 id="post-title">
+                        <%= post.title %>
+                    </h2>
+
+                    <div id="post_meta">submitted by <%= post.author %> <span class="timeago"
+                                data-timestamp="<%= post.timestamp %>">Loading...</span></div>
+
+                </div>
+                <div id="selftext">
+
+                    <%- post.content %>
+
+                </div>
+
+
+
+                <div class="comment-form" id="op_comment_form">
+                    <textarea id="comment" placeholder="Add a comment..."></textarea>
+                </div>
+                <div class="status-message" style="color: red; display: none;"></div>
+
+                <button data-postid="<%= post.post_id %>" type="submit" id="submit-comment">Submit</button>
+
+
+                <div class="sort-container" style="display: none;">
+                    <div class="dropdown">
+                        <div class="dropdown-select" tabindex="0"><span class="current-sort">Top</span></div>
+                        <div class="dropdown-list">
+                            <div class="dropdown-item" data-sort="top">Top</div>
+                            <div class="dropdown-item" data-sort="newest">Newest</div>
+                            <div class="dropdown-item" data-sort="controversial">Controversial</div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="comments">
+
+                    <!-- Add more comments here -->
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+        <%- include('includes/sidebar') %>
+
+            </div>
+
+            <script>
+                quillEditors['<%= post.post_id %>'] = new Quill('.comment-form', {
+                    modules: {
+                        toolbar: [
+                            ['bold', 'italic', 'underline', 'strike', 'blockquote'],        // grouped buttons
+                            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                            ['link']  // links and image embed buttons
+                        ]
+                    },
+                    theme: 'snow', // Specify theme in configuration
+                    placeholder: 'Write a comment...',
+
+                });
+
+
+                document.querySelectorAll('.timeago').forEach(function (el) {
+                    var timestamp = el.getAttribute('data-timestamp');
+                    el.innerText = timeAgo(new Date(timestamp));
+                });
+
+
+
+
+
+                // Comment sorting
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    var dropdownSelect = document.querySelector('.dropdown-select');
+                    var dropdownList = document.querySelector('.dropdown-list');
+                    var dropdownItems = document.querySelectorAll('.dropdown-item');
+
+                    // Function to clear current comments
+                    function clearComments() {
+                        document.querySelector('.comments').innerHTML = '';
+                    }
+
+                    // Function to render comments based on sort criteria
+                    function sortAndDisplayComments(sortBy) {
+                        clearComments();
+                        // Assuming 'post.comments' contains your initial comments array
+                        // This could also be a fetch request if comments are not stored in the page
+                        const sortedComments = organizeComments(post.comments, sortBy);
+                        const commentsHTML = renderComments(sortedComments);
+                        document.querySelector('.comments').innerHTML = commentsHTML;
+                    }
+
+                    // Dropdown interactions
+                    dropdownSelect.addEventListener('click', function () {
+                        dropdownList.style.display = dropdownList.style.display === 'block' ? 'none' : 'block';
+                    });
+
+                    dropdownItems.forEach(function (item) {
+                        item.addEventListener('click', function () {
+                            // Update the dropdown select label
+                            dropdownSelect.querySelector('.current-sort').textContent = this.textContent;
+                            dropdownList.style.display = 'none';
+
+                            // Sort and display comments based on selected criteria
+                            const sortBy = this.getAttribute('data-sort');
+                            sortAndDisplayComments(sortBy);
+                        });
+                    });
+
+                    // Close dropdown when clicked outside
+                    document.addEventListener('click', function (e) {
+                        if (!dropdownSelect.contains(e.target)) {
+                            dropdownList.style.display = 'none';
+                        }
+                    }, true);
+                });
+
+
+            </script>
+
+
+
+            </body>
 
 </html>
