@@ -259,6 +259,16 @@ var post = <%- JSON.stringify(post) %>;
                 var post_id = $thisButton.data('postid'); // The ID of the post or parent comment
                 var truePostId = '<%= post.post_id %>'; // Assuming this is provided by your server-side template
                 var commentContent = processHTMLFromUsers(quillEditors[post_id].root.innerHTML); // Content from Quill editor
+                var result = validateComment(commentContent);
+                if(!result.isValid) {
+
+                 var $statusMessage = $thisButton.parent().find('.status-message');
+                    
+                $statusMessage.text(result.message).css('color', 'red').show().delay(3000).fadeOut();
+                     
+                    return; 
+                }
+                
                 var $statusMessage = $thisButton.siblings('.status-message'); // Status message related to this comment form
 
                 // Determine depth for new comment
@@ -474,6 +484,15 @@ var post = <%- JSON.stringify(post) %>;
 
                 saveBtn.on('click', function () {
                     const updatedContent = processHTMLFromUsers(quillEditor.root.innerHTML);
+                    var result = validateComment(updatedContent);
+                if(!result.isValid) {
+
+                 var $statusMessage = $(this).parent().find('.status-message');
+                    
+                $statusMessage.text(result.message).css('color', 'red').show().delay(3000).fadeOut();
+                     
+                    return; 
+                }
                     $.ajax({
                         url: '/api/comment',
                         type: 'POST',
