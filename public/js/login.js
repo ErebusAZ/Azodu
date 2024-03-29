@@ -1,3 +1,38 @@
+function validateUsername(username) {
+    const minLength = 3;
+    const maxLength = 20;
+    const regex = /^[a-zA-Z0-9]+$/; // Alphanumeric characters only
+
+    let message = "";
+    let isValid = true;
+
+    // Check for empty username
+    if (!username) {
+        message = "Username cannot be empty.";
+        isValid = false;
+    }
+    // Check for length constraints
+    else if (username.length < minLength || username.length > maxLength) {
+        message = `Username must be between ${minLength} and ${maxLength} characters long.`;
+        isValid = false;
+    }
+    // Check for spaces or tabs
+    else if (/\s/.test(username)) { // \s matches spaces, tabs, and other whitespace characters
+        message = "Username cannot contain spaces or tabs.";
+        isValid = false;
+    }
+    // Check for alphanumeric characters only
+    else if (!regex.test(username)) {
+        message = "Username must contain only alphanumeric characters.";
+        isValid = false;
+    }
+
+    return { isValid, message };
+}
+
+
+
+
 $(document).ready(function () {
 
 
@@ -44,16 +79,28 @@ $(document).ready(function () {
 
 
     function handleFormSubmission(isLoginMode, username, password, email) {
-        // Elements disabling
+
+        const actionUrl = isLoginMode ? '/api/login' : '/api/register';
+        const payload = isLoginMode ? { username, password } : { username, password, email };
+        const formMessage = document.getElementById('formMessage');
+
+        if (!isLoginMode) {
+            
+            const result = validateUsername(username);
+            if (!result.isValid) {
+                showNotification(result.message, 'error', 5000); 
+                return; 
+                
+
+            }
+
+        }
+
         document.getElementById('username').disabled = true;
         document.getElementById('password').disabled = true;
         const emailField = document.getElementById('email');
         if (emailField) emailField.disabled = true;
         document.getElementById('submitAuth').disabled = true;
-
-        const actionUrl = isLoginMode ? '/api/login' : '/api/register';
-        const payload = isLoginMode ? { username, password } : { username, password, email };
-        const formMessage = document.getElementById('formMessage');
 
         fetch(actionUrl, {
             method: 'POST',

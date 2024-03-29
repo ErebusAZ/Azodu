@@ -71,9 +71,49 @@ function authenticateToken(req, res, next) {
 }
 
 
+function validateUsername(username) {
+  const minLength = 3;
+  const maxLength = 20;
+  const regex = /^[a-zA-Z0-9]+$/; // Alphanumeric characters only
+
+  let message = "";
+  let isValid = true;
+
+  // Check for empty username
+  if (!username) {
+      message = "Username cannot be empty.";
+      isValid = false;
+  }
+  // Check for length constraints
+  else if (username.length < minLength || username.length > maxLength) {
+      message = `Username must be between ${minLength} and ${maxLength} characters long.`;
+      isValid = false;
+  }
+  // Check for spaces or tabs
+  else if (/\s/.test(username)) { // \s matches spaces, tabs, and other whitespace characters
+      message = "Username cannot contain spaces or tabs.";
+      isValid = false;
+  }
+  // Check for alphanumeric characters only
+  else if (!regex.test(username)) {
+      message = "Username must contain only alphanumeric characters.";
+      isValid = false;
+  }
+
+  return { isValid, message };
+}
+
 
 app.post('/api/register', async (req, res) => {
   const { username, password, email } = req.body;
+
+  if (!validateUsername(username).isValid) {
+    console.log('client tried invalid username. this should not be possible with client-side validation');
+    return;
+
+  }
+
+  
   if (!username || !password || !email) {
     return res.status(400).json({ message: 'Username, password, and email are required.' });
   }
