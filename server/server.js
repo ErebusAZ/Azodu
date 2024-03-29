@@ -343,6 +343,62 @@ app.post('/api/vote', async (req, res) => {
   }
 });
 
+function validateComment(content) {
+
+  const minLength = 15;
+  const maxLength = 60000;
+
+  // Trim whitespace from start and end of the comment content
+  const trimmedContent = content.trim();
+
+  // Check for empty content or content that only has spaces or tab characters
+  if (!trimmedContent) {
+      return { isValid: false, message: "Comment cannot be empty." };
+  }
+
+
+  // Check for content length below minimum
+  if (trimmedContent.length < minLength) {
+      return { isValid: false, message: `Comment must be at least ${minLength} characters long.` };
+  }
+
+  // Check for content length exceeding maximum
+  if (trimmedContent.length > maxLength) {
+      return { isValid: false, message: `Comment must not exceed ${maxLength} characters.` };
+  }
+
+  const unsubstantiveTexts = [
+      "hi", "hello", "hey",
+      "thanks", "thank you", "thx",
+      "good", "great", "nice", "ok", "okay",
+      "lol", "haha", "hehe", "cool",
+      "yes", "no",
+      "yep", "nope",
+      "wow", "omg", "ugh",
+      "hmm", "meh",
+      "yay", "nah",
+      "pls", "please",
+      "bye", "goodbye", "see ya",
+      "idk", "imo", "imho", "fyi",
+      "brb", "gtg",
+      "k", "kk",
+      "👍", "👎", "😂", "😍", "😭", "😊", "😒", "😉", "😜", "🙄",  // Including common emojis as they might also be considered insubstantial alone
+  ];
+
+
+  // Check for unsubstantive text content
+  if (unsubstantiveTexts.includes(trimmedContent.toLowerCase())) {
+      return { isValid: false, message: "Comment is too short or unsubstantive." };
+  }
+
+  // Additional checks can be added here, such as checking for invalid characters,
+  // overly repetitive text, or other criteria as deemed necessary.
+
+  // If the content passes all checks
+  return { isValid: true, message: "" };
+}
+
+
 function processHTMLFromUsers(content) {
   if (!content) {
       return content;
@@ -404,7 +460,10 @@ function processHTMLFromUsers(content) {
 
 app.post('/api/comment', authenticateToken, async (req, res) => {
     let { post_id, content, parent_id, isEdit, commentId, isDelete } = req.body;
-    const author = req.user.username; // Ideally, this comes from the session or authentication mechanism
+  const author = req.user.username; // Ideally, this comes from the session or authentication mechanism
+  
+  if (!validateComment(content).isValid)
+    return; 
 
     // Check if the action is to delete an existing comment
     if (isDelete) {
