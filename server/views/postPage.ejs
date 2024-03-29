@@ -84,29 +84,31 @@ var post = <%- JSON.stringify(post) %>;
 
 
 
-        function getCommentHtml(commentId, author, content, depth = 0,votes,timestamp) {
-            const backgroundColor = depth % 2 === 0 ? '#2d2d2d' : '#2d2d2d';
-            const points = "0 points"; // Placeholder for points
+            function getCommentHtml(commentId, author, content, depth = 0, votes, timestamp) {
 
-            return `<div data-depth="${depth}" data-commentid="${commentId}" id="comment-${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">
+                const currentUser = localStorage.getItem('username');
+    const backgroundColor = depth % 2 === 0 ? '#2d2d2d' : '#2d2d2d';
+    
+    // Check if the currentUser is the author of the comment
+    const isAuthor = currentUser === author;
+
+    return `<div data-depth="${depth}" data-commentid="${commentId}" id="comment-${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">
         <div class="voting">
-
             <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${commentId}"><img src="/img/up-arrow.svg" alt="Upvote"></a>
-        <span class="votes">${votes}</span>
-<a title="downvote" description="downvote" href="#" class="downvote" data-postid="${commentId}"><img src="/img/down-arrow.svg" alt="Downvote"></a>
-
-
+            <span class="votes">${votes}</span>
+            <a title="downvote" description="downvote" href="#" class="downvote" data-postid="${commentId}"><img src="/img/down-arrow.svg" alt="Downvote"></a>
         </div>
         <div class="comment-content">
             <div class="comment-header">
                 <a href="#" class="username">${author}</a>
                 <span class="time">${timestamp ? timeAgo(timestamp) : 'just now'}</span>
             </div>
-            <div class="comment-text"">${content}</div>
+            <div class="comment-text">${content}</div>
             <div class="comment-links">
                 <a href="#comment-${commentId}">link</a>
                 <a href="#">save</a>
-                <a href="#edit" class="edit">edit</a>
+                ${isAuthor ? `<a href="#edit" class="edit">edit</a>` : ''}
+                ${isAuthor ? `<a href="#delete" class="delete">delete</a>` : ''}
                 <a href="#reply" class="reply">reply</a>
             </div>
             <div class="reply-form" style="display: none;">
@@ -117,7 +119,8 @@ var post = <%- JSON.stringify(post) %>;
             </div>
         </div>
     </div>`;
-        }
+}
+
 
 
 
