@@ -13,9 +13,8 @@
 
     <script>
 
-   // Convert the post object to a JSON string and parse it back to an object
-   var post = JSON.parse('<%- JSON.stringify(post).replace(/'/g, "\\'").replace(/"/g, '\\"') %>');
-        console.log(post);
+var post = <%- JSON.stringify(post) %>;
+
  
 
             function scrollToComment() {
