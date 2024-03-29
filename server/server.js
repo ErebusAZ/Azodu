@@ -344,18 +344,21 @@ app.post('/api/vote', async (req, res) => {
 });
 
 function validateComment(content) {
-
-  const minLength = 15;
+  const minLength = 6;
   const maxLength = 60000;
 
   // Trim whitespace from start and end of the comment content
-  const trimmedContent = content.trim();
+  let trimmedContent = content.trim();
+
+  // Remove specific characters and strings for the uniqueness check
+  const charsAndSpacesToRemove = /<p>|<\/p>|<|>|p|\/|\s/gi;
+  trimmedContent = trimmedContent.replace(charsAndSpacesToRemove, '');
+
 
   // Check for empty content or content that only has spaces or tab characters
   if (!trimmedContent) {
       return { isValid: false, message: "Comment cannot be empty." };
   }
-
 
   // Check for content length below minimum
   if (trimmedContent.length < minLength) {
@@ -368,35 +371,28 @@ function validateComment(content) {
   }
 
   const unsubstantiveTexts = [
-      "hi", "hello", "hey",
-      "thanks", "thank you", "thx",
-      "good", "great", "nice", "ok", "okay",
-      "lol", "haha", "hehe", "cool",
-      "yes", "no",
-      "yep", "nope",
-      "wow", "omg", "ugh",
-      "hmm", "meh",
-      "yay", "nah",
-      "pls", "please",
-      "bye", "goodbye", "see ya",
-      "idk", "imo", "imho", "fyi",
-      "brb", "gtg",
-      "k", "kk",
-      "👍", "👎", "😂", "😍", "😭", "😊", "😒", "😉", "😜", "🙄",  // Including common emojis as they might also be considered insubstantial alone
+      "hi", "hello", "hey", "thanks", "thank you", "thx", "good", "great", "nice", "ok", "okay", 
+      "lol", "haha", "hehe", "cool", "yes", "no", "yep", "nope", "wow", "omg", "ugh", "hmm", 
+      "meh", "yay", "nah", "pls", "please", "bye", "goodbye", "see ya", "idk", "imo", "imho", 
+      "fyi", "brb", "gtg", "k", "kk", "👍", "👎", "😂", "😍", "😭", "😊", "😒", "😉", "😜", "🙄"
   ];
-
 
   // Check for unsubstantive text content
   if (unsubstantiveTexts.includes(trimmedContent.toLowerCase())) {
       return { isValid: false, message: "Comment is too short or unsubstantive." };
   }
 
-  // Additional checks can be added here, such as checking for invalid characters,
-  // overly repetitive text, or other criteria as deemed necessary.
+  const uniqueChars = new Set(trimmedContent).size;
+  if (uniqueChars < 5) {
+    return { isValid: false, message: "Comment is too short or unsubstantive." };
+  }
 
   // If the content passes all checks
   return { isValid: true, message: "" };
 }
+
+
+
 
 
 function processHTMLFromUsers(content) {
