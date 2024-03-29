@@ -391,11 +391,13 @@ div#post_meta {
 
 .sort-container {
     width: 100%;
-    /* margin-bottom: 20px; */
+    
     /* Space between the sort dropdown and the first post */
-    text-align: right;
+    
     /* Align the dropdown to the right */
-    display: none;
+    margin-top: 40px;
+    font-size: 12px;
+    text-align: left;
 }
 
 .post-content {
@@ -677,7 +679,7 @@ div#op_comment_form {
 }
 
 .comments {
-    margin-top: 20px;
+    /* margin-top: 20px; */
 }
 
 .comment {
@@ -878,6 +880,76 @@ div#op_comment_form {
     padding: 7px 20px;
     margin-bottom: 20px;
 }
+
+
+
+
+
+/* Comment Sorting */
+
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+    user-select: none;
+}
+
+.dropdown-select {
+    padding: 9px 9px;
+    /* background-color: #333; */
+    color: #d7dadc;
+    cursor: pointer;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-select:focus {
+    outline: none;
+    border-color: #777;
+}
+
+.dropdown-list {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    right: 0;
+    background-color: #3e3e3e;
+    border-radius: 0 0 5px 5px;
+    display: none;
+    z-index: 10;
+    /* border: 1px solid #5b5b5b; */
+    border-top: 0;
+}
+
+.dropdown-item {
+    padding: 9px 9px;
+    cursor: pointer;
+    color: #d7dadc;
+    text-align: left;
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+    background-color: #4f4f4f;
+    color: #ffffff;
+}
+
+.dropdown-active .dropdown-select {
+    border-color: #777;
+    background-color: #3a3a3a;
+}
+
+.dropdown-select::after {
+    content: '\25BC'; /* Down arrow */
+    font-size: 0.8em;
+    margin-left: 10px;
+}
+
+.dropdown {
+    width: 110px; /* Adjust the width of the dropdown to fit your layout */
+}
+
+
 
 
 /* Submission page */

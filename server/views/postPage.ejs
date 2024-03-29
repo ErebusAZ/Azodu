@@ -538,14 +538,6 @@
     <div class="container">
         <div style="clear:both;"></div>
 
-        <div class="sort-container">
-            <select id="sort-by" name="sort-by">
-                <option value="top">Top</option>
-                <option value="new" selected>Latest</option>
-                <option value="hot">Hot</option>
-            </select>
-        </div>
-
         <div class="post-content">
             <div class="voting" id="voting_main">
 
@@ -583,6 +575,17 @@
             <button data-postid="<%= post.post_id %>" type="submit" id="submit-comment">Submit</button>
 
 
+            <div class="sort-container">
+    <div class="dropdown">
+        <div class="dropdown-select" tabindex="0"><span class="current-sort">Top</span></div>
+        <div class="dropdown-list">
+            <div class="dropdown-item" data-sort="top">Top</div>
+            <div class="dropdown-item" data-sort="newest">Newest</div>
+            <div class="dropdown-item" data-sort="controversial">Controversial</div>
+        </div>
+    </div>
+</div>
+
 
             <div class="comments">
 
@@ -602,24 +605,75 @@
 
     <script>
         quillEditors['<%= post.post_id %>'] = new Quill('.comment-form', {
-            modules: {
-                toolbar: [
-                    ['bold', 'italic', 'underline', 'strike', 'blockquote'],        // grouped buttons
-                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                    ['link']  // links and image embed buttons
-                ]
-            },
-            theme: 'snow', // Specify theme in configuration
-            placeholder: 'Write a comment...',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike', 'blockquote'],        // grouped buttons
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        ['link']  // links and image embed buttons
+                    ]
+                },
+                theme: 'snow', // Specify theme in configuration
+                placeholder: 'Write a comment...',
 
-        });
+            });
 
 
-        document.querySelectorAll('.timeago').forEach(function(el) {
-        var timestamp = el.getAttribute('data-timestamp');
-        el.innerText = timeAgo(new Date(timestamp));
-    });
+            document.querySelectorAll('.timeago').forEach(function (el) {
+                var timestamp = el.getAttribute('data-timestamp');
+                el.innerText = timeAgo(new Date(timestamp));
+            });
 
+
+
+
+
+            // Comment sorting
+
+            document.addEventListener('DOMContentLoaded', function () {
+                var dropdownSelect = document.querySelector('.dropdown-select');
+                var dropdownList = document.querySelector('.dropdown-list');
+                var dropdownItems = document.querySelectorAll('.dropdown-item');
+
+                // Function to clear current comments
+                function clearComments() {
+                    document.querySelector('.comments').innerHTML = '';
+                }
+
+                // Function to render comments based on sort criteria
+                function sortAndDisplayComments(sortBy) {
+                    clearComments();
+                    // Assuming 'post.comments' contains your initial comments array
+                    // This could also be a fetch request if comments are not stored in the page
+                    const sortedComments = organizeComments(post.comments, sortBy);
+                    const commentsHTML = renderComments(sortedComments);
+                    document.querySelector('.comments').innerHTML = commentsHTML;
+                }
+
+                // Dropdown interactions
+                dropdownSelect.addEventListener('click', function () {
+                    dropdownList.style.display = dropdownList.style.display === 'block' ? 'none' : 'block';
+                });
+
+                dropdownItems.forEach(function (item) {
+                    item.addEventListener('click', function () {
+                        // Update the dropdown select label
+                        dropdownSelect.querySelector('.current-sort').textContent = this.textContent;
+                        dropdownList.style.display = 'none';
+
+                        // Sort and display comments based on selected criteria
+                        const sortBy = this.getAttribute('data-sort');
+                        sortAndDisplayComments(sortBy);
+                    });
+                });
+
+                // Close dropdown when clicked outside
+                document.addEventListener('click', function (e) {
+                    if (!dropdownSelect.contains(e.target)) {
+                        dropdownList.style.display = 'none';
+                    }
+                }, true);
+            });
+        
 
     </script>
 
