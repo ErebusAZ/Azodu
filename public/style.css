@@ -128,6 +128,11 @@ label {
     /* Float the left column */
 }
 
+.post-content {
+    overflow: hidden;
+    /* Prevent wrapping around the floated element */
+}
+
 
 
 /*
