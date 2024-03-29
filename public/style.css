@@ -922,6 +922,7 @@ form#submit_post_form, form#submit_category_form {
 
 .submission-form h2 {
     color: #fff;
+    margin-top: 0;
 }
 
 .submission-form label {
