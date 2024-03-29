@@ -4,7 +4,47 @@
 <a id="logoutButton" href="#" id="logoutButton" style="display: none;">[logout]</a>
 </div>
 
+
 <div id="sidebar_container">
+
+    <% if (category && category.name) { %>
+        <div class="category-metadata-box">
+            <h2><%= category.name %></h2>
+            <p id="cat_permalink"><a href="/c/<%= category.permalink %>">/c/<%= category.permalink %></a></p>
+            <% if (category.creator) { %>
+                <p id="cat_createdby">Created by <%= category.creator %></p>
+            <% } %>
+            <p id="cat_createdtime"> 
+                <script>
+                    function timeAgo(date) {
+                        const intervals = [
+                            { label: 'year', seconds: 31536000 },
+                            { label: 'month', seconds: 2592000 },
+                            { label: 'day', seconds: 86400 },
+                            { label: 'hour', seconds: 3600 },
+                            { label: 'minute', seconds: 60 },
+                            { label: 'second', seconds: 1 }
+                        ];
+                        const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+                        const interval = intervals.find(i => i.seconds < seconds);
+                        const count = Math.floor(seconds / interval.seconds);
+                        return `${count} ${interval.label}${count !== 1 ? 's' : ''} ago`;
+                    }
+                    document.write(timeAgo('<%= category.date_created %>'));
+                </script>
+            </p>
+            <% if (category.description) { %>
+                <p><%- category.description %></p>
+                <% } %>
+            <% if (category.moderators) { %>
+                <p>Moderators: <%= category.moderators.join(', ') %></p>
+            <% } else { %>
+                <p>No moderators</p>
+            <% } %>
+        </div>
+        <% }  %>
+        
+
     <div class="sidebar">
 
         <button id="loginRegisterButton" class="sidebar_button">Login/Register</button>

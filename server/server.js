@@ -312,7 +312,7 @@ app.get('/c/:permalink', async (req, res) => {
 app.get('/', async (req, res) => {
 
 
-  res.render('index');
+res.render('index', { category: {} });
 
 
 }); 
@@ -321,7 +321,7 @@ app.get('/', async (req, res) => {
 app.get('/submit-category/', async (req, res) => {
 
 
-  res.render('submitCategory');
+  res.render('submitCategory',{ category: {} });
 
 
 }); 
@@ -329,7 +329,7 @@ app.get('/submit-category/', async (req, res) => {
 app.get('/submit-post/', async (req, res) => {
 
 
-  res.render('submitPost');
+  res.render('submitPost',{ category: {} });
 
 
 }); 
@@ -345,7 +345,7 @@ app.get('/c/:category/:uniqueId/:title', async (req, res) => {
     // If you're using a templating engine like EJS, Pug, or Handlebars, you can render a template:
     // res.render('postPage', { post: post });
 
-    res.render('postPage', { post: post });
+    res.render('postPage', { post: post,category: {} });
 
 
 

@@ -109,7 +109,7 @@
   </div>
 
 
-  <%- include('includes/sidebar') %>
+  <%- include('includes/sidebar', { category: category || null }) %>
 
   <script>
     var quill = new Quill('#submit_post_text', {

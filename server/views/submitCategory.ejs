@@ -55,7 +55,7 @@
         </div>
 
 
-        <%- include('includes/sidebar') %>
+        <%- include('includes/sidebar', { category: category || null }) %>
         <script>
             new Quill('#categoryDescription', {
                 modules: {
