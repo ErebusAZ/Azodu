@@ -1352,7 +1352,7 @@ i.fas.fa-scroll, i.fas.fa-gavel {
 }
 
 .comment[data-depth="2"]::before {
-    background-color: #2f2ff0;
+    background-color: #4949e5;
     /* Color for depth 2 */
 }
 
