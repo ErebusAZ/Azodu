@@ -43,6 +43,8 @@ const client = new cassandra.Client({
   keyspace: 'my_keyspace'
 });
 
+
+const loginExpires = 86400 * 30; // a month
 let postsVoteSummary = {};
 const updateInterval = 10 * 1000; // how quickly to fetch all posts and update votes
 const defaultCategories = ["everything"];
@@ -94,7 +96,7 @@ app.post('/api/register', async (req, res) => {
 
     // Use username as the unique identifier in the JWT token
     const token = jwt.sign({ username: username }, jwtSecret, {
-        expiresIn: 86400, // 24 hours
+        expiresIn: loginExpires
     });
 
     // Send the token with the success message
@@ -127,7 +129,7 @@ app.post('/api/login', async (req, res) => {
       }
 
       const token = jwt.sign({ username: user.username }, jwtSecret, {
-        expiresIn: 86400, // 24 hours
+        expiresIn: loginExpires
       });
 
       res.status(200).json({ auth: true, token: token, message: 'Login successful.' });
