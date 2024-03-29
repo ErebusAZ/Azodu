@@ -395,7 +395,6 @@ div#post_meta {
     /* Space between the sort dropdown and the first post */
     
     /* Align the dropdown to the right */
-    margin-top: 40px;
     font-size: 12px;
     text-align: left;
 }
@@ -666,6 +665,9 @@ div#op_comment_form {
 
 }
 
+button#submit-comment {
+    margin-bottom: 40px;
+}
 
 
 .post-content h2 {

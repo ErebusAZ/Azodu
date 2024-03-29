@@ -191,10 +191,17 @@ var post = <%- JSON.stringify(post) %>;
         const organizedComments = organizeComments(post.comments);
         const commentsHTML = renderComments(organizedComments);
 
+
         // In an EJS template, you might then inject commentsHTML where appropriate
 
 
         $(document).ready(function () {
+
+
+            // hide the comment sort dropdown
+        if(Object.keys(post.comments).length > 0)
+        $('.sort-container').css({'display':'block'}); 
+
             //    $('.comments').append(generateTestComments(100)); // Start with 10 top-level comments
             const organizedComments = organizeComments(post.comments);
             const commentsHTML = renderComments(organizedComments);
@@ -573,7 +580,7 @@ var post = <%- JSON.stringify(post) %>;
             <button data-postid="<%= post.post_id %>" type="submit" id="submit-comment">Submit</button>
 
 
-            <div class="sort-container">
+            <div class="sort-container" style="display: none;">
     <div class="dropdown">
         <div class="dropdown-select" tabindex="0"><span class="current-sort">Top</span></div>
         <div class="dropdown-list">
