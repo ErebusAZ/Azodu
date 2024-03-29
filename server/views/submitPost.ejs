@@ -12,10 +12,11 @@
     function togglePostContentField() {
       var postType = document.getElementById('postType').value;
       if (postType === 'text') {
-        document.getElementById('textContent').style.display = '';
+
+        $('#submit_post_form .ql-toolbar,#submit_post_text').show();  
         document.getElementById('urlContent').style.display = 'none';
       } else {
-        document.getElementById('textContent').style.display = 'none';
+        $('#submit_post_form .ql-toolbar,#submit_post_text').hide();  
         document.getElementById('urlContent').style.display = '';
       }
     }
