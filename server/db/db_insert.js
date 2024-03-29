@@ -99,6 +99,16 @@ async function updateCommentData(client, comment_id, newContent, post_id) {
   console.log('Comment updated. ID is ' + comment_id + ' for post ID ' + post_id);
 }
 
+async function deleteCommentData(client, comment_id, post_id) {
+  const query = `
+      DELETE FROM my_keyspace.comments
+      WHERE comment_id = ? AND post_id = ?`;
+  await client.execute(query, [comment_id.toString(), post_id.toString()], { prepare: true });
+
+  console.log('Comment deleted. ID was ' + comment_id + ' for post ID ' + post_id);
+}
+
+
 
 
 async function populateTestData(client, numberOfPosts = 100) {
@@ -174,4 +184,4 @@ async function tallyVotesForComment(client, post_id, comment_id,) {
 
 
 
-module.exports = { insertPostData, insertUserData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,generatePermalink,updateCommentData,tallyVotesForComment };
+module.exports = { insertPostData, insertUserData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,generatePermalink,updateCommentData,tallyVotesForComment,deleteCommentData };

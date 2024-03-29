@@ -20,7 +20,7 @@ jwtSecret = secrets.JWT_SECRET;
 
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories } = require('./db/db_create');
-const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,updateCommentData,tallyVotesForComment } = require('./db/db_insert');
+const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData } = require('./db/db_insert');
 const { fetchPostByPostID,fetchPostsAndCalculateVotes,getCommentDetails } = require('./db/db_query');
 
 
@@ -401,41 +401,62 @@ function processHTMLFromUsers(content) {
 
 
 
+
 app.post('/api/comment', authenticateToken, async (req, res) => {
-  let { post_id, content, parent_id, isEdit, commentId } = req.body;
-  const author = req.user.username; // Ideally, this comes from the session or authentication mechanism
+    let { post_id, content, parent_id, isEdit, commentId, isDelete } = req.body;
+    const author = req.user.username; // Ideally, this comes from the session or authentication mechanism
 
-  // Check if the action is to edit an existing comment
-  if (isEdit) {
-    try {
-      // Fetch the current details of the comment from the database
-      const commentDetails = await getCommentDetails(client, post_id, commentId);
-      // Verify if the author of the request is the same as the author of the comment
-      console.log(commentDetails.author, author);
-      if (commentDetails.author !== author) {
-        return res.status(403).send('Forbidden: You are not authorized to edit this comment.');
-      }
+    // Check if the action is to delete an existing comment
+    if (isDelete) {
+      try {
+          
+        console.log(post_id, content, parent_id, isEdit, commentId, isDelete); 
+            // Fetch the current details of the comment from the database
+            const commentDetails = await getCommentDetails(client, post_id, commentId);
+            // Verify if the author of the request is the same as the author of the comment
+            if (commentDetails.author !== author) {
+                return res.status(403).send('Forbidden: You are not authorized to delete this comment.');
+            }
 
-      // If the author matches, proceed with updating the comment
-      await updateCommentData(client, commentId, content, post_id);
-      res.json({ message: 'Comment updated successfully.', commentId: commentId });
-    } catch (error) {
-      console.error('Error in operation:', error);
-      res.status(500).send('Failed to perform operation');
+            // If the author matches, proceed with deleting the comment
+            await deleteCommentData(client, commentId, post_id);
+            res.json({ message: 'Comment deleted successfully.', commentId: commentId });
+        } catch (error) {
+            console.error('Error in delete operation:', error);
+            res.status(500).send('Failed to delete comment');
+        }
     }
-  } else {
-    // Handle new comment insertion
-    const generatedCommentId = generatePostIdTimestamp(); // Generate a unique comment ID
+    // Check if the action is to edit an existing comment
+    else if (isEdit) {
+        try {
+            // Fetch the current details of the comment from the database
+            const commentDetails = await getCommentDetails(client, post_id, commentId);
+            // Verify if the author of the request is the same as the author of the comment
+            if (commentDetails.author !== author) {
+                return res.status(403).send('Forbidden: You are not authorized to edit this comment.');
+            }
 
-    try {
-      await insertCommentData(client, generatedCommentId, post_id.toString(), author, parent_id.toString() || post_id.toString(), 'text', processHTMLFromUsers(content), 0, 0, '/comments/' + generatedCommentId, new Date());
-      res.json({ message: 'Comment added successfully.', commentId: generatedCommentId });
-    } catch (error) {
-      console.error('Error inserting comment:', error);
-      res.status(500).send('Failed to insert comment');
+            // If the author matches, proceed with updating the comment
+            await updateCommentData(client, commentId, content, post_id);
+            res.json({ message: 'Comment updated successfully.', commentId: commentId });
+        } catch (error) {
+            console.error('Error in update operation:', error);
+            res.status(500).send('Failed to perform operation');
+        }
+    } else {
+        // Handle new comment insertion
+        const generatedCommentId = generatePostIdTimestamp(); // Generate a unique comment ID
+
+        try {
+            await insertCommentData(client, generatedCommentId, post_id.toString(), author, parent_id.toString() || post_id.toString(), 'text', processHTMLFromUsers(content), 0, 0, '/comments/' + generatedCommentId, new Date());
+            res.json({ message: 'Comment added successfully.', commentId: generatedCommentId });
+        } catch (error) {
+            console.error('Error inserting comment:', error);
+            res.status(500).send('Failed to insert comment');
+        }
     }
-  }
 });
+
 
 
 
