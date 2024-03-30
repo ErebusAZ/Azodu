@@ -49,7 +49,7 @@ const client = new cassandra.Client({
 const loginExpires = 86400 * 30; // a month
 let postsVoteSummary = {};
 const updateInterval = 10 * 1000; // how quickly to fetch all posts and update votes
-const defaultCategories = ["everything"];
+const defaultCategories = ["everything","Books"];
 const cache = {
   category: {},
   // You can add more categories here in the future, e.g., posts: {}, users: {}, etc.
@@ -146,6 +146,9 @@ app.post('/api/login', async (req, res) => {
     if (result.rowLength > 0) {
       const user = result.first();
 
+      console.log(`User ${username}'s subscriptions:`, user.subscriptions);
+
+
       const passwordIsValid = await bcrypt.compare(password, user.password);
       if (!passwordIsValid) {
         return res.status(200).json({ message: 'Incorrect password.' });
@@ -164,6 +167,46 @@ app.post('/api/login', async (req, res) => {
     res.status(500).json({ message: 'Error logging in.' });
   }
 });
+
+app.post('/api/subscribe', authenticateToken, async (req, res) => {
+  const { permalink } = req.body; // The permalink of the category to subscribe to
+  const username = req.user.username; // Extracted from the JWT token
+
+  try {
+    // Add the permalink to the user's subscriptions if it's not already present
+    const updateQuery = `
+      UPDATE my_keyspace.users
+      SET subscriptions = subscriptions + ?
+      WHERE username = ?;
+    `;
+    await client.execute(updateQuery, [[permalink], username], { prepare: true });
+    res.json({ message: 'Subscribed successfully.' });
+  } catch (error) {
+    console.error('Subscription error:', error);
+    res.status(500).json({ message: 'Error processing subscription.' });
+  }
+});
+
+
+app.post('/api/unsubscribe', authenticateToken, async (req, res) => {
+  const { permalink } = req.body; // The permalink of the category to unsubscribe from
+  const username = req.user.username; // Extracted from the JWT token
+
+  try {
+    // Remove the permalink from the user's subscriptions
+    const updateQuery = `
+      UPDATE my_keyspace.users
+      SET subscriptions = subscriptions - ?
+      WHERE username = ?;
+    `;
+    await client.execute(updateQuery, [[permalink], username], { prepare: true });
+    res.json({ message: 'Unsubscribed successfully.' });
+  } catch (error) {
+    console.error('Unsubscription error:', error);
+    res.status(500).json({ message: 'Error processing unsubscription.' });
+  }
+});
+
 
 
 
@@ -484,7 +527,7 @@ async function main() {
   try {
 
  //      await flushAllTables(client,'my_keyspace'); 
- //    await dropAllTables(client, 'my_keyspace'); 
+  //   await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
@@ -495,7 +538,7 @@ async function main() {
     await createVotesTable(client);
     await createCategoriesTable(client);
 
-  //  await populateTestData(client, 100);
+  //  await populateTestData(client, 10);
 
  
   //  await createDefaultCategories(client,defaultCategories);
