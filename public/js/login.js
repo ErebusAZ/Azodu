@@ -45,7 +45,7 @@ $(document).ready(function () {
             // Remove the token
             localStorage.removeItem('authToken');
             localStorage.removeItem('username'); // If you're also storing the username
-
+            localStorage.removeItem('userSubscriptions');
         
             window.location.href = '/'; // Redirect to login page or home page
         });
