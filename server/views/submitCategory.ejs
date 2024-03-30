@@ -21,7 +21,7 @@
                 const truncatedTitle = cleanedTitle.substring(0, 147); // Truncate to 147 characters to leave room for "/c/"
                 const permalink = basePath + truncatedTitle;
 
-                document.getElementById('displayPermalink').textContent = `${permalink}`;
+                document.getElementById('displayPermalink').textContent = `/c/${permalink}`;
                 // Update hidden input to send to server
                 document.getElementById('finalPermalink').value = permalink;
             }
