@@ -164,6 +164,7 @@ label {
 
 #post_title_container {
     padding-top: 10px;
+    overflow: hidden;
 }
 
 .post-title {
@@ -183,8 +184,8 @@ label {
 div#post_meta {
     font-size: 12px;
     color: gray;
-    position: absolute;
-    left: 64px;
+    /* position: absolute; */
+    /* left: 64px; */
 }
 
 .post-description {
@@ -716,7 +717,7 @@ button#submit-comment {
 
 .post-content .voting {
     display: inline-block;
-    margin-right: 10px;
+    margin-right: 5px;
 }
 
 .comments {

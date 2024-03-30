@@ -562,6 +562,7 @@
             <div style="clear:both;"></div>
 
             <div class="post-content">
+                <div id="post-content-left">
                 <div class="voting" id="voting_main">
 
                     <a title="upvote" description="upvote" href="#" class="upvote"
@@ -574,6 +575,12 @@
 
                 </div>
 
+                </div>
+
+
+
+                <div id="post-content-right">
+
                 <div id="post_title_container">
                     <h2 id="post-title">
                         <%= post.title %>
@@ -581,6 +588,8 @@
 
                     <div id="post_meta">submitted by <%= post.author %> <span class="timeago"
                                 data-timestamp="<%= post.timestamp %>">Loading...</span></div>
+
+                </div>
 
                 </div>
                 <div id="selftext">
