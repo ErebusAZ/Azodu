@@ -38,7 +38,7 @@
                 <p><%- category.description %></p>
                 <% } %>
             <% if (category.moderators) { %>
-                <p>Moderators: <%= category.moderators.join(', ') %></p>
+                <p>Moderators: <%= category.moderators %></p>
             <% } else { %>
                 <p>No moderators</p>
             <% } %>
@@ -110,6 +110,44 @@
         }
 
         fetchAndDisplayCategories();
+
+
+        $('#subscribe_button').click(function () {
+            const permalink = $('#cat_permalink a').attr('href').split('/c/')[1];
+            const authToken = localStorage.getItem('authToken');
+
+            // Determine the action based on the button's class
+            const isSubscribed = $(this).hasClass('unsubscribe');
+            const url = isSubscribed ? '/api/unsubscribe' : '/api/subscribe'; // Toggle between subscribe and unsubscribe URLs
+            const actionText = isSubscribed ? 'Subscribe' : 'Unsubscribe'; // The action to perform
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                },
+                data: JSON.stringify({ permalink: permalink }),
+                success: function(response) {
+                    console.log(response.message);
+                    // Toggle the button text and class based on the current state
+                    if (isSubscribed) {
+                        $('#subscribe_button').text('Subscribe');
+                        $('#subscribe_button').removeClass('unsubscribe');
+                    } else {
+                        $('#subscribe_button').text('Unsubscribe');
+                        $('#subscribe_button').addClass('unsubscribe');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Action failed:', xhr.responseText);
+                    // Handle errors
+                }
+            });
+        });
+
+
 
     });
 
