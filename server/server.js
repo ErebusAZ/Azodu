@@ -48,6 +48,17 @@ const loginExpires = 86400 * 30; // a month
 let postsVoteSummary = {};
 const updateInterval = 10 * 1000; // how quickly to fetch all posts and update votes
 const defaultCategories = ["everything"];
+const cache = {
+  category: {},
+  // You can add more categories here in the future, e.g., posts: {}, users: {}, etc.
+};
+
+const CACHE_VALIDITY_MS = 10 * 60 * 1000; // e.g., 10 minutes
+
+function isCacheValid(lastFetched) {
+  return (new Date() - lastFetched) < CACHE_VALIDITY_MS;
+}
+
 
 
 setInterval(() => {
@@ -275,38 +286,60 @@ function convertDatePathToTimestamp(datePath) {
   return datePath.replace(/\//g, '').replace(/(\d{4})(\d{2})(\d{2})\/(\d{6})(\d+)/, "$1$2$3$4$5");
 }
 
+async function fetchCategoryByName(client, permalink) {
+  // Check if category is in cache and valid
+  if (cache.category[permalink] && isCacheValid(cache.category[permalink].lastFetched)) {
+      console.log('Serving category from cache');
+      return cache.category[permalink].data;
+  }
 
-
-app.get('/c/:permalink', async (req, res) => {
-  let { permalink } = req.params;
   const categoryQuery = 'SELECT * FROM my_keyspace.categories WHERE permalink = ?';
-
   try {
       const categoryResult = await client.execute(categoryQuery, [permalink], { prepare: true });
 
       if (categoryResult.rowLength > 0) {
-          // Category exists
-          const category = categoryResult.first(); // Assuming we get one result since permalink is PRIMARY KEY
-
-          // Now, fetch related posts for this category
+          const category = categoryResult.first();
           const postsQuery = 'SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT 30';
           const postsResult = await client.execute(postsQuery, [permalink], { prepare: true });
-          const posts = postsResult.rows;
+          category.posts = postsResult.rows;
 
-          // Attach the posts to the category object
-          category.posts = posts;
+          // Cache the category data with current timestamp
+          cache.category[permalink] = {
+              data: category,
+              lastFetched: new Date()
+          };
 
-          // Render the category view with the category and its posts
+          return category;
+      } else {
+          // If category not found, you can decide how you want to handle this. For now, returning null.
+          return null;
+      }
+  } catch (error) {
+      console.error('Error fetching category by name:', error);
+      throw error; // Rethrow the error to handle it in the calling context
+  }
+}
+
+
+
+app.get('/c/:permalink', async (req, res) => {
+  let { permalink } = req.params;
+
+  try {
+      const category = await fetchCategoryByName(client, permalink);
+
+      if (category) {
           res.render('category', { category: category });
       } else {
-          // Category does not exist
           res.status(404).send('Category not found');
       }
   } catch (error) {
-      console.error('Error fetching category and posts:', error);
+      console.error('Error fetching category:', error);
       res.status(500).send('Internal Server Error');
   }
 });
+
+
 
 
 app.get('/', async (req, res) => {
@@ -336,24 +369,30 @@ app.get('/submit-post/', async (req, res) => {
 
 
 app.get('/c/:category/:uniqueId/:title', async (req, res) => {
-  const { category, uniqueId, title } = req.params;
-  // Use the parameters to query your Cassandra database for the post data
-  // For the sake of example, let's assume you have a function `fetchPostByPostID` that does this
+  const { category, uniqueId } = req.params;
   try {
-    const post = await fetchPostByPostID(client,category, uniqueId);
-    // Now, render an HTML page using the post data
-    // If you're using a templating engine like EJS, Pug, or Handlebars, you can render a template:
-    // res.render('postPage', { post: post });
+    const post = await fetchPostByPostID(client, category, uniqueId);
 
-    res.render('postPage', { post: post,category: {} });
+    let categoryData = {};
+    if (cache.category[category] && isCacheValid(cache.category[category].lastFetched)) {
+      console.log('Serving category from cache');
+      categoryData = cache.category[category].data;
+    } else {
+      categoryData = await fetchCategoryByName(client, category);
+      // Update cache
+      cache.category[category] = {
+          data: categoryData,
+          lastFetched: new Date()
+      };
+    }
 
-
-
+    res.render('postPage', { post: post, category: categoryData });
   } catch (error) {
     console.error('Error fetching post:', error);
     res.status(500).send('Failed to fetch post');
   }
 });
+
 
 
 
