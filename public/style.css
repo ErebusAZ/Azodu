@@ -440,8 +440,11 @@ margin-bottom: 0;
 }
 
 .post-content {
-    margin-top: 20px;
     padding-right: 10px;
+}
+
+.post-content.post-container {
+margin-top: 20px; 
 }
 
 
