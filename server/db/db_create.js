@@ -102,7 +102,7 @@ async function createVotesTable(client) {
 }
 
 
-async function createDefaultCategories(client,defaultCategories) {
+async function createDefaultCategories(client, defaultCategories) {
   const queryInsertCategory = `
     INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created, moderators, isDefault)
     VALUES (?, ?, ?, ?, toTimestamp(now()), ?, ?) IF NOT EXISTS;
@@ -111,11 +111,10 @@ async function createDefaultCategories(client,defaultCategories) {
   // Loop through the defaultCategories array
   for (const categoryName of defaultCategories) {
     const permalink = categoryName.toLowerCase();
-    // Setting some default values for creator, description, and moderators
-    // You might want to adjust these based on your application's needs
-    const creator = "system";
-    const description = "Default category created by the system";
-    const moderators = ""; // Assuming moderators are stored as a text type, adjust accordingly
+    // Using Lorem Ipsum text for default values where needed
+    const creator = "Lorem ipsum dolor sit amet, consectetur adipiscing elit";
+    const description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua";
+    const moderators = "Lorem ipsum"; // Adjust based on how moderators are stored. If it's a list, you might need to serialize it accordingly.
     const isDefault = true;
 
     try {
@@ -126,6 +125,7 @@ async function createDefaultCategories(client,defaultCategories) {
     }
   }
 }
+
 
 
 
