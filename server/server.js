@@ -270,21 +270,6 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
 
 
 
-function convertTimestampToDatePath(timestamp) {
-  const year = timestamp.substring(0, 4);
-  const month = timestamp.substring(4, 6);
-  const day = timestamp.substring(6, 8);
-  const hour = timestamp.substring(8, 10);
-  const minute = timestamp.substring(10, 12);
-  const second = timestamp.substring(12, 14);
-  const milliseconds = timestamp.substring(14);
-  return `${year}/${month}/${day}/${hour}${minute}${second}${milliseconds}`;
-}
-
-
-function convertDatePathToTimestamp(datePath) {
-  return datePath.replace(/\//g, '').replace(/(\d{4})(\d{2})(\d{2})\/(\d{6})(\d+)/, "$1$2$3$4$5");
-}
 
 async function fetchCategoryByName(client, permalink) {
   // Check if category is in cache and valid
