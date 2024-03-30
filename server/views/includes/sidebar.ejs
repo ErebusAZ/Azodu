@@ -71,9 +71,12 @@
                 <div id="rules"><i class="fas fa-gavel"></i><span id="rules_span"><a href="#">The Rules</a></span>
                 </div>
 
+                <div id="subscribed_spaces_container" style="display: none;">
+                    <h3 id="subscribed_heading">Subscribed</h3>
+                    <ul id="subscribed_links"></ul>
+                </div>
 
-
-                <h3 id="explore_heading">Spaces</h3>
+                <h3 id="explore_heading">Explore</h3>
                 <ul class="community-links">
 
 
@@ -116,9 +119,9 @@
 
         function checkSubscriptionStatus() {
 
-            if($('#cat_permalink a').length < 1)
-            return; 
-        
+            if ($('#cat_permalink a').length < 1)
+                return;
+
             const permalink = $('#cat_permalink a').attr('href').split('/c/')[1];
             let subscriptions = JSON.parse(localStorage.getItem('userSubscriptions')) || [];
 
@@ -129,7 +132,7 @@
                 // User is not subscribed to this category
                 $('#subscribe_button').text('Subscribe').removeClass('unsubscribe');
             }
-            
+
             // Show the button after setting the correct status
             $('#subscribe_button').css('visibility', 'initial');
         }
@@ -165,6 +168,8 @@
                         $('#subscribe_button').text('Unsubscribe');
                         $('#subscribe_button').addClass('unsubscribe');
                     }
+                    refreshSubscriptions();
+
                 },
                 error: function (xhr, status, error) {
                     console.error('Action failed:', xhr.responseText);
@@ -175,7 +180,7 @@
 
         // Example of updating local storage after subscribing/unsubscribing
         function updateLocalSubscriptions(permalink, isSubscribing) {
-            console.log(permalink, isSubscribing); 
+            console.log(permalink, isSubscribing);
             let subscriptions = JSON.parse(localStorage.getItem('userSubscriptions')) || [];
 
             if (isSubscribing) {
@@ -190,6 +195,35 @@
 
             localStorage.setItem('userSubscriptions', JSON.stringify(subscriptions));
         }
+
+
+
+        function refreshSubscriptions() {
+            // Fetch the subscriptions from local storage
+            let subscriptions = JSON.parse(localStorage.getItem('userSubscriptions')) || [];
+
+            // Check if there are any subscriptions
+            if (subscriptions.length > 0) {
+                // Make sure the container is visible
+                $('#subscribed_spaces_container').show();
+
+                // Empty the current list to avoid duplicates
+                $('#subscribed_links').empty();
+
+                // Loop through the subscriptions and append each to the list
+                subscriptions.forEach(function (sub) {
+                    console.log(sub); 
+                    $('#subscribed_links').append(`<li><a href="/c/${sub}">/c/${sub}</a></li>`);
+                });
+            } else {
+                // Hide the container if there are no subscriptions
+                $('#subscribed_spaces_container').hide();
+            }
+        }
+
+        refreshSubscriptions();
+
+
 
 
 

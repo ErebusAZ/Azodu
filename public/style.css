@@ -589,10 +589,11 @@ margin-top: 20px;
     font-size: 16px;
     padding-left: 20px;
     margin-top: 25px;
+    clear: both;
 }
 
 
-.community-links {
+.community-links,#subscribed_links {
     list-style: none;
     padding: 0;
     float: left;
@@ -600,8 +601,13 @@ margin-top: 20px;
     font-size: 14px;
     text-decoration: underline;
     line-height: 14px;
+    margin-top: 6px;
+    margin-bottom: 30px;
+    padding-left: 40px;
 }
-
+.community-links li,#subscribed_links li {
+margin-top: 10px; 
+}
 
 .communities-section {
     background-color: #1a1a1a;
@@ -617,7 +623,7 @@ margin-top: 20px;
 .community-links {
     list-style: none;
     padding: 0;
-    margin-bottom: 0;
+    margin-bottom: 0px;
 }
 
 .community-links li {
