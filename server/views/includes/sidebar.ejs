@@ -114,6 +114,28 @@
 
         fetchAndDisplayCategories();
 
+        function checkSubscriptionStatus() {
+
+            if($('#cat_permalink a').length < 1)
+            return; 
+        
+            const permalink = $('#cat_permalink a').attr('href').split('/c/')[1];
+            let subscriptions = JSON.parse(localStorage.getItem('userSubscriptions')) || [];
+
+            if (subscriptions.includes(permalink)) {
+                // User is subscribed to this category
+                $('#subscribe_button').text('Unsubscribe').addClass('unsubscribe');
+            } else {
+                // User is not subscribed to this category
+                $('#subscribe_button').text('Subscribe').removeClass('unsubscribe');
+            }
+            
+            // Show the button after setting the correct status
+            $('#subscribe_button').css('visibility', 'initial');
+        }
+
+        checkSubscriptionStatus(); // Check and set subscription status on page load
+
 
         $('#subscribe_button').click(function () {
             const permalink = $('#cat_permalink a').attr('href').split('/c/')[1];
