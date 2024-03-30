@@ -282,6 +282,22 @@ div#post_meta {
 
 /* Sidebar */
 
+#subscribe_button {
+    border: none;
+    color: #fff;
+    background-color: #439c41;
+    padding: 5px;
+    margin-top: 10px;
+    font-size: 12px;
+    padding-left: 10px;
+    padding-right: 10px;
+    cursor: pointer; 
+}
+
+#subscribe_button:hover {
+text-decoration: underline; 
+}
+
 
 .category-metadata-box {
 background-color: #2d2d2d;
