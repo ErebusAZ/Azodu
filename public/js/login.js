@@ -85,12 +85,12 @@ $(document).ready(function () {
         const formMessage = document.getElementById('formMessage');
 
         if (!isLoginMode) {
-            
+
             const result = validateUsername(username);
             if (!result.isValid) {
-                showNotification(result.message, 'error', 5000); 
-                return; 
-                
+                showNotification(result.message, 'error', 5000);
+                return;
+
 
             }
 
@@ -116,6 +116,15 @@ $(document).ready(function () {
                     updateUIBasedOnAuthStatus();
                     formMessage.textContent = data.message || 'Action successful. Redirecting...';
                     formMessage.style.color = 'limegreen';
+
+                    // New: Store subscriptions in local storage
+                    if (data.subscriptions) {
+                        localStorage.setItem('userSubscriptions', JSON.stringify(data.subscriptions));
+                    } else {
+                        // Handle the case where no subscriptions are returned, or the user has none
+                        localStorage.setItem('userSubscriptions', JSON.stringify([]));
+                    }
+
 
                     // Optionally close the form after a delay on success
                     setTimeout(() => { loginRegisterForm.style.display = 'none'; }, 1000);

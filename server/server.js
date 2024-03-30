@@ -158,7 +158,8 @@ app.post('/api/login', async (req, res) => {
         expiresIn: loginExpires
       });
 
-      res.status(200).json({ auth: true, token: token, message: 'Login successful.' });
+      res.status(200).json({ auth: true, token: token, message: 'Login successful.',subscriptions: user.subscriptions
+    });
     } else {
       res.status(200).json({ message: 'No user found.' });
     }
