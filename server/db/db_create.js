@@ -21,6 +21,7 @@ async function createUsersTable(client) {
       password text,
       email text,
       date_registered timestamp,
+      subscriptions set<text> 
 
     );
   `;
