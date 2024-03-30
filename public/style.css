@@ -294,6 +294,10 @@ div#post_meta {
     cursor: pointer; 
 }
 
+#subscribe_button.unsubscribe {
+background-color: #b72d2d; 
+}
+
 #subscribe_button:hover {
 text-decoration: underline; 
 }
