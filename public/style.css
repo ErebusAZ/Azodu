@@ -292,6 +292,7 @@ div#post_meta {
     padding-left: 10px;
     padding-right: 10px;
     cursor: pointer; 
+    visibility: hidden; 
 }
 
 #subscribe_button.unsubscribe {
