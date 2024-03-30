@@ -15,7 +15,7 @@
 }
 
 #logo_cont a {
-    display: block;
+    display: inline-block;
     margin: 20px;
     margin-bottom: 0;
 }
