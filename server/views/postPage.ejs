@@ -85,7 +85,7 @@
 
 
             function getCommentHtml(commentId, author, content, depth = 0, votes, timestamp) {
-
+console.log(timestamp); 
                 const currentUser = localStorage.getItem('username');
                 const backgroundColor = depth % 2 === 0 ? '#2d2d2d' : '#2d2d2d';
 
@@ -537,22 +537,6 @@
             });
 
             var quillEditors = {};
-
-            function timeAgo(dateString) {
-                const date = new Date(dateString);
-                const now = new Date();
-                const secondsAgo = Math.round((now - date) / 1000);
-
-                const minutesAgo = Math.round(secondsAgo / 60);
-                const hoursAgo = Math.round(minutesAgo / 60);
-                const daysAgo = Math.round(hoursAgo / 24);
-
-                if (secondsAgo < 60) return `${secondsAgo} seconds ago`;
-                else if (minutesAgo < 60) return `${minutesAgo} minutes ago`;
-                else if (hoursAgo < 24) return `${hoursAgo} hours ago`;
-                else return `${daysAgo} days ago`;
-            }
-
 
         </script>
 

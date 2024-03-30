@@ -17,21 +17,7 @@
 
 <script>
 
-    function timeAgo(dateString) {
-        const date = new Date(dateString);
-        const now = new Date();
-        const secondsAgo = Math.round((now - date) / 1000);
-
-        const minutesAgo = Math.round(secondsAgo / 60);
-        const hoursAgo = Math.round(minutesAgo / 60);
-        const daysAgo = Math.round(hoursAgo / 24);
-
-        if (secondsAgo < 60) return `${secondsAgo} seconds ago`;
-        else if (minutesAgo < 60) return `${minutesAgo} minutes ago`;
-        else if (hoursAgo < 24) return `${hoursAgo} hours ago`;
-        else return `${daysAgo} days ago`;
-    }
-
+ 
     $(document).ready(function () {
         const totalNumberOfPosts = 400; // max posts to generate
         const postsToShowInitially = 25; // Posts to show initially and on each scroll
