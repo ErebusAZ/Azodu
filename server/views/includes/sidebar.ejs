@@ -1,7 +1,6 @@
-
 <div id="account_info">
-<div id="userDisplay" style="display: none;"></div>
-<a id="logoutButton" href="#" id="logoutButton" style="display: none;">[logout]</a>
+    <div id="userDisplay" style="display: none;"></div>
+    <a id="logoutButton" href="#" id="logoutButton" style="display: none;">[logout]</a>
 </div>
 
 
@@ -9,75 +8,79 @@
 
     <% if (category && category.name) { %>
         <div class="category-metadata-box">
-            <h2><%= category.name %></h2>
+            <h2>
+                <%= category.name %>
+            </h2>
             <p id="cat_permalink"><a href="/c/<%= category.permalink %>">/c/<%= category.permalink %></a></p>
             <% if (category.creator) { %>
                 <p id="cat_createdby">Created by <%= category.creator %>
-            <% } %>
-    
-                <script>
-                    function timeAgo(date) {
-                        const intervals = [
-                            { label: 'year', seconds: 31536000 },
-                            { label: 'month', seconds: 2592000 },
-                            { label: 'day', seconds: 86400 },
-                            { label: 'hour', seconds: 3600 },
-                            { label: 'minute', seconds: 60 },
-                            { label: 'second', seconds: 1 }
-                        ];
-                        const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
-                        const interval = intervals.find(i => i.seconds < seconds);
-                        const count = Math.floor(seconds / interval.seconds);
-                        return `${count} ${interval.label}${count !== 1 ? 's' : ''} ago`;
-                    }
-                    document.write(timeAgo('<%= category.date_created %>'));
-                </script>
-            </p>
-            <button id="subscribe_button">Subscribe</button>
-            <% if (category.description) { %>
-                <p><%- category.description %></p>
-                <% } %>
-            <% if (category.moderators) { %>
-                <p>Moderators: <%= category.moderators %></p>
-            <% } else { %>
-                <p>No moderators</p>
-            <% } %>
+                        <% } %>
+
+                            <script>
+                                function timeAgo(date) {
+                                    const intervals = [
+                                        { label: 'year', seconds: 31536000 },
+                                        { label: 'month', seconds: 2592000 },
+                                        { label: 'day', seconds: 86400 },
+                                        { label: 'hour', seconds: 3600 },
+                                        { label: 'minute', seconds: 60 },
+                                        { label: 'second', seconds: 1 }
+                                    ];
+                                    const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+                                    const interval = intervals.find(i => i.seconds < seconds);
+                                    const count = Math.floor(seconds / interval.seconds);
+                                    return `${count} ${interval.label}${count !== 1 ? 's' : ''} ago`;
+                                }
+                                document.write(timeAgo('<%= category.date_created %>'));
+                            </script>
+                </p>
+                <button id="subscribe_button">Subscribe</button>
+                <% if (category.description) { %>
+                    <p><%- category.description %></p>
+                    <% } %>
+                        <% if (category.moderators) { %>
+                            <p>Moderators: <%= category.moderators %>
+                            </p>
+                            <% } else { %>
+                                <p>No moderators</p>
+                                <% } %>
         </div>
-        <% }  %>
-        
-
-    <div class="sidebar">
-
-        <button id="loginRegisterButton" class="sidebar_button">Login/Register</button>
-   
+        <% } %>
 
 
+            <div class="sidebar">
 
-        <a href="/submit-post" style="margin-bottom: 20px; display: block;"><button class="sidebar_button"
-                type="button">Create a post</button></a>
-
-        <a href="/submit-category"><button class="sidebar_button" type="button">Create a category</button></a>
-
-    
-    </div>
-
-    <div id="explore_sidebar">
-
-        <div id="rights"><i class="fas fa-scroll"></i><span id="rights_span"><a href="#">Our Commitment</a></span>
-        </div>
-        <div id="rules"><i class="fas fa-gavel"></i><span id="rules_span"><a href="#">The Rules</a></span>
-        </div>
+                <button id="loginRegisterButton" class="sidebar_button">Login/Register</button>
 
 
 
-        <h3 id="explore_heading">Spaces</h3>
-        <ul class="community-links">
+
+                <a href="/submit-post" style="margin-bottom: 20px; display: block;"><button class="sidebar_button"
+                        type="button">Create a post</button></a>
+
+                <a href="/submit-category"><button class="sidebar_button" type="button">Create a category</button></a>
 
 
-        </ul>
-        <a href="#" class="show-more" id="showMoreBtn">Show more ...</a>
+            </div>
 
-    </div>
+            <div id="explore_sidebar">
+
+                <div id="rights"><i class="fas fa-scroll"></i><span id="rights_span"><a href="#">Our
+                            Commitment</a></span>
+                </div>
+                <div id="rules"><i class="fas fa-gavel"></i><span id="rules_span"><a href="#">The Rules</a></span>
+                </div>
+
+
+
+                <h3 id="explore_heading">Spaces</h3>
+                <ul class="community-links">
+
+
+                </ul>
+                <a href="#" class="show-more" id="showMoreBtn">Show more ...</a>
+
+            </div>
 
 
 
@@ -129,8 +132,9 @@
                     'Authorization': `Bearer ${authToken}`
                 },
                 data: JSON.stringify({ permalink: permalink }),
-                success: function(response) {
+                success: function (response) {
                     console.log(response.message);
+                    updateLocalSubscriptions(permalink, !isSubscribed);
                     // Toggle the button text and class based on the current state
                     if (isSubscribed) {
                         $('#subscribe_button').text('Subscribe');
@@ -140,12 +144,31 @@
                         $('#subscribe_button').addClass('unsubscribe');
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Action failed:', xhr.responseText);
                     // Handle errors
                 }
             });
         });
+
+        // Example of updating local storage after subscribing/unsubscribing
+        function updateLocalSubscriptions(permalink, isSubscribing) {
+            console.log(permalink, isSubscribing); 
+            let subscriptions = JSON.parse(localStorage.getItem('userSubscriptions')) || [];
+
+            if (isSubscribing) {
+                // Add to local storage array if not already present
+                if (!subscriptions.includes(permalink)) {
+                    subscriptions.push(permalink);
+                }
+            } else {
+                // Remove from local storage array
+                subscriptions = subscriptions.filter(sub => sub !== permalink);
+            }
+
+            localStorage.setItem('userSubscriptions', JSON.stringify(subscriptions));
+        }
+
 
 
 
