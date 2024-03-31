@@ -419,17 +419,10 @@ app.get('/c/:category/:uniqueId/:title', async (req, res) => {
     const post = await fetchPostByPostID(client, category, uniqueId);
 
     let categoryData = {};
-    if (cache.category[category] && isCacheValid(cache.category[category].lastFetched)) {
-      console.log('Serving category from cache');
-      categoryData = cache.category[category].data;
-    } else {
-      categoryData = await fetchCategoryByName(client, category);
-      // Update cache
-      cache.category[category] = {
-          data: categoryData,
-          lastFetched: new Date()
-      };
-    }
+   
+    categoryData = await fetchCategoryByName(client, category);
+    
+ 
 
     res.render('postPage', { post: post, category: categoryData });
   } catch (error) {
