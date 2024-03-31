@@ -376,9 +376,9 @@ margin-bottom: 0;
     padding-bottom: 10px;
     cursor: pointer;
     font-size: 14px;
-    border-radius: 5px; 
-    /* text-align: left; */
-    /* padding-left: 40px; */
+    border-radius: 5px;
+    text-align: left;
+    padding-left: 40px;
 }
 
 .sidebar_button:hover {
