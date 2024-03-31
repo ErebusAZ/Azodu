@@ -65,6 +65,7 @@ async function createPostsTable(client) {
     comment_count int,
     permalink text,
     timestamp timestamp,
+    thumbnail text,
     PRIMARY KEY (category, post_id)
   ) WITH CLUSTERING ORDER BY (post_id DESC);  
   `;

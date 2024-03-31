@@ -36,8 +36,7 @@ function generatePermalink(title, category, postID) {
   return permalink;
 }
 
-async function insertPostData(client, title, author, category, postType, content) {
-  // Assuming initial values for upvotes, downvotes, and comment_count are set to 0
+async function insertPostData(client, title, author, category, postType, content, thumbnail) {
   const upvotes = 0;
   const downvotes = 0;
   const commentCount = 0;
@@ -46,19 +45,20 @@ async function insertPostData(client, title, author, category, postType, content
 
   const query = `
     INSERT INTO my_keyspace.posts (
-      post_id, title, author, category, post_type, content, upvotes, downvotes, comment_count, permalink, timestamp
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, toTimestamp(now()));
+      post_id, title, author, category, post_type, content, upvotes, downvotes, comment_count, permalink, thumbnail, timestamp
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, toTimestamp(now()));
   `;
 
-  const params = [postID, title, author, category, postType, content, upvotes, downvotes, commentCount, permalink];
+  const params = [postID, title, author, category, postType, content, upvotes, downvotes, commentCount, permalink, thumbnail];
 
   try {
     await client.execute(query, params, { prepare: true });
-    console.log('Post data inserted successfully');
+    console.log('Post data inserted successfully with thumbnail');
   } catch (error) {
-    console.error('Failed to insert post data', error);
+    console.error('Failed to insert post data with thumbnail', error);
   }
 }
+
 
 async function insertCategoryData(client, name, creator, description, permalink, dateCreated, moderators) {
   const query = `

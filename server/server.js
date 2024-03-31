@@ -6,6 +6,8 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const fs = require('fs');
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 
 let secrets;
@@ -70,6 +72,56 @@ setInterval(() => {
     console.error('Failed to fetch posts and calculate votes:', error);
   });
 }, updateInterval);
+
+
+
+async function fetchThumbnail(url) {
+  console.log(`Fetching content from URL: ${url}`);
+  try {
+      const { data } = await axios.get(url);
+      console.log(`Content fetched successfully from ${url}`);
+      const $ = cheerio.load(data);
+      
+      // Prioritize og:image, then Twitter images, apple-touch-icon, and lastly the favicon
+      let imageUrl = $('meta[property="og:image"]').attr('content') ||
+                     $('meta[name="twitter:image"]').attr('content') ||
+                     $('link[rel="apple-touch-icon"]').attr('href') ||
+                     $('link[rel="icon"]').attr('href') ||
+                     $('link[rel="shortcut icon"]').attr('href');
+
+      if (imageUrl) {
+          console.log(`Image found: ${imageUrl}`);
+      } else {
+          console.log(`No suitable image found, trying the first <img> tag on the page...`);
+          imageUrl = $('img').first().attr('src');
+          
+          if (!imageUrl) {
+              console.log(`No <img> tags found, using domain root favicon.ico as a last resort...`);
+              const baseUrl = new URL(url);
+              imageUrl = `${baseUrl.origin}/favicon.ico`;
+              console.log(`Attempting to use root favicon.ico: ${imageUrl}`);
+          } else {
+              console.log(`First <img> tag found: ${imageUrl}`);
+          }
+      }
+      
+      // Resolve relative image URLs to absolute
+      if (imageUrl && !imageUrl.startsWith('http')) {
+          console.log(`Image URL is relative, converting to absolute...`);
+          const baseUrl = new URL(url);
+          imageUrl = new URL(imageUrl, baseUrl.origin).href;
+          console.log(`Converted to absolute URL: ${imageUrl}`);
+      }
+      
+      return imageUrl || null;
+  } catch (error) {
+      console.error(`Error fetching thumbnail from ${url}:`, error.message);
+      return null;
+  }
+}
+
+
+
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -214,28 +266,28 @@ app.post('/api/unsubscribe', authenticateToken, async (req, res) => {
 
 app.post('/submitPost', authenticateToken, async (req, res) => {
   const creator = req.user.username;
-
   const { title, category, postType, contentText, contentUrl } = req.body;
-  const content = postType === 'text' ? contentText : contentUrl;
-
+  let content = postType === 'text' ? contentText : contentUrl;
+  let thumbnail = null; // Default to null if no thumbnail is fetched
+  console.log(contentUrl);
   if (postType === 'text') {
     const result = validateComment(content);
     if (!result.isValid) {
-      res.status(400).json({ message: 'Failed to submit post. Reason: ' + result.message, error: true });
-      return;
+      return res.status(400).json({ message: 'Failed to submit post. Reason: ' + result.message, error: true });
     }
+  } else if (postType === 'url' && contentUrl) {
+    // Attempt to fetch a thumbnail for link-type posts
+    thumbnail = await fetchThumbnail(contentUrl);
   }
+
   try {
-    await insertPostData(client, title, creator, category, postType, processHTMLFromUsers(content));
-    // Instead of redirecting, send a JSON response indicating success
+    await insertPostData(client, title, creator, category, postType, content, thumbnail);
     res.status(200).json({ message: 'Post submitted successfully' });
   } catch (error) {
     console.error('Error submitting post:', error);
-    // Send a JSON response indicating an error
     res.status(500).json({ message: 'Failed to submit post' });
   }
 });
-
 
 
 
