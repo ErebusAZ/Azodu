@@ -1118,7 +1118,7 @@ form#submit_post_form, form#submit_category_form {
 .submission-form textarea,
 .submission-form select, #postContentUrl {
     width: 290px;
-    padding: 10px;
+    padding: 7px 10px;
     margin-top: 5px;
     background-color: #333;
     border: none;
