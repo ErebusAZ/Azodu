@@ -160,6 +160,13 @@ label {
     position: relative;
 }
 
+.thumbnail i {
+    font-size: 27px !important;
+    display: block;
+    text-align: center;
+    line-height: 47px;
+}
+
 .content {
     flex-grow: 1;
     min-height: 50px;

@@ -161,6 +161,34 @@
                             link = `<a href="${postTitleHref}" class="post-title single-line" target="_blank">${post.title}<i class="fas fa-external-link-alt"></i></a>`;
                         }
 
+                            // Check if thumbnail exists, otherwise use a Font Awesome icon
+
+                            let thumbnailHtml;
+                            if(post.post_type === 'url' ) {
+    thumbnailHtml = post.thumbnail ? `<img src="${post.thumbnail}" alt="Post Thumbnail">` : `<i class="fas fa-link"></i>`;
+
+    // more options
+// <i class="far fa-file-alt"></i>
+// <i class="fas fa-link"></i>
+// <i class="far fa-newspaper"></i>
+// <i class="fas fa-external-link-alt"></i>
+// <i class="fas fa-edit"></i>
+
+
+                            } else {
+                                thumbnailHtml = '<i class="fas fa-pencil-alt"></i>';
+//<i class="far fa-file-alt"></i>
+// <i class="far fa-file-word"></i>
+// <i class="fas fa-feather-alt"></i>
+// <i class="fas fa-pen-nib"></i>
+// <i class="fas fa-pencil-alt"></i>
+// <i class="fas fa-book"></i>
+
+
+
+                            }
+
+
                         const postHtml = `
 <div class="post" data-postId="${post.post_id}">
     <div class="post-left">
@@ -174,7 +202,7 @@
             </a>
         </div>
         <div class="thumbnail">
-            <img src="${post.thumbnail}" />
+            ${thumbnailHtml}
         </div>
     </div>
     <div class="post-content">
