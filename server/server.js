@@ -10,6 +10,9 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 
+
+
+
 let secrets;
 try {
   const secretsRaw = fs.readFileSync('secrets.json');
@@ -26,7 +29,7 @@ const { insertPostData, populateTestData, insertVote,insertCommentData,generateP
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink } = require('./utils/util');
-
+const { generateCommentForTitle } = require('./utils/ai');
 
 const app = express();
 const port = 3000; // Use any port that suits your setup
@@ -65,6 +68,50 @@ function isCacheValid(lastFetched) {
 
 
 
+
+
+const COMMENT_GENERATION_INTERVAL_MS = 10000; // e.g., 60000 ms = 1 minute
+const MAX_COMMENTS_PER_INTERVAL = 1; // Maximum number of comments to attempt to post per interval
+const COMMENT_POST_CHANCE = 1; // 20% chance of posting a comment on each post
+
+
+setInterval(async () => {
+  let commentsToPostThisInterval = MAX_COMMENTS_PER_INTERVAL;
+  const postIds = Object.keys(postsVoteSummary); // Get all post IDs from the summary object
+  
+  // Shuffle the array of post IDs to randomize which posts are considered first
+  for (let i = postIds.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [postIds[i], postIds[j]] = [postIds[j], postIds[i]];
+  }
+
+  for (const postId of postIds) {
+    if (commentsToPostThisInterval <= 0) break; // Stop if we've reached the max comments for this interval
+    
+    if (Math.random() <= COMMENT_POST_CHANCE) {
+      // Logic to generate and post a comment
+      const post = postsVoteSummary[postId];
+      const commentContent = await generateCommentForTitle(post.title);
+      if (commentContent) { // Check if a comment was successfully generated
+        const commentId = uuid.v4(); // Assuming uuid is imported
+        const timestamp = new Date(); // Current timestamp for the comment
+        const author = "GPT-3.5_generated"; // Fixed author name for AI-generated comments
+
+        // Log the comment before inserting it into the database
+        console.log(`Creating AI-generated comment for post ID: ${postId}`);
+        console.log(`Comment Content: "${commentContent}"`);
+
+        await insertCommentData(client, commentId, postId, author, postId, "text", commentContent, 0, 0, `/posts/${postId}/comments/${commentId}`, timestamp);
+        
+        commentsToPostThisInterval--; // Decrement the counter
+      }
+    }
+  }
+}, COMMENT_GENERATION_INTERVAL_MS);
+
+
+
+
 setInterval(() => {
   fetchPostsAndCalculateVotes(client,'everything',postsVoteSummary).then(result => {
     postsVoteSummary = result;
@@ -72,6 +119,8 @@ setInterval(() => {
     console.error('Failed to fetch posts and calculate votes:', error);
   });
 }, updateInterval);
+
+
 
 
 
