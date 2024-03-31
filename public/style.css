@@ -67,9 +67,7 @@ a, p a, .ql-snow a {
     text-decoration: underline;
 }
 
-p:first-child {
-    margin-top: 5px;
-}
+
 
 h1 {
     color: #ffffff;
