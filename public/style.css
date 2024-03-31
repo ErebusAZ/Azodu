@@ -397,11 +397,7 @@ right: 5px;
 }
 
 
-.sidebar_button i.fa-plus-square {
-position: relative;
-top: 2px;
-right: 5px;
-}
+.sidebar_button i.fa-plus-square {position: relative;top: 2px;right: 5px;font-size: 18px;}
 
 
 .sidebar ul {
