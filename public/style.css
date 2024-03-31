@@ -1163,6 +1163,9 @@ select#postType {
 }
 
 
+div#categoryDescription,#submit_post_text {
+    margin-top: 0;
+}
 
 
 i.fas {
