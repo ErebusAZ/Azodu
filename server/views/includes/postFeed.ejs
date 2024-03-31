@@ -17,7 +17,7 @@
 
 <script>
 
- 
+
     $(document).ready(function () {
         const totalNumberOfPosts = 400; // max posts to generate
         const postsToShowInitially = 25; // Posts to show initially and on each scroll
@@ -107,7 +107,7 @@
             }
             return null; // Return null if 'c' is not found or there is no segment after 'c'
         }
-        
+
 
         var isFetching = false;
 
@@ -304,6 +304,35 @@
 
 
         });
+
+
+
+        function pinPost(category, post_id) {
+            // Retrieve the authToken stored in localStorage
+            const authToken = localStorage.getItem('authToken');
+            if (!authToken) {
+                console.error('User is not logged in or authToken is missing.');
+                return;
+            }
+
+            // Make a POST request to the pinPost API endpoint
+            fetch('/api/pinPost', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}` // Use the authToken for authentication
+                },
+                body: JSON.stringify({ category, post_id }) // Send category and post_id in the request body
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json(); // Parse the JSON response body
+                })
+                .then(data => console.log(data)) // Log the response data
+                .catch(error => console.error('Error pinning post:', error)); // Log any errors
+        }
 
 
     });

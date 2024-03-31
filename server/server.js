@@ -20,7 +20,7 @@ jwtSecret = secrets.JWT_SECRET;
 
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories } = require('./db/db_create');
-const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData } = require('./db/db_insert');
+const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink } = require('./db/db_insert');
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink } = require('./utils/util');
@@ -489,6 +489,60 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
   }
 });
 
+
+
+app.post('/api/pinPost', authenticateToken, async (req, res) => {
+  const { category, post_id } = req.body;
+  console.log(category, post_id); 
+  const pinPrefix = 'pinned_';
+  const newPostId = `${pinPrefix}${post_id}`;
+
+  try {
+    // Step 1: Fetch the existing post
+    const selectQuery = 'SELECT * FROM my_keyspace.posts WHERE category = ? AND post_id = ?';
+    const postResult = await client.execute(selectQuery, [category, post_id], { prepare: true });
+
+    if (postResult.rowLength === 0) {
+      return res.status(404).json({ message: 'Post not found.' });
+    }
+
+    const post = postResult.first();
+
+    // Generate a new permalink including the 'pinned_' prefix in the post_id part
+    const newPermalink = generatePermalink(post.title, category, newPostId);
+
+
+    // Step 2: Insert a new post with the updated post_id and identical other fields
+    const insertQuery = `
+      INSERT INTO my_keyspace.posts 
+      (category, post_id, title, author, post_type, content, upvotes, downvotes, comment_count, permalink, timestamp)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    `;
+    await client.execute(insertQuery, [
+      category, 
+      newPostId, 
+      post.title, 
+      post.author, 
+      post.post_type, 
+      post.content, 
+      post.upvotes, 
+      post.downvotes, 
+      post.comment_count, 
+      newPermalink, 
+      post.timestamp
+    ], { prepare: true });
+
+    // Step 3: Optionally, delete the original post to avoid duplication
+    // Note: Consider the implications of this operation carefully, especially regarding links or references to the original post_id
+    const deleteQuery = 'DELETE FROM my_keyspace.posts WHERE category = ? AND post_id = ?';
+    await client.execute(deleteQuery, [category, post_id], { prepare: true });
+
+    res.json({ message: 'Post pinned successfully.' });
+  } catch (error) {
+    console.error('Error pinning post:', error);
+    res.status(500).json({ message: 'Error processing pinning operation.' });
+  }
+});
 
 
 
