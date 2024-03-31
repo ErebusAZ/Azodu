@@ -1,3 +1,56 @@
+const cache = {
+  category: {},
+  // You can add more categories here in the future, e.g., posts: {}, users: {}, etc.
+};
+
+const CACHE_VALIDITY_MS = 10 * 60 * 1000; // e.g., 10 minutes
+
+function isCacheValid(lastFetched) {
+  return (new Date() - lastFetched) < CACHE_VALIDITY_MS;
+}
+
+
+
+async function fetchCategoryByName(client, permalink) {
+  // Check if category is in cache and valid
+  if (cache.category[permalink] && isCacheValid(cache.category[permalink].lastFetched)) {
+      console.log('Serving category from cache');
+      return cache.category[permalink].data;
+  }
+
+  const categoryQuery = 'SELECT * FROM my_keyspace.categories WHERE permalink = ?';
+  try {
+      const categoryResult = await client.execute(categoryQuery, [permalink], { prepare: true });
+
+      if (categoryResult.rowLength > 0) {
+          const category = categoryResult.first();
+          const postsQuery = 'SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT 30';
+          const postsResult = await client.execute(postsQuery, [permalink], { prepare: true });
+          category.posts = postsResult.rows;
+
+          // Cache the category data with current timestamp
+          cache.category[permalink] = {
+              data: category,
+              lastFetched: new Date()
+          };
+
+          return category;
+      } else {
+          // If category not found, you can decide how you want to handle this. For now, returning null.
+          return null;
+      }
+  } catch (error) {
+      console.error('Error fetching category by name:', error);
+      throw error; // Rethrow the error to handle it in the calling context
+  }
+}
+
+
+
+
+
+
+
 async function queryAndLogUserData() {
   const query = 'SELECT * FROM my_keyspace.users';
 
@@ -112,4 +165,4 @@ async function getCommentDetails(client, post_id, comment_id) {
 
 
 
-module.exports = { queryAndLogUserData,fetchPostByPostID,fetchPostsAndCalculateVotes,getCommentDetails };
+module.exports = { queryAndLogUserData,fetchPostByPostID,fetchPostsAndCalculateVotes,getCommentDetails,fetchCategoryByName };

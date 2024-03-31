@@ -26,7 +26,7 @@ jwtSecret = secrets.JWT_SECRET;
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories } = require('./db/db_create');
 const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink } = require('./db/db_insert');
-const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails } = require('./db/db_query');
+const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink } = require('./utils/util');
 const { generateCommentForTitle } = require('./utils/ai');
@@ -55,16 +55,7 @@ const loginExpires = 86400 * 30; // a month
 let postsVoteSummary = {};
 const updateInterval = 10 * 1000; // how quickly to fetch all posts and update votes
 const defaultCategories = ["everything","Books"];
-const cache = {
-  category: {},
-  // You can add more categories here in the future, e.g., posts: {}, users: {}, etc.
-};
 
-const CACHE_VALIDITY_MS = 10 * 60 * 1000; // e.g., 10 minutes
-
-function isCacheValid(lastFetched) {
-  return (new Date() - lastFetched) < CACHE_VALIDITY_MS;
-}
 
 
 
@@ -380,39 +371,7 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
 
 
 
-async function fetchCategoryByName(client, permalink) {
-  // Check if category is in cache and valid
-  if (cache.category[permalink] && isCacheValid(cache.category[permalink].lastFetched)) {
-      console.log('Serving category from cache');
-      return cache.category[permalink].data;
-  }
 
-  const categoryQuery = 'SELECT * FROM my_keyspace.categories WHERE permalink = ?';
-  try {
-      const categoryResult = await client.execute(categoryQuery, [permalink], { prepare: true });
-
-      if (categoryResult.rowLength > 0) {
-          const category = categoryResult.first();
-          const postsQuery = 'SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT 30';
-          const postsResult = await client.execute(postsQuery, [permalink], { prepare: true });
-          category.posts = postsResult.rows;
-
-          // Cache the category data with current timestamp
-          cache.category[permalink] = {
-              data: category,
-              lastFetched: new Date()
-          };
-
-          return category;
-      } else {
-          // If category not found, you can decide how you want to handle this. For now, returning null.
-          return null;
-      }
-  } catch (error) {
-      console.error('Error fetching category by name:', error);
-      throw error; // Rethrow the error to handle it in the calling context
-  }
-}
 
 
 
