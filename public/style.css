@@ -372,15 +372,37 @@ margin-bottom: 0;
     border: none;
     background-color: #3c3c3c;
     color: #d7dadc;
-    padding-top: 10px;
+    padding-top: 2px;
     padding-bottom: 10px;
     cursor: pointer;
     font-size: 14px;
+    /* text-align: left; */
+    /* padding-left: 40px; */
 }
 
 .sidebar_button:hover {
     text-decoration: underline;
 }
+
+.sidebar_button i {
+font-size: 12px; 
+}
+
+
+.sidebar_button i.fa-pencil-alt {
+position: relative;
+top: 2px;
+right: 5px;
+
+}
+
+
+.sidebar_button i.fa-plus-square {
+position: relative;
+top: 2px;
+right: 5px;
+}
+
 
 .sidebar ul {
     font-size: 12px;
