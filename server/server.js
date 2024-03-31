@@ -286,7 +286,7 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
 
   try {
     await insertPostData(client, title, creator, category, postType, content, thumbnail);
-    res.status(200).json({ message: 'Post submitted successfully' });
+    res.status(200).json({ message: 'Post submitted successfully. Redirecting ...' });
   } catch (error) {
     console.error('Error submitting post:', error);
     res.status(500).json({ message: 'Failed to submit post' });
