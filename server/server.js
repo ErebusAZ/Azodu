@@ -75,50 +75,54 @@ setInterval(() => {
 
 
 
+
 async function fetchThumbnail(url) {
   console.log(`Fetching content from URL: ${url}`);
   try {
-      const { data } = await axios.get(url);
-      console.log(`Content fetched successfully from ${url}`);
-      const $ = cheerio.load(data);
-      
-      // Prioritize og:image, then Twitter images, apple-touch-icon, and lastly the favicon
-      let imageUrl = $('meta[property="og:image"]').attr('content') ||
-                     $('meta[name="twitter:image"]').attr('content') ||
-                     $('link[rel="apple-touch-icon"]').attr('href') ||
-                     $('link[rel="icon"]').attr('href') ||
-                     $('link[rel="shortcut icon"]').attr('href');
+    const { data } = await axios.get(url);
+    console.log(`Content fetched successfully from ${url}`);
+    const $ = cheerio.load(data);
+
+    let imageUrl = $('meta[property="og:image"]').attr('content');
+    if (imageUrl) {
+      console.log(`Open Graph image found: ${imageUrl}`);
+    } else {
+      console.log(`No Open Graph image found, looking for the first <img> tag...`);
+      imageUrl = $('img').first().attr('src');
 
       if (imageUrl) {
-          console.log(`Image found: ${imageUrl}`);
+        console.log(`First <img> tag found: ${imageUrl}`);
       } else {
-          console.log(`No suitable image found, trying the first <img> tag on the page...`);
-          imageUrl = $('img').first().attr('src');
-          
-          if (!imageUrl) {
-              console.log(`No <img> tags found, using domain root favicon.ico as a last resort...`);
-              const baseUrl = new URL(url);
-              imageUrl = `${baseUrl.origin}/favicon.ico`;
-              console.log(`Attempting to use root favicon.ico: ${imageUrl}`);
-          } else {
-              console.log(`First <img> tag found: ${imageUrl}`);
-          }
-      }
-      
-      // Resolve relative image URLs to absolute
-      if (imageUrl && !imageUrl.startsWith('http')) {
-          console.log(`Image URL is relative, converting to absolute...`);
+        console.log(`No <img> tags found, looking for favicon...`);
+        imageUrl = $('link[rel="icon"]').attr('href') || $('link[rel="shortcut icon"]').attr('href');
+
+        if (imageUrl) {
+          console.log(`Favicon found: ${imageUrl}`);
+        } else {
+          console.log(`No favicon found, using domain root favicon.ico as a last resort...`);
+          // Attempt to use /favicon.ico at the domain root
           const baseUrl = new URL(url);
-          imageUrl = new URL(imageUrl, baseUrl.origin).href;
-          console.log(`Converted to absolute URL: ${imageUrl}`);
+          imageUrl = `${baseUrl.origin}/favicon.ico`;
+          console.log(`Attempting to use root favicon.ico: ${imageUrl}`);
+        }
       }
-      
-      return imageUrl || null;
+    }
+
+    // Resolve relative image URLs to absolute
+    if (imageUrl && !imageUrl.startsWith('http')) {
+      console.log(`Image URL is relative, converting to absolute...`);
+      const baseUrl = new URL(url);
+      imageUrl = new URL(imageUrl, baseUrl.origin).href;
+      console.log(`Converted to absolute URL: ${imageUrl}`);
+    }
+
+    return imageUrl || null; // Return null if no image is found
   } catch (error) {
-      console.error(`Error fetching thumbnail from ${url}:`, error.message);
-      return null;
+    console.error(`Error fetching thumbnail from ${url}:`, error.message);
+    return null;
   }
 }
+
 
 
 
