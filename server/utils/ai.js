@@ -101,12 +101,9 @@ async function generateAIComment(title, summary,model) {
 
 async function generateSummary(text, includeTitle = false, originalTitle) {
   try {
-    // Base instruction for summarization
     let promptMessage = `Summarize the following content in three sentences or less: "${text}"`;
 
-    // Modify the prompt based on whether an alternative title is included
     if (includeTitle) {
-      // Direct instruction for the model to avoid using "Title:" or similar prefixes
       promptMessage += ` Then, without using any prefix like "Title:", provide an alternative title for this summary based on the current title, which is "${originalTitle}". Separate the summary and the alternative title with a '*' character.`;
     }
 
@@ -122,8 +119,21 @@ async function generateSummary(text, includeTitle = false, originalTitle) {
 
     // Split the response by '*' to separate summary and title
     let parts = generatedContent.split('*').map(part => part.trim());
+
+    const cleanAlternativeTitle = (title) => {
+      // First, remove any known prefixes
+      let cleanedTitle = title.replace(/^(Alternative\sTitle:\s|Title:\s)/i, '');
+    
+      // Then, check if the title is wrapped in quotes and remove them
+      if (cleanedTitle.startsWith('"') && cleanedTitle.endsWith('"')) {
+        cleanedTitle = cleanedTitle.substring(1, cleanedTitle.length - 1);
+      }
+    
+      return cleanedTitle;
+    };
+
     let summary = parts[0] ? '<p>' + parts[0] + '</p>' : null;
-    let alternativeTitle = parts.length > 1 ? parts[1] : "";
+    let alternativeTitle = parts.length > 1 ? cleanAlternativeTitle(parts[1]) : "";
 
     return [summary, alternativeTitle];
   } catch (error) {
@@ -131,6 +141,7 @@ async function generateSummary(text, includeTitle = false, originalTitle) {
     return [null, null];
   }
 }
+
 
 
 
