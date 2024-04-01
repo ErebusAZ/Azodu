@@ -22,35 +22,49 @@
     }
 
 
-    $(document).ready(function () {
-      // Fetch and display categories in the select dropdown
-      function fetchAndPopulateCategories() {
-        $.ajax({
-          url: '/api/categories',
-          type: 'GET',
-          success: function (categories) {
-            const $categorySelect = $('#category');
-            $categorySelect.empty(); // Clear existing options
+      $(document).ready(function () {
+        // Function to get query parameter by name
+        function getQueryParamByName(name) {
+          var url = window.location.href;
+          name = name.replace(/[\[\]]/g, "\\$&");
+          var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+          if (!results) return null;
+          if (!results[2]) return '';
+          return decodeURIComponent(results[2].replace(/\+/g, " "));
+        }
 
-            categories.forEach(function (category) {
-              // Append category as an option
-              // Use the permalink as the value to be submitted with the form
-              const option = $('<option></option>').val(category.permalink).text(category.name + ' - /c/' + category.permalink);
-              $categorySelect.append(option);
-            });
-          },
-          error: function (error) {
-            console.error('Failed to fetch categories:', error);
-          }
-        });
-      }
+        // Fetch and display categories in the select dropdown
+        function fetchAndPopulateCategories() {
+          var selectedCategory = getQueryParamByName('cat'); // Get 'cat' query parameter
 
+          $.ajax({
+            url: '/api/categories',
+            type: 'GET',
+            success: function (categories) {
+              const $categorySelect = $('#category');
+              $categorySelect.empty(); // Clear existing options
 
+              categories.forEach(function (category) {
+                // Append category as an option
+                const option = $('<option></option>').val(category.permalink).text(category.name + ' - /c/' + category.permalink);
+                $categorySelect.append(option);
+                if (category.permalink === selectedCategory) {
+                  option.prop('selected', true); // Set as selected if matches the query parameter
+                }
+              });
+            },
+            error: function (error) {
+              console.error('Failed to fetch categories:', error);
+            }
+          });
+        }
 
-      // Load categories when the document is ready
-      fetchAndPopulateCategories();
-    });
+        // Load categories when the document is ready
+        fetchAndPopulateCategories();
 
+      });
+    
 
 
   </script>
