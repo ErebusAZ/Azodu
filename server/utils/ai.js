@@ -102,7 +102,7 @@ async function generateMultipleAIComments(title, summary, numberOfComments = 5, 
 
     const promptVariation = `Given the article titled "${title}" and summarized as "${summary}", write ${numberOfComments} short comments from different perspectives. Avoid rhetorical questions, direct quotations from the summary, and exclamations like "wow". make sure each is completely different from each other, use improper grammer for some of the comments. return an array of strings i.e. json and put p HTML tags around paragraphs. DO NOT MENTION WHO YOU ARE OR WHAT PERSPECTIVE YOU COME FROM.`;
 
-    const selectedMaxTokens = numberOfComments * 60; // Estimate 60 tokens per comment
+    const selectedMaxTokens = numberOfComments * 160; 
 
     const completion = await openai.chat.completions.create({
       model: model,

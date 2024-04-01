@@ -62,7 +62,7 @@ const defaultCategories = ["everything","Books"];
 
 
 const COMMENT_GENERATION_INTERVAL_MS = 5000; // e.g., 60000 ms = 1 minute
-const MAX_COMMENTS_PER_INTERVAL = 0; // Maximum number of comments to attempt to post per interval
+const MAX_COMMENTS_PER_INTERVAL = 5; // Maximum number of comments to attempt to post per interval
 const COMMENT_POST_CHANCE = 1; // 20% chance of posting a comment on each post
 
 
@@ -96,8 +96,8 @@ setInterval(async () => {
           const author = model + "_generated"; // Fixed author name for AI-generated comments
 
           // Log the comment before inserting it into the database
-          console.log(`Creating AI-generated comment for post ID: ${postId}`);
-          console.log(`Comment Content: "${commentContent}"`);
+      //    console.log(`Creating AI-generated comment for post ID: ${postId}`);
+       //   console.log(`Comment Content: "${commentContent}"`);
 
           // Here, assuming insertCommentData is an async function that inserts comment data to your database or any storage
           await insertCommentData(client, commentId, postId, author, postId, "text", commentContent, 0, 0, `/posts/${postId}/comments/${commentId}`, timestamp);
@@ -669,7 +669,7 @@ app.get('/api/posts', async (req, res) => {
 async function main() {
   try {
 
- //      await flushAllTables(client,'my_keyspace','comments'); 
+   //    await flushAllTables(client,'my_keyspace','comments'); 
   //   await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
