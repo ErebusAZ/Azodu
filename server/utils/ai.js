@@ -42,6 +42,36 @@ async function generateCommentForTitle(title) {
   }
 }
 
+
+async function generateSummary(text) {
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are a helpful assistant." },
+        { role: "user", content: `Summarize, max 3 sentences in one paragraph: "${text}"` }
+      ],
+    });
+
+
+    let generatedContent = completion.choices[0].message.content.trim();
+    generatedContent = '<p>' + generatedContent + '</p>'; 
+
+    // Check if the first and last characters are quotation marks and remove them
+    if (generatedContent.startsWith('"') && generatedContent.endsWith('"')) {
+      generatedContent = generatedContent.substring(1, generatedContent.length - 1);
+    }
+
+
+    return generatedContent;
+  } catch (error) {
+    console.error('Error generating comment from OpenAI:', error);
+    return null;
+  }
+}
+
+
 module.exports = {
   generateCommentForTitle,
+  generateSummary, // Exporting the new function
 };

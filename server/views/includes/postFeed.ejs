@@ -152,14 +152,27 @@
                     posts.forEach(post => {
                         const postTitleHref = post.post_type === 'url' ? post.content : post.permalink;
 
-                        const contentDisplay = post.post_type === '999url' ? `<iframe style="display:none;" class="post-iframe" src="${post.content}"></iframe>` : `<div style="display:none;" class="post-text">${post.content}</div>`;
+                        let contentDisplay = `<div style="display:none;" class="post-text">${post.content}</div>`;
+                        
+                        if(post.post_type === 'url' && post.ai_summary) {
+
+                            contentDisplay = `<div style="display:none;" class="post-text">${post.ai_summary}<span class="ai_summary_heading">AI-generated summary</span></div>`;
+
+
+                        }
 
 
                         var link = `<a href="${postTitleHref}" class="post-title single-line">${post.title}</a><i class="fas fa-plus open-content" style="float:left;"></i>`;
+                        /*
                         if (post.post_type === 'url') {
 
                             link = `<a href="${postTitleHref}" class="post-title single-line" target="_blank">${post.title}<i class="fas fa-external-link-alt"></i></a>`;
                         }
+                        */
+
+
+
+                        
 
                             // Check if thumbnail exists, otherwise use a Font Awesome icon
 

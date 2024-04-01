@@ -29,7 +29,7 @@ const { insertPostData, populateTestData, insertVote,insertCommentData,generateP
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink } = require('./utils/util');
-const { generateCommentForTitle } = require('./utils/ai');
+const { generateCommentForTitle,generateSummary } = require('./utils/ai');
 
 const app = express();
 const port = 3000; // Use any port that suits your setup
@@ -62,7 +62,7 @@ const defaultCategories = ["everything","Books"];
 
 
 const COMMENT_GENERATION_INTERVAL_MS = 10000; // e.g., 60000 ms = 1 minute
-const MAX_COMMENTS_PER_INTERVAL = 1; // Maximum number of comments to attempt to post per interval
+const MAX_COMMENTS_PER_INTERVAL = 0; // Maximum number of comments to attempt to post per interval
 const COMMENT_POST_CHANCE = 1; // 20% chance of posting a comment on each post
 
 
@@ -305,34 +305,55 @@ app.post('/api/unsubscribe', authenticateToken, async (req, res) => {
 });
 
 
+function extractRelevantText(htmlContent) {
+  const $ = cheerio.load(htmlContent);
+  let textContent = "";
 
+  $('p').each((i, elem) => {
+    textContent += $(elem).text() + "\n\n"; // Adding two newlines to separate paragraphs
+  });
+
+  return textContent.trim(); // Trim the final string to remove any leading/trailing whitespace
+}
 
 
 app.post('/submitPost', authenticateToken, async (req, res) => {
   const creator = req.user.username;
   const { title, category, postType, contentText, contentUrl } = req.body;
   let content = postType === 'text' ? contentText : contentUrl;
-  let thumbnail = null; // Default to null if no thumbnail is fetched
-  console.log(contentUrl);
+  let thumbnail = null;
+  let summary = ""; // Initialize summary variable
+
   if (postType === 'text') {
-    const result = validateComment(content);
-    if (!result.isValid) {
-      return res.status(400).json({ message: 'Failed to submit post. Reason: ' + result.message, error: true });
-    }
+      const result = validateComment(content);
+      if (!result.isValid) {
+          return res.status(400).json({ message: 'Failed to submit post. Reason: ' + result.message, error: true });
+      }
   } else if (postType === 'url' && contentUrl) {
-    // Attempt to fetch a thumbnail for link-type posts
-    thumbnail = await fetchThumbnail(contentUrl);
+      thumbnail = await fetchThumbnail(contentUrl);
+
+      try {
+          // Fetch content from the URL
+          const { data } = await axios.get(contentUrl);
+          // Extract relevant text to summarize (this step may vary based on content)
+          const extractedText = extractRelevantText(data); // Implement this function based on your needs
+          // Generate a summary of the extracted text
+          summary = await generateSummary(extractedText);
+
+      } catch (fetchError) {
+          console.error('Error fetching URL content:', fetchError);
+          return res.status(500).json({ message: 'Failed to fetch URL content' });
+      }
   }
 
   try {
-    await insertPostData(client, title, creator, category, postType, content, thumbnail);
-    res.status(200).json({ message: 'Post submitted successfully. Redirecting ...' });
+      await insertPostData(client, title, creator, category, postType, content, thumbnail,summary);
+      res.status(200).json({ message: 'Post submitted successfully. Redirecting ...', summary: summary });
   } catch (error) {
-    console.error('Error submitting post:', error);
-    res.status(500).json({ message: 'Failed to submit post' });
+      console.error('Error submitting post:', error);
+      res.status(500).json({ message: 'Failed to submit post' });
   }
 });
-
 
 
 
@@ -650,9 +671,9 @@ async function main() {
     await createVotesTable(client);
     await createCategoriesTable(client);
 
-  //  await populateTestData(client, 10);
+ //   await populateTestData(client, 10);
 
- 
+
   //  await createDefaultCategories(client,defaultCategories);
 
 

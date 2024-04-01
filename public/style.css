@@ -1216,6 +1216,13 @@ i.fas.fa-external-link-alt {
     padding: 6px 18px;
 }
 
+span.ai_summary_heading {
+    color: gray;
+    font-size: 12px;
+    display: block;
+    text-align: right;
+    padding-bottom: 4px;
+}
 .single-line {
     /* white-space: nowrap; */
     /* overflow: hidden; */

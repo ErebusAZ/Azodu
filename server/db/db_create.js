@@ -60,6 +60,7 @@ async function createPostsTable(client) {
     author text,
     post_type text,
     content text,
+    ai_summary text,
     upvotes int,
     downvotes int,
     comment_count int,
