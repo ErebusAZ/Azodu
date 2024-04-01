@@ -132,25 +132,33 @@ async function createDefaultCategories(client, defaultCategories) {
 
 
 
-async function flushAllTables(client, keyspace) {
+async function flushAllTables(client, keyspace, tableNameOptional = null) {
   try {
-    // Retrieve all table names within the keyspace
-    const queryGetTables = `SELECT table_name FROM system_schema.tables WHERE keyspace_name = ?`;
-    const resultTables = await client.execute(queryGetTables, [keyspace], { prepare: true });
-
-    // Iterate over the tables and truncate each
-    for (let row of resultTables.rows) {
-      const tableName = row['table_name'];
-      const queryTruncate = `TRUNCATE ${keyspace}.${tableName}`;
+    if (tableNameOptional) {
+      // Flush only the specified table
+      const queryTruncate = `TRUNCATE ${keyspace}.${tableNameOptional}`;
       await client.execute(queryTruncate);
-      console.log(`Truncated table: ${tableName}`);
+      console.log(`Truncated table: ${tableNameOptional}`);
+    } else {
+      // Retrieve all table names within the keyspace
+      const queryGetTables = `SELECT table_name FROM system_schema.tables WHERE keyspace_name = ?`;
+      const resultTables = await client.execute(queryGetTables, [keyspace], { prepare: true });
+
+      // Iterate over the tables and truncate each
+      for (let row of resultTables.rows) {
+        const tableName = row['table_name'];
+        const queryTruncate = `TRUNCATE ${keyspace}.${tableName}`;
+        await client.execute(queryTruncate);
+        console.log(`Truncated table: ${tableName}`);
+      }
     }
 
-    console.log(`All tables in keyspace '${keyspace}' have been flushed.`);
+    console.log(`Tables in keyspace '${keyspace}' have been flushed.`);
   } catch (error) {
     console.error('Failed to flush tables', error);
   }
 }
+
 
 async function dropAllTables(client, keyspace) {
   try {
