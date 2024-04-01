@@ -79,7 +79,6 @@ setInterval(async () => {
       const commentId = uuid.v4(); // Generate a unique ID for the comment
       const timestamp = new Date(); // Current timestamp for the comment
       const author = model + "_generated"; // Author name for AI-generated comments
-      console.log('Inserting new comment ID ' + commentId);
       
       // Assuming insertCommentData function exists and inserts the comment into the database
       await insertCommentData(client, commentId, postId, author, postId, "text", comment, 0, 0, `/posts/${postId}/comments/${commentId}`, timestamp);
@@ -105,7 +104,6 @@ async function fetchFromRedditAndCreatePosts() {
 
       // Skip processing if the title has already been processed
       if (processedTitles.has(title)) {
-        console.log(`Skipping repost of: ${title}`);
         continue;
       }
 
@@ -136,10 +134,8 @@ async function fetchFromRedditAndCreatePosts() {
 
         // Insert the post data
         const postType = 'url';
-        console.log('inserting ' + title);
         await insertPostData(client, title, author, 'everything', postType, url, thumbnail, summary);
 
-        console.log(`Inserted new post from Reddit: ${title}`);
 
         // Add the original title to the set of processed titles to prevent future reposts
         processedTitles.add(originalTitle);
@@ -170,52 +166,57 @@ setInterval(() => {
 
 
 
+
 async function fetchThumbnail(url) {
-  console.log(`Fetching content from URL: ${url}`);
+  const debug = false; 
+
+  if (debug) console.log(`Fetching content from URL: ${url}`);
+
   try {
     const { data } = await axios.get(url);
-    console.log(`Content fetched successfully from ${url}`);
+    if (debug) console.log(`Content fetched successfully from ${url}`);
     const $ = cheerio.load(data);
 
     let imageUrl = $('meta[property="og:image"]').attr('content');
     if (imageUrl) {
-      console.log(`Open Graph image found: ${imageUrl}`);
+      if (debug) console.log(`Open Graph image found: ${imageUrl}`);
     } else {
-      console.log(`No Open Graph image found, looking for the first <img> tag...`);
+      if (debug) console.log(`No Open Graph image found, looking for the first <img> tag...`);
       imageUrl = $('img').first().attr('src');
 
       if (imageUrl) {
-        console.log(`First <img> tag found: ${imageUrl}`);
+        if (debug) console.log(`First <img> tag found: ${imageUrl}`);
       } else {
-        console.log(`No <img> tags found, looking for favicon...`);
+        if (debug) console.log(`No <img> tags found, looking for favicon...`);
         imageUrl = $('link[rel="icon"]').attr('href') || $('link[rel="shortcut icon"]').attr('href');
 
         if (imageUrl) {
-          console.log(`Favicon found: ${imageUrl}`);
+          if (debug) console.log(`Favicon found: ${imageUrl}`);
         } else {
-          console.log(`No favicon found, using domain root favicon.ico as a last resort...`);
+          if (debug) console.log(`No favicon found, using domain root favicon.ico as a last resort...`);
           // Attempt to use /favicon.ico at the domain root
           const baseUrl = new URL(url);
           imageUrl = `${baseUrl.origin}/favicon.ico`;
-          console.log(`Attempting to use root favicon.ico: ${imageUrl}`);
+          if (debug) console.log(`Attempting to use root favicon.ico: ${imageUrl}`);
         }
       }
     }
 
     // Resolve relative image URLs to absolute
     if (imageUrl && !imageUrl.startsWith('http')) {
-      console.log(`Image URL is relative, converting to absolute...`);
+      if (debug) console.log(`Image URL is relative, converting to absolute...`);
       const baseUrl = new URL(url);
       imageUrl = new URL(imageUrl, baseUrl.origin).href;
-      console.log(`Converted to absolute URL: ${imageUrl}`);
+      if (debug) console.log(`Converted to absolute URL: ${imageUrl}`);
     }
 
     return imageUrl || null; // Return null if no image is found
   } catch (error) {
-    console.error(`Error fetching thumbnail from ${url}:`, error.message);
+    if (debug) console.error(`Error fetching thumbnail from ${url}:`, error.message);
     return null;
   }
 }
+
 
 
 

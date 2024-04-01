@@ -54,7 +54,7 @@ async function insertPostData(client, title, author, category, postType, content
 
   try {
     await client.execute(query, params, { prepare: true });
-    console.log('Post data inserted successfully with optional ai_summary for URLs.');
+  //  console.log('Post data inserted successfully with optional ai_summary for URLs.');
   } catch (error) {
     console.error('Failed to insert post data with optional ai_summary', error);
   }
