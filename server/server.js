@@ -29,7 +29,7 @@ const { insertPostData, populateTestData, insertVote,insertCommentData,generateP
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink } = require('./utils/util');
-const { generateCommentForTitle,generateSummary } = require('./utils/ai');
+const { generateAIComment,generateSummary,generateMultipleAIComments } = require('./utils/ai');
 
 const app = express();
 const port = 3000; // Use any port that suits your setup
@@ -61,7 +61,7 @@ const defaultCategories = ["everything","Books"];
 
 
 
-const COMMENT_GENERATION_INTERVAL_MS = 10000; // e.g., 60000 ms = 1 minute
+const COMMENT_GENERATION_INTERVAL_MS = 5000; // e.g., 60000 ms = 1 minute
 const MAX_COMMENTS_PER_INTERVAL = 0; // Maximum number of comments to attempt to post per interval
 const COMMENT_POST_CHANCE = 1; // 20% chance of posting a comment on each post
 
@@ -69,7 +69,7 @@ const COMMENT_POST_CHANCE = 1; // 20% chance of posting a comment on each post
 setInterval(async () => {
   let commentsToPostThisInterval = MAX_COMMENTS_PER_INTERVAL;
   const postIds = Object.keys(postsVoteSummary); // Get all post IDs from the summary object
-  
+
   // Shuffle the array of post IDs to randomize which posts are considered first
   for (let i = postIds.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -78,26 +78,36 @@ setInterval(async () => {
 
   for (const postId of postIds) {
     if (commentsToPostThisInterval <= 0) break; // Stop if we've reached the max comments for this interval
-    
-    if (Math.random() <= COMMENT_POST_CHANCE) {
-      // Logic to generate and post a comment
+
+    if (Math.random() <= COMMENT_POST_CHANCE && postsVoteSummary[postId].ai_summary) {
       const post = postsVoteSummary[postId];
-      const commentContent = await generateCommentForTitle(post.title);
-      if (commentContent) { // Check if a comment was successfully generated
-        const commentId = uuid.v4(); // Assuming uuid is imported
-        const timestamp = new Date(); // Current timestamp for the comment
-        const author = "GPT-3.5_generated"; // Fixed author name for AI-generated comments
+      // Remember to await the async function call
+      //  const model = "gpt-4"; 
+      const model = "gpt-3.5-turbo";
+      const comments = await generateMultipleAIComments(post.title, post.ai_summary, MAX_COMMENTS_PER_INTERVAL,model); 
 
-        // Log the comment before inserting it into the database
-        console.log(`Creating AI-generated comment for post ID: ${postId}`);
-        console.log(`Comment Content: "${commentContent}"`);
+      // Check if comments were successfully generated
+      if (comments && comments.length) {
+        for (const commentContent of comments) {
+          if (commentsToPostThisInterval <= 0) break; // Check if we've reached the max comments limit within this loop
 
-        await insertCommentData(client, commentId, postId, author, postId, "text", commentContent, 0, 0, `/posts/${postId}/comments/${commentId}`, timestamp);
-        
-        commentsToPostThisInterval--; // Decrement the counter
+          const commentId = uuid.v4(); // Assuming uuid is imported
+          const timestamp = new Date(); // Current timestamp for the comment
+          const author = model + "_generated"; // Fixed author name for AI-generated comments
+
+          // Log the comment before inserting it into the database
+          console.log(`Creating AI-generated comment for post ID: ${postId}`);
+          console.log(`Comment Content: "${commentContent}"`);
+
+          // Here, assuming insertCommentData is an async function that inserts comment data to your database or any storage
+          await insertCommentData(client, commentId, postId, author, postId, "text", commentContent, 0, 0, `/posts/${postId}/comments/${commentId}`, timestamp);
+
+          commentsToPostThisInterval--; // Decrement the counter
+        }
       }
     }
   }
+
 }, COMMENT_GENERATION_INTERVAL_MS);
 
 
@@ -659,7 +669,7 @@ app.get('/api/posts', async (req, res) => {
 async function main() {
   try {
 
- //      await flushAllTables(client,'my_keyspace'); 
+ //      await flushAllTables(client,'my_keyspace','comments'); 
   //   await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
