@@ -73,6 +73,9 @@
                 $('#submit_category_form').on('submit', function (e) {
                     e.preventDefault(); // Prevent default form submission
 
+                    $('button[type="submit"]').prop('disabled', true).text('Submitting...');
+
+
                     // Retrieve values from form elements using jQuery
                     const name = $('#categoryName').val();
                     const permalinkFromClient = $('#finalPermalink').val();
@@ -100,6 +103,9 @@
                         .then(response => response.json()) // First, parse JSON response
                         .then(data => {
                             if (data.message) {
+
+                                $('button[type="submit"]').text('Success!');
+
                                 // Check if there is a message property in the response data
                                 showNotification(data.message, data.error ? 'error' : 'success', 3000, () => {
                                     if (!data.error) {
@@ -112,6 +118,8 @@
                         .catch(error => {
                             console.error('Error:', error);
                             showNotification('There was an error processing your request.', 'error', 3000);
+                            $('button[type="submit"]').prop('disabled', false).text('Submit');
+
                         });
                 });
             });

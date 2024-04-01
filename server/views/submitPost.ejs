@@ -138,6 +138,8 @@
 $('form#submit_post_form').on('submit', function(e) {
     e.preventDefault(); // Prevent the form from submitting through the browser
 
+    $('button[type="submit"]').prop('disabled', true).text('Submitting...');
+
     var postType = $('#postType').val();
     var title = $('#postTitle').val();
     var category = $('#category').val();
@@ -172,12 +174,16 @@ $('form#submit_post_form').on('submit', function(e) {
             throw new Error(data.message); // Use the server-provided error message
         }
         console.log(data.message); // Log success message from server
+        $('button[type="submit"]').text('Success!');
+
         showNotification(data.message, 'success', 3000, function() { window.location.href = "/"; });
     })
     .catch(error => {
         console.error('Error:', error);
         showNotification(error.message || 'There was an error submitting your post.', 'error', 3000);
-    });
+        $('button[type="submit"]').prop('disabled', false).text('Submit');
+
+    })
 });
 
 
