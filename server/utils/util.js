@@ -10,3 +10,9 @@ function generateCategoryPermalink(title) {
   const truncatedTitle = cleanedTitle.substring(0, 147); // Truncate to 147 characters to leave room for "/c/"
   return basePath + truncatedTitle;
 }
+
+
+
+module.exports = {
+  generateCategoryPermalink
+};
