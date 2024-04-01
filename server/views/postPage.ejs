@@ -566,7 +566,12 @@
 
                 <div id="post_title_container">
                     <h2 id="post-title">
-                        <%= post.title %>
+                        <% if (post.post_type === 'url') { %>
+                            <a href="<%= post.content %>" target="_blank"><%= post.title %><i class="fas fa-external-link-alt"></i></a>
+                          <% } else { %>
+                            <%= post.title %>
+                          <% } %>
+                          
                     </h2>
 
                     <div id="post_meta">submitted by <%= post.author %> <span class="timeago"
@@ -577,7 +582,17 @@
                 </div>
                 <div id="selftext">
 
-                    <%- post.content %>
+                    <% if (post.ai_summary && post.ai_summary.trim().length > 0) { %>
+                        <div class="post-summary">
+                          <%- post.ai_summary %>
+                          <span class="ai_summary_heading">AI-generated summary</span>
+                        </div>
+                      <% } else { %>
+                        <div class="post-content">
+                          <%- post.content %>
+                        </div>
+                      <% } %>
+                      
 
                 </div>
 
