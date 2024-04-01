@@ -28,7 +28,7 @@ function removeFirstSentence(text) {
 }
 
 
-async function generateAIComment(title, summary) {
+async function generateAIComment(title, summary,model) {
   try {
 
     // Define minimum and maximum token limits
@@ -66,7 +66,7 @@ async function generateAIComment(title, summary) {
     const selectedPrompt = promptVariations[Math.floor(Math.random() * promptVariations.length)];
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4", // Ensure to use the latest model version if possible for improved performance
+      model: model, // Ensure to use the latest model version if possible for improved performance
       messages: [
         { role: "user", content: selectedPrompt }
       ],
@@ -96,71 +96,46 @@ async function generateAIComment(title, summary) {
   }
 }
 
-async function generateMultipleAIComments(title, summary, numberOfComments = 5, model) {
+
+
+
+async function generateSummary(text, includeTitle = false, originalTitle) {
   try {
-    // Ensure the number of comments requested is within a practical limit for a single prompt
+    // Base instruction for summarization
+    let promptMessage = `Summarize the following content in three sentences or less: "${text}"`;
 
-    const promptVariation = `Given the article titled "${title}" and summarized as "${summary}", write ${numberOfComments} short comments from different perspectives. Avoid rhetorical questions, direct quotations from the summary, and exclamations like "wow". make sure each is completely different from each other, use improper grammer for some of the comments. return an array of strings i.e. json and put p HTML tags around paragraphs. DO NOT MENTION WHO YOU ARE OR WHAT PERSPECTIVE YOU COME FROM.`;
+    // Modify the prompt based on whether an alternative title is included
+    if (includeTitle) {
+      // Direct instruction for the model to avoid using "Title:" or similar prefixes
+      promptMessage += ` Then, without using any prefix like "Title:", provide an alternative title for this summary based on the current title, which is "${originalTitle}". Separate the summary and the alternative title with a '*' character.`;
+    }
 
-    const selectedMaxTokens = numberOfComments * 160; 
-
-    const completion = await openai.chat.completions.create({
-      model: model,
-      messages: [{
-        role: "user",
-        content: promptVariation
-      }],
-      max_tokens: selectedMaxTokens,
-    });
-
-    let generatedContent = completion.choices[0].message.content.trim();
-
-    comments = JSON.parse(generatedContent);
-
-    // Process the generated content to split into individual comments
-    // This example assumes the model will use clear separations (e.g., numbered list)
-    // Adjust the splitting logic based on observed output structure
-    //  const comments = generatedContent.split('\n').filter(line => line.trim() !== '').map(line => line.trim());
-
-    return comments;
-  } catch (error) {
-    console.error('Error generating comments from OpenAI:', error);
-    return [];
-  }
-}
-
-
-
-async function generateSummary(text) {
-  try {
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
-        { role: "system", content: "You are a helpful assistant." },
-        { role: "user", content: `Summarize, max 3 sentences in one paragraph: "${text}"` }
+        { role: "system", content: "You are a helpful assistant capable of summarizing content and generating titles." },
+        { role: "user", content: promptMessage }
       ],
     });
 
-
     let generatedContent = completion.choices[0].message.content.trim();
-    generatedContent = '<p>' + generatedContent + '</p>';
 
-    // Check if the first and last characters are quotation marks and remove them
-    if (generatedContent.startsWith('"') && generatedContent.endsWith('"')) {
-      generatedContent = generatedContent.substring(1, generatedContent.length - 1);
-    }
+    // Split the response by '*' to separate summary and title
+    let parts = generatedContent.split('*').map(part => part.trim());
+    let summary = parts[0] ? '<p>' + parts[0] + '</p>' : null;
+    let alternativeTitle = parts.length > 1 ? parts[1] : "";
 
-
-    return generatedContent;
+    return [summary, alternativeTitle];
   } catch (error) {
-    console.error('Error generating comment from OpenAI:', error);
-    return null;
+    console.error('Error generating summary and/or title from OpenAI:', error);
+    return [null, null];
   }
 }
+
+
 
 
 module.exports = {
   generateAIComment,
   generateSummary, // Exporting the new function
-  generateMultipleAIComments
 };

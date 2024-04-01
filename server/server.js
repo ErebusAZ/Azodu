@@ -29,7 +29,7 @@ const { insertPostData, populateTestData, insertVote,insertCommentData,generateP
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink } = require('./utils/util');
-const { generateAIComment,generateSummary,generateMultipleAIComments } = require('./utils/ai');
+const { generateAIComment,generateSummary } = require('./utils/ai');
 
 const app = express();
 const port = 3000; // Use any port that suits your setup
@@ -57,58 +57,102 @@ const updateInterval = 10 * 1000; // how quickly to fetch all posts and update v
 const defaultCategories = ["everything","Books"];
 
 
-
-
-
-
-const COMMENT_GENERATION_INTERVAL_MS = 5000; // e.g., 60000 ms = 1 minute
-const MAX_COMMENTS_PER_INTERVAL = 5; // Maximum number of comments to attempt to post per interval
+const COMMENT_GENERATION_INTERVAL_MS = 60000; // e.g., 60000 ms = 1 minute
 const COMMENT_POST_CHANCE = 1; // 20% chance of posting a comment on each post
 
 
 setInterval(async () => {
-  let commentsToPostThisInterval = MAX_COMMENTS_PER_INTERVAL;
   const postIds = Object.keys(postsVoteSummary); // Get all post IDs from the summary object
 
-  // Shuffle the array of post IDs to randomize which posts are considered first
-  for (let i = postIds.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [postIds[i], postIds[j]] = [postIds[j], postIds[i]];
-  }
-
-  for (const postId of postIds) {
-    if (commentsToPostThisInterval <= 0) break; // Stop if we've reached the max comments for this interval
+  // Check if there are any posts to comment on
+  if (postIds.length > 0) {
+    // Select a random post ID
+    const randomIndex = Math.floor(Math.random() * postIds.length);
+    const postId = postIds[randomIndex];
 
     if (Math.random() <= COMMENT_POST_CHANCE && postsVoteSummary[postId].ai_summary) {
       const post = postsVoteSummary[postId];
-      // Remember to await the async function call
-      //  const model = "gpt-4"; 
+      // Assuming generateAIComment function exists and returns a comment string
       const model = "gpt-3.5-turbo";
-      const comments = await generateMultipleAIComments(post.title, post.ai_summary, MAX_COMMENTS_PER_INTERVAL,model); 
+      const comment = await generateAIComment(post.title, post.ai_summary, model);
 
-      // Check if comments were successfully generated
-      if (comments && comments.length) {
-        for (const commentContent of comments) {
-          if (commentsToPostThisInterval <= 0) break; // Check if we've reached the max comments limit within this loop
-
-          const commentId = uuid.v4(); // Assuming uuid is imported
-          const timestamp = new Date(); // Current timestamp for the comment
-          const author = model + "_generated"; // Fixed author name for AI-generated comments
-
-          // Log the comment before inserting it into the database
-      //    console.log(`Creating AI-generated comment for post ID: ${postId}`);
-       //   console.log(`Comment Content: "${commentContent}"`);
-
-          // Here, assuming insertCommentData is an async function that inserts comment data to your database or any storage
-          await insertCommentData(client, commentId, postId, author, postId, "text", commentContent, 0, 0, `/posts/${postId}/comments/${commentId}`, timestamp);
-
-          commentsToPostThisInterval--; // Decrement the counter
-        }
-      }
+      const commentId = uuid.v4(); // Generate a unique ID for the comment
+      const timestamp = new Date(); // Current timestamp for the comment
+      const author = model + "_generated"; // Author name for AI-generated comments
+      console.log('Inserting new comment ID ' + commentId);
+      
+      // Assuming insertCommentData function exists and inserts the comment into the database
+      await insertCommentData(client, commentId, postId, author, postId, "text", comment, 0, 0, `/posts/${postId}/comments/${commentId}`, timestamp);
     }
   }
 
 }, COMMENT_GENERATION_INTERVAL_MS);
+
+
+
+
+// Assume we have a global set to store processed titles
+let processedTitles = new Set();
+
+async function fetchFromRedditAndCreatePosts() {
+  try {
+    const response = await axios.get('https://old.reddit.com/r/news/.json');
+    const posts = response.data.data.children;
+
+    let postsDone = 0;
+    for (let post of posts) {
+      let { title, permalink, url, author } = post.data;
+
+      // Skip processing if the title has already been processed
+      if (processedTitles.has(title)) {
+        console.log(`Skipping repost of: ${title}`);
+        continue;
+      }
+
+      if (postsDone > 0)
+        break;
+      postsDone++;
+      
+      // Check if the post already exists
+      const checkQuery = 'SELECT post_id FROM my_keyspace.posts WHERE permalink = ? ALLOW FILTERING';
+      const checkResult = await client.execute(checkQuery, [permalink], { prepare: true });
+      const originalTitle = title; 
+
+      if (checkResult.rowLength === 0) {
+        // Post does not exist, proceed with fetching thumbnail and generating summary
+        const thumbnail = await fetchThumbnail(url); // Ensure fetchThumbnail function is implemented
+
+        let summary = "";
+        try {
+          // Fetch content from the URL to generate summary
+          const { data } = await axios.get(url);
+          const extractedText = extractRelevantText(data); // Ensure extractRelevantText function is implemented
+          const titleAndSummary = await generateSummary(extractedText, true,originalTitle); // Adjusted to call your modified function
+          summary = titleAndSummary[0];
+          title = titleAndSummary[1] || title; // Use the generated title if available, otherwise keep the original
+        } catch (fetchError) {
+          console.error('Error fetching URL content or generating summary:', fetchError);
+        }
+
+        // Insert the post data
+        const postType = 'url';
+        console.log('inserting ' + title);
+        await insertPostData(client, title, author, 'everything', postType, url, thumbnail, summary);
+
+        console.log(`Inserted new post from Reddit: ${title}`);
+
+        // Add the original title to the set of processed titles to prevent future reposts
+        processedTitles.add(originalTitle);
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch from Reddit or insert posts:', error);
+  }
+}
+
+
+// Set the interval to run every minute
+setInterval(fetchFromRedditAndCreatePosts, 60000);
 
 
 
@@ -348,7 +392,9 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
           // Extract relevant text to summarize (this step may vary based on content)
           const extractedText = extractRelevantText(data); // Implement this function based on your needs
           // Generate a summary of the extracted text
-          summary = await generateSummary(extractedText);
+        summary = await generateSummary(extractedText);
+        summary = summary[0]; 
+               
 
       } catch (fetchError) {
           console.error('Error fetching URL content:', fetchError);
@@ -684,7 +730,7 @@ async function main() {
  //   await populateTestData(client, 10);
 
 
-  //  await createDefaultCategories(client,defaultCategories);
+    await createDefaultCategories(client,defaultCategories);
 
 
   } catch (error) {
