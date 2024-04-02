@@ -61,35 +61,36 @@ const updateInterval = 10 * 1000; // how quickly to fetch all posts and update v
 const defaultCategories = ["everything","Books"];
 
 
-const COMMENT_GENERATION_INTERVAL_MS = 20000; // e.g., 60000 ms = 1 minute
+const COMMENT_GENERATION_INTERVAL_MS = 5000; // e.g., 60000 ms = 1 minute
 const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
 const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000;
 
 setInterval(async () => {
-  const postIds = Object.keys(postsVoteSummary); // Get all post IDs from the summary object
+  const postIds = Object.keys(postsVoteSummary).filter(id => !postsVoteSummary[id].skipCommenting); // Filter out posts marked to skip commenting
 
-  // Check if there are any posts to comment on
   if (postIds.length > 0) {
-    // Select a random post ID
     const randomIndex = Math.floor(Math.random() * postIds.length);
     const postId = postIds[randomIndex];
 
     if (Math.random() <= COMMENT_POST_CHANCE && postsVoteSummary[postId].ai_summary) {
       const post = postsVoteSummary[postId];
-      // Assuming generateAIComment function exists and returns a comment string
       const model = "gpt-3.5-turbo";
       const comment = await generateAIComment(post.title, post.ai_summary, model);
 
-      const commentId = uuid.v4(); // Generate a unique ID for the comment
-      const timestamp = new Date(); // Current timestamp for the comment
-      const author = model + "_generated"; // Author name for AI-generated comments
-      
-      // Assuming insertCommentData function exists and inserts the comment into the database
+      if (comment == null || comment == 'null') {
+        postsVoteSummary[postId].skipCommenting = true; // Mark the post to skip commenting in the future
+        return;
+      }
+
+      const commentId = uuid.v4(); // Assuming uuid.v4() is imported correctly
+      const timestamp = new Date();
+      const author = model + "_generated";
+
       await insertCommentData(client, commentId, postId, author, postId, "text", comment, 0, 0, `/posts/${postId}/comments/${commentId}`, timestamp);
     }
   }
-
 }, COMMENT_GENERATION_INTERVAL_MS);
+
 
 
 

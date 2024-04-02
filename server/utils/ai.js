@@ -50,18 +50,28 @@ function htmlListToArray(htmlString) {
 
 // Simulated cache for storing and retrieving generated comments by title
 const commentsCache = {};
-// Assuming htmlListToArray and commentsCache are defined as shown previously
 
 async function generateAIComment(title, summary, model) {
-  // Check if there are cached comments for this title
+  // Check if this title's cache indicates all comments have been used
+  if (commentsCache[title] && commentsCache[title].length === 0) {
+    console.log('All comments for this title have been used.');
+    return null; // No more comments to serve for this title
+  }
+
   if (commentsCache[title] && commentsCache[title].length > 0) {
     console.log('Responding with cached comment');
-    return commentsCache[title].shift();
+    const comment = commentsCache[title].shift();
+
+    // Check if we've just served the last comment
+    if (commentsCache[title].length === 0) {
+      console.log('No more cached comments for this title.');
+    }
+
+    return comment;
   }
 
   try {
     const prompt = 'Respond with 5 varied in opinion, distinct comments in an HTML list to the following: ' + title + ' summary: ' + summary;
-    
     const completion = await openai.chat.completions.create({
       model: model,
       messages: [{ role: "user", content: prompt }],
@@ -69,22 +79,17 @@ async function generateAIComment(title, summary, model) {
     });
 
     let generatedContent = completion.choices[0].message.content.trim();
-
-
-    // Convert the HTML list to an array using the htmlListToArray function
     const listItems = htmlListToArray(generatedContent);
-    if (listItems.length < 1)
-      return null; 
+    if (listItems.length < 1) {
+      commentsCache[title] = []; // Mark this title as having no more comments available
+      return null;
+    }
 
-    
     // Wrap each comment in <p> tags
     const wrappedListItems = listItems.map(comment => `<p>${comment}</p>`);
-
+    commentsCache[title] = wrappedListItems.slice(1); // Cache the remaining comments
     
-    commentsCache[title] = wrappedListItems.slice(1);
-    
-    // Return the first element or null if the list is empty
-    return listItems.length > 0 ? listItems[0] : null;
+    return wrappedListItems.length > 0 ? wrappedListItems[0] : null;
   } catch (error) {
     console.error('Error generating comment from OpenAI:', error);
     return null;
