@@ -51,15 +51,19 @@ const client = new cassandra.Client({
 });
 
 
-const loginExpires = 86400 * 30; // a month
 let postsVoteSummary = {};
+
+
+
+const loginExpires = 86400 * 30; // how long till login expires
 const updateInterval = 10 * 1000; // how quickly to fetch all posts and update votes
+
 const defaultCategories = ["everything","Books"];
 
 
 const COMMENT_GENERATION_INTERVAL_MS = 60000; // e.g., 60000 ms = 1 minute
-const COMMENT_POST_CHANCE = 1; // 20% chance of posting a comment on each post
-
+const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
+const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000;
 
 setInterval(async () => {
   const postIds = Object.keys(postsVoteSummary); // Get all post IDs from the summary object
@@ -150,7 +154,7 @@ async function fetchFromExternalAndCreatePosts() {
 
 
 // Set the interval to run every minute
-setInterval(fetchFromExternalAndCreatePosts, 60000);
+setInterval(fetchFromExternalAndCreatePosts, FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH);
 
 
 
