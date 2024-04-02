@@ -130,7 +130,12 @@ async function fetchFromExternalAndCreatePosts() {
           const extractedText = extractRelevantText(data);
           const titleAndSummary = await generateSummary(extractedText, true, originalTitle);
           summary = titleAndSummary[0];
-          title = titleAndSummary[1] || title; // Use generated title if available
+          let newTitleFromAI = title; 
+          if ((titleAndSummary[1] && titleAndSummary[1].length > 3)) {
+            newTitleFromAI = titleAndSummary[1]; 
+
+          }
+          title = newTitleFromAI; // Use generated title if available
         } catch (fetchError) {
           console.error('Error fetching URL content or generating summary from: ' + url);
         }

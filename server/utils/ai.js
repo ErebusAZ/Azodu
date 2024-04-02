@@ -120,7 +120,12 @@ async function generateSummary(text, includeTitle = false, originalTitle) {
     // Split the response by '*' to separate summary and title
     let parts = generatedContent.split('*').map(part => part.trim());
 
-    const cleanAlternativeTitle = (title) => {
+    const cleanAlternativeTitle = (title, originalTitle) => {
+      
+      if (title.length < 1)
+        return originalTitle; 
+
+
       // First, remove any known prefixes
       let cleanedTitle = title.replace(/^(Alternative\sTitle:\s|Title:\s)/i, '');
     
@@ -133,7 +138,7 @@ async function generateSummary(text, includeTitle = false, originalTitle) {
     };
 
     let summary = parts[0] ? '<p>' + parts[0] + '</p>' : null;
-    let alternativeTitle = parts.length > 1 ? cleanAlternativeTitle(parts[1]) : "";
+    let alternativeTitle = parts.length > 1 ? cleanAlternativeTitle(parts[1],originalTitle) : "";
 
     return [summary, alternativeTitle];
   } catch (error) {
