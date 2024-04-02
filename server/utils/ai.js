@@ -99,48 +99,24 @@ async function generateAIComment(title, summary,model) {
 
 
 
-async function generateSummary(text, includeTitle = false, originalTitle) {
+async function generateSummary(text) {
   try {
-    let promptMessage = `Summarize the following content in three sentences or less: "${text}"`;
-
-    if (includeTitle) {
-      promptMessage += ` Then, without using any prefix like "Title:", provide an alternative title for this summary based on the current title, which is "${originalTitle}". Separate the summary and the alternative title with a '*' character.`;
-    }
-
+    let promptMessage = `Summarize the following three short sentences or less: "${text}"`;
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
-        { role: "system", content: "You are a helpful assistant capable of summarizing content and generating titles." },
+        { role: "system", content: "You are a helpful assistant." },
         { role: "user", content: promptMessage }
       ],
     });
 
     let generatedContent = completion.choices[0].message.content.trim();
 
-    // Split the response by '*' to separate summary and title
-    let parts = generatedContent.split('*').map(part => part.trim());
 
-    const cleanAlternativeTitle = (title, originalTitle) => {
-      // Check for an empty title or if the title is essentially a placeholder
-      if (!title || title.trim().length < 1 || title.trim().toLowerCase() === "alternative title:" || title.trim().toLowerCase() === "alternate title:") {
-        return originalTitle;
-      }
-    
-      // Remove any known prefixes, including handling for "Alternate Title:"
-      let cleanedTitle = title.replace(/^(Alternative\sTitle:\s|Alternate\sTitle:\s|Title:\s)/i, '');
-    
-      // Remove surrounding quotes, if any
-      if (cleanedTitle.startsWith('"') && cleanedTitle.endsWith('"')) {
-        cleanedTitle = cleanedTitle.substring(1, cleanedTitle.length - 1);
-      }
-    
-      return cleanedTitle;
-    };
-    
-    let summary = parts[0] ? '<p>' + parts[0] + '</p>' : null;
-    let alternativeTitle = parts.length > 1 ? cleanAlternativeTitle(parts[1],originalTitle) : "";
+    let summary = '<p>' + generatedContent + '</p>';
+    console.log(summary); 
 
-    return [summary, alternativeTitle];
+    return summary;
   } catch (error) {
     console.error('Error generating summary and/or title from OpenAI:', error);
     return [null, null];
