@@ -82,11 +82,11 @@ setInterval(async () => {
         return;
       }
 
-      const commentId = uuid.v4(); // Assuming uuid.v4() is imported correctly
+      const generatedCommentId = generatePostIdTimestamp(); // Generate a unique comment ID
       const timestamp = new Date();
       const author = model + "_generated";
 
-      await insertCommentData(client, commentId, postId, author, postId, "text", comment, 0, 0, `/posts/${postId}/comments/${commentId}`, timestamp);
+      await insertCommentData(client, generatedCommentId, postId, author, postId, "text", comment, 0, 0, `/posts/${postId}/comments/${commentId}`, timestamp);
     }
   }
 }, COMMENT_GENERATION_INTERVAL_MS);
