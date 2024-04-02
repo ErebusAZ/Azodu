@@ -2,24 +2,24 @@
 <html lang="en">
 
 <head>
-  
+
   <title>azodu</title>
   <%- include('includes/header') %>
 
 
 
-  <script>
-    function togglePostContentField() {
-      var postType = document.getElementById('postType').value;
-      if (postType === 'text') {
+    <script>
+      function togglePostContentField() {
+        var postType = document.getElementById('postType').value;
+        if (postType === 'text') {
 
-        $('#submit_post_form .ql-toolbar,#submit_post_text').show();  
-        document.getElementById('urlContent').style.display = 'none';
-      } else {
-        $('#submit_post_form .ql-toolbar,#submit_post_text').hide();  
-        document.getElementById('urlContent').style.display = '';
+          $('#submit_post_form .ql-toolbar,#submit_post_text').show();
+          document.getElementById('urlContent').style.display = 'none';
+        } else {
+          $('#submit_post_form .ql-toolbar,#submit_post_text').hide();
+          document.getElementById('urlContent').style.display = '';
+        }
       }
-    }
 
 
       $(document).ready(function () {
@@ -64,146 +64,148 @@
         fetchAndPopulateCategories();
 
       });
-    
-
-
-  </script>
-
-
-  <div class="container" id="submit_post_page">
 
 
 
+    </script>
 
-    <div class="submission-form">
-      <form id="submit_post_form" action="/submitPost" method="POST">
 
-        <h2>Submit a new post</h2>
-
-        <label for="postType">Post type:</label>
-        <select id="postType" name="postType" onchange="togglePostContentField()">
-          <option value="text">Text</option>
-          <option value="url">URL</option>
-        </select>
-
-        <label for="category">Category:</label>
-        <select id="category" name="category" required>
-          <option value="">Select a category...</option>
-          <!-- Options will be added here by the JavaScript -->
-        </select>
+    <div class="container" id="submit_post_page">
 
 
 
-        <label for="postTitle">Title:</label>
-        <input type="text" id="postTitle" name="title" placeholder="Enter post title" required>
+
+      <div class="submission-form">
+        <form id="submit_post_form" action="/submitPost" method="POST">
+
+          <h2>Submit a new post</h2>
+
+          <label for="postType">Post type:</label>
+          <select id="postType" name="postType" onchange="togglePostContentField()">
+            <option value="text">Text</option>
+            <option value="url">URL</option>
+          </select>
+
+          <label for="category">Category:</label>
+          <select id="category" name="category" required>
+            <option value="">Select a category...</option>
+            <!-- Options will be added here by the JavaScript -->
+          </select>
 
 
-        <div id="submit_post_text" class="contentField">
-          <textarea id="postContentText" name="contentText" placeholder="Enter text (optional)"></textarea>
 
-        </div>
+          <label for="postTitle">Title:</label>
+          <input type="text" id="postTitle" name="title" placeholder="Enter post title" required>
 
-        <div id="urlContent" class="contentField" style="display: none;">
-          <label for="postContentUrl">URL:</label>
-          <input type="url" id="postContentUrl" name="contentUrl" placeholder="Enter URL (optional)">
-        </div>
 
-        <input type="hidden" id="quillContentText" name="contentText">
+          <div id="submit_post_text" class="contentField">
+            <textarea id="postContentText" name="contentText" placeholder="Enter text (optional)"></textarea>
 
-        <button type="submit">Submit</button>
+          </div>
 
-      </form>
+          <div id="urlContent" class="contentField" style="display: none;">
+            <label for="postContentUrl">URL:</label>
+            <input type="url" id="postContentUrl" name="contentUrl" placeholder="Enter URL (optional)">
+          </div>
+
+          <input type="hidden" id="quillContentText" name="contentText">
+
+          <button type="submit">Submit</button>
+
+        </form>
+      </div>
+
+
+
+
+
+
     </div>
 
 
+    <%- include('includes/sidebar', { category: category || null }) %>
+
+      <script>
+        var quill = new Quill('#submit_post_text', {
+          modules: {
+            toolbar: [
+              ['bold', 'italic', 'underline', 'strike', 'blockquote'], // grouped buttons
+              [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+              ['link'] // links and image embed buttons
+            ]
+          },
+          theme: 'snow',
+          placeholder: 'Enter text (optional)',
+        });
+
+
+        document.querySelector('form').addEventListener('submit', function (e) {
+          var html = quill.root.innerHTML;
+          console.log(html); // Debug: what does Quill give us at this point?
+          document.getElementById('quillContentText').value = html;
+        });
 
 
 
 
-  </div>
+        // Override the default form submission
+        $('form#submit_post_form').on('submit', function (e) {
+          e.preventDefault(); // Prevent the form from submitting through the browser
 
+          $('button[type="submit"]').prop('disabled', true).text('Submitting...');
 
-  <%- include('includes/sidebar', { category: category || null }) %>
+          var postType = $('#postType').val();
+          var title = $('#postTitle').val();
+          var category = $('#category').val();
+          var contentText = postType === 'text' ? quill.root.innerHTML : null;
+          var contentUrl = postType === 'url' ? $('#postContentUrl').val() : null;
 
-  <script>
-    var quill = new Quill('#submit_post_text', {
-      modules: {
-        toolbar: [
-          ['bold', 'italic', 'underline', 'strike', 'blockquote'], // grouped buttons
-          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-          ['link'] // links and image embed buttons
-        ]
-      },
-      theme: 'snow',
-      placeholder: 'Enter text (optional)',
-    });
+          // Prepare the formData object
+          var formData = {
+            title: title,
+            category: category,
+            postType: postType,
+            contentText: contentText,
+            contentUrl: contentUrl
+          };
 
+          console.log(contentUrl);
+          // Get the authToken from local storage
+          var authToken = localStorage.getItem('authToken');
 
-    document.querySelector('form').addEventListener('submit', function (e) {
-      var html = quill.root.innerHTML;
-      console.log(html); // Debug: what does Quill give us at this point?
-      document.getElementById('quillContentText').value = html;
-    });
+          // Make the Fetch API request to submit the post data
+          fetch('/submitPost', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + authToken  // Include the auth token in the request headers
+            },
+            body: JSON.stringify(formData)
+          })
+            .then(response => response.json()) // Always parse JSON, regardless of the response status
+            .then(data => {
+              if (data.error) {
+                throw new Error(data.message); // Use the server-provided error message
+                console.log('data error');
+              } else {
+                $('button[type="submit"]').text('Success!');
+                showNotification(data.message, 'success', 3000, function () { window.location.href = "/"; });
 
+              }
 
+            })
+            .catch(error => {
+              console.log(error);
+              showNotification(error.message || 'There was an error submitting your post.', 'error', 10000);
+              $('button[type="submit"]').prop('disabled', false).text('Submit');
 
-
-// Override the default form submission
-$('form#submit_post_form').on('submit', function(e) {
-    e.preventDefault(); // Prevent the form from submitting through the browser
-
-    $('button[type="submit"]').prop('disabled', true).text('Submitting...');
-
-    var postType = $('#postType').val();
-    var title = $('#postTitle').val();
-    var category = $('#category').val();
-    var contentText = postType === 'text' ? quill.root.innerHTML : null;
-    var contentUrl = postType === 'url' ? $('#postContentUrl').val() : null;
-
-    // Prepare the formData object
-    var formData = {
-        title: title,
-        category: category,
-        postType: postType,
-        contentText: contentText,
-        contentUrl: contentUrl
-    };
-
-    console.log(contentUrl);
-    // Get the authToken from local storage
-    var authToken = localStorage.getItem('authToken');
-
-    // Make the Fetch API request to submit the post data
-    fetch('/submitPost', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + authToken  // Include the auth token in the request headers
-        },
-        body: JSON.stringify(formData)
-    })
-    .then(response => response.json()) // Always parse JSON, regardless of the response status
-    .then(data => {
-        if (data.error) {
-            throw new Error(data.message); // Use the server-provided error message
-        }
-        console.log(data.message); // Log success message from server
-        $('button[type="submit"]').text('Success!');
-
-        showNotification(data.message, 'success', 3000, function() { window.location.href = "/"; });
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification(error.message || 'There was an error submitting your post.', 'error', 3000);
-        $('button[type="submit"]').prop('disabled', false).text('Submit');
-
-    })
-});
+            })
+        });
 
 
 
-  </script>
+      </script>
 
-</body>
+      </body>
 
 </html>

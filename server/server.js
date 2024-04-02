@@ -24,7 +24,7 @@ try {
 jwtSecret = secrets.JWT_SECRET;
 
 
-const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories } = require('./db/db_create');
+const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable } = require('./db/db_create');
 const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink } = require('./db/db_insert');
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
@@ -348,8 +348,7 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
       await insertPostData(client, title, creator, category, postType, content, thumbnail,summary);
       res.status(200).json({ message: 'Post submitted successfully. Redirecting ...', summary: summary });
   } catch (error) {
-      console.error('Error submitting post:', error);
-      res.status(500).json({ message: 'Failed to submit post' });
+      res.status(500).json({ message: '' + error,error: true });
   }
 });
 
@@ -657,8 +656,8 @@ app.get('/api/posts', async (req, res) => {
 async function main() {
   try {
 
-   //    await flushAllTables(client,'my_keyspace','comments'); 
-   //  await dropAllTables(client, 'my_keyspace'); 
+    //   await flushAllTables(client,'my_keyspace','comments'); 
+  //   await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
@@ -670,7 +669,7 @@ async function main() {
     await createCategoriesTable(client);
 
  //   await populateTestData(client, 10);
-
+    await createLinksTable(client); 
 
     await createDefaultCategories(client,defaultCategories);
 

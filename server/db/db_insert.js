@@ -36,12 +36,33 @@ function generatePermalink(title, category, postID) {
   return permalink;
 }
 
+function sanitizeLink(link) {
+  // Remove URL parameters to prevent bypassing uniqueness with query strings
+  const url = new URL(link, 'http://example.com'); // Base URL is needed for relative links; it won't affect absolute URLs
+  return url.origin + url.pathname;
+}
+
 async function insertPostData(client, title, author, category, postType, content, thumbnail, aiSummary = '') {
+  const sanitizedLink = postType === 'url' ? sanitizeLink(content) : content;
   const upvotes = 0;
   const downvotes = 0;
   const commentCount = 0;
   const postID = generatePostIdTimestamp();
   const permalink = generatePermalink(title, category, postID);
+  const timestamp = new Date();
+
+  if (postType === 'url') {
+    const linkExistsQuery = 'SELECT link FROM my_keyspace.links WHERE link = ? AND category = ?';
+    const linkExistsResult = await client.execute(linkExistsQuery, [sanitizedLink, category], { prepare: true });
+
+    if (linkExistsResult.rowLength > 0) {
+      throw new Error('The link was already posted to this category.');
+    }
+
+    // Insert the link into the links table if it does not exist
+    const insertLinkQuery = 'INSERT INTO my_keyspace.links (link, category, post_id, timestamp) VALUES (?, ?, ?, ?)';
+    await client.execute(insertLinkQuery, [sanitizedLink, category, postID, timestamp], { prepare: true });
+  }
 
   const query = `
     INSERT INTO my_keyspace.posts (
@@ -49,12 +70,11 @@ async function insertPostData(client, title, author, category, postType, content
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, toTimestamp(now()));
   `;
 
-  // If postType is not 'url', aiSummary will be an empty string
-  const params = [postID, title, author, category, postType, content, aiSummary, upvotes, downvotes, commentCount, permalink, thumbnail];
+  const params = [postID, title, author, category, postType, sanitizedLink, aiSummary, upvotes, downvotes, commentCount, permalink, thumbnail];
 
   try {
     await client.execute(query, params, { prepare: true });
-  //  console.log('Post data inserted successfully with optional ai_summary for URLs.');
+    console.log('Post data inserted successfully with optional ai_summary for URLs.');
   } catch (error) {
     console.error('Failed to insert post data with optional ai_summary', error);
   }

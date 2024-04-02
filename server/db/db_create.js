@@ -74,6 +74,21 @@ async function createPostsTable(client) {
   console.log('Table `posts` created or already exists in `my_keyspace`');
 }
 
+async function createLinksTable(client) {
+  const query = `
+    CREATE TABLE IF NOT EXISTS my_keyspace.links (
+      link text,
+      category text,
+      post_id text,
+      timestamp timestamp,
+      PRIMARY KEY ((link, category))
+    );
+  `;
+  await client.execute(query);
+  console.log('Table `links` updated in `my_keyspace` with `link` and `category` as primary keys and including a `timestamp`.');
+}
+
+
 async function createCategoriesTable(client) {
   const query = `
   CREATE TABLE IF NOT EXISTS my_keyspace.categories (
@@ -181,4 +196,4 @@ async function dropAllTables(client, keyspace) {
 }
 
 
-module.exports = { createKeyspace, createUsersTable,createCommentsTable,createPostsTable,flushAllTables,dropAllTables,createVotesTable,createCategoriesTable,createDefaultCategories };
+module.exports = { createKeyspace, createUsersTable,createCommentsTable,createPostsTable,flushAllTables,dropAllTables,createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable };
