@@ -121,6 +121,12 @@ async function createVotesTable(client) {
 
 
 async function createDefaultCategories(client, defaultCategories) {
+  // Query to check if a category with the same permalink already exists
+  const queryCheckExists = `
+    SELECT permalink FROM my_keyspace.categories WHERE permalink = ? LIMIT 1;
+  `;
+
+  // Your existing INSERT query remains unchanged
   const queryInsertCategory = `
     INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created, moderators, isDefault)
     VALUES (?, ?, ?, ?, toTimestamp(now()), ?, ?) IF NOT EXISTS;
@@ -129,6 +135,14 @@ async function createDefaultCategories(client, defaultCategories) {
   // Loop through the defaultCategories array
   for (const categoryName of defaultCategories) {
     const permalink = categoryName.toLowerCase();
+
+    // Check if the category already exists
+    const existsResult = await client.execute(queryCheckExists, [permalink], { prepare: true });
+    if (existsResult.rowLength > 0) {
+      console.log(`Category '${categoryName}' already exists.`);
+      continue; // Skip this iteration, don't attempt to insert
+    }
+
     // Using Lorem Ipsum text for default values where needed
     const creator = "Lorem ipsum dolor sit amet, consectetur adipiscing elit";
     const description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua";
