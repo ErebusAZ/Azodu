@@ -63,7 +63,7 @@ const defaultCategories = ["everything","Books"];
 
 const COMMENT_GENERATION_INTERVAL_MS = 60000; // e.g., 60000 ms = 1 minute
 const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
-const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000;
+const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 10000;
 
 setInterval(async () => {
   const postIds = Object.keys(postsVoteSummary); // Get all post IDs from the summary object
@@ -107,7 +107,7 @@ async function fetchFromExternalAndCreatePosts() {
       let { title, permalink, url, author } = post.data;
 
       // Skip processing if the title has already been processed
-      if (processedTitles.has(title)) {
+      if (processedTitles.has(title) || processedTitles.has(url)) {
     //    console.log(`Skipping already processed title: ${title}`);
         continue;
       }
@@ -135,8 +135,15 @@ async function fetchFromExternalAndCreatePosts() {
           console.error('Error fetching URL content or generating summary from: ' + url);
         }
 
-        // Insert the post data
-        await insertPostData(client, title, author, 'everything', 'url', url, thumbnail, summary);
+        try {
+          // Insert the post data
+          await insertPostData(client, title, author, 'everything', 'url', url, thumbnail, summary);
+          
+        } catch (error) {
+          processedTitles.add(url);
+          console.log('added url to ignore list ' + url); 
+
+        }
 
         // Add the original title to the set to prevent future reposts
         processedTitles.add(originalTitle);
