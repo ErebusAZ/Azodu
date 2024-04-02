@@ -117,7 +117,6 @@ async function fetchFromExternalAndCreatePosts() {
       // Check if the post already exists in the database
       const checkQuery = 'SELECT link FROM my_keyspace.links WHERE link = ? AND category = ?';
       const checkResult = await client.execute(checkQuery, [url, 'everything'], { prepare: true });
-      const originalTitle = title;
 
       if (checkResult.rowLength === 0) {
         // Proceed with fetching thumbnail and generating summary if post does not exist
@@ -144,7 +143,7 @@ async function fetchFromExternalAndCreatePosts() {
 
 
         // Add the original title to the set to prevent future reposts
-        processedTitles.add(originalTitle);
+        processedTitles.add(title);
       } else {
         processedTitles.add(url);
         console.log('url in links table so adding to ignore list ' + url);
