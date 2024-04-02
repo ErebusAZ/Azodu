@@ -65,8 +65,11 @@ const COMMENT_GENERATION_INTERVAL_MS = 5000; // e.g., 60000 ms = 1 minute
 const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
 const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000;
 
+// Dedicated blacklist for posts to skip commenting
+const postsCommentBlacklist = {};
+
 setInterval(async () => {
-  const postIds = Object.keys(postsVoteSummary).filter(id => !postsVoteSummary[id].skipCommenting); // Filter out posts marked to skip commenting
+  const postIds = Object.keys(postsVoteSummary).filter(id => !postsCommentBlacklist[id]); // Use blacklist for filtering
 
   if (postIds.length > 0) {
     const randomIndex = Math.floor(Math.random() * postIds.length);
@@ -75,10 +78,11 @@ setInterval(async () => {
     if (Math.random() <= COMMENT_POST_CHANCE && postsVoteSummary[postId].ai_summary) {
       const post = postsVoteSummary[postId];
       const model = "gpt-3.5-turbo";
-      const comment = await generateAIComment(post.title, post.ai_summary, model,post.post_id);
+      const comment = await generateAIComment(post.title, post.ai_summary, model, postId);
 
       if (comment == null || comment == 'null') {
-        postsVoteSummary[postId].skipCommenting = true; // Mark the post to skip commenting in the future
+   //     console.log('Added to blacklist: ' + postId + ' with title: ' + post.title);
+        postsCommentBlacklist[postId] = true; // Mark the post in the dedicated blacklist
         return;
       }
 
@@ -680,7 +684,7 @@ async function main() {
   try {
 
     //   await flushAllTables(client,'my_keyspace','comments'); 
-    await dropAllTables(client, 'my_keyspace'); 
+  //  await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);

@@ -110,8 +110,7 @@ async function insertCommentData(client, comment_id, post_id, author, parent_id,
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
   await client.execute(query, [comment_id, post_id, author, parent_id, post_type, content, upvotes, downvotes, permalink, timestamp], { prepare: true });
   
-  console.log('Comment inserted. ID is ' + comment_id);
-  console.log('post_id is' + post_id); 
+
 }
 
 async function updateCommentData(client, comment_id, newContent, post_id) {

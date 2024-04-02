@@ -54,12 +54,12 @@ const commentsCache = {};
 async function generateAIComment(title, summary, model,post_id) {
   // Check if this title's cache indicates all comments have been used
   if (commentsCache[post_id] && commentsCache[post_id].length === 0) {
-    console.log('All comments for this title have been used. Title: ' + title);
+ //   console.log('All comments for this title have been used. Post id: ' + post_id + ' title: ' + title);
     return null; // No more comments to serve for this title
   }
 
   if (commentsCache[post_id] && commentsCache[post_id].length > 0) {
-    console.log('Responding with cached comment');
+  //  console.log('Responding with cached comment');
     const comment = commentsCache[post_id].shift();
 
     // Check if we've just served the last comment
