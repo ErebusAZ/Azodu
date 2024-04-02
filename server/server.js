@@ -333,6 +333,8 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
           return res.status(400).json({ message: 'Failed to submit post. Reason: ' + result.message, error: true });
       }
   } else if (postType === 'url' && contentUrl) {
+
+
       thumbnail = await fetchURLAndParseForThumb(contentUrl);
 
       try {
@@ -346,8 +348,8 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
                
 
       } catch (fetchError) {
-          console.error('Error fetching URL content:', fetchError);
-          return res.status(500).json({ message: 'Failed to fetch URL content' });
+          console.error('Error fetching URL content for: ' + contentUrl);
+        //  return res.status(500).json({ message: 'Failed to fetch URL content' });
       }
   }
 
