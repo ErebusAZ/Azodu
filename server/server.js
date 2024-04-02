@@ -28,7 +28,7 @@ const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable,
 const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink } = require('./db/db_insert');
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
-const { generateCategoryPermalink } = require('./utils/util');
+const { generateCategoryPermalink,fetchURLAndParseForThumb,extractRelevantText } = require('./utils/util');
 const { generateAIComment,generateSummary } = require('./utils/ai');
 
 const app = express();
@@ -122,7 +122,7 @@ async function fetchFromExternalAndCreatePosts() {
 
       if (checkResult.rowLength === 0) {
         // Proceed with fetching thumbnail and generating summary if post does not exist
-        const thumbnail = await fetchThumbnail(url);
+        const thumbnail = await fetchURLAndParseForThumb(url);
         
         let summary = "";
         try {
@@ -167,61 +167,6 @@ setInterval(() => {
   });
 }, updateInterval);
 
-
-
-
-
-
-
-async function fetchThumbnail(url) {
-  const debug = false; 
-
-  if (debug) console.log(`Fetching content from URL: ${url}`);
-
-  try {
-    const { data } = await axios.get(url);
-    if (debug) console.log(`Content fetched successfully from ${url}`);
-    const $ = cheerio.load(data);
-
-    let imageUrl = $('meta[property="og:image"]').attr('content');
-    if (imageUrl) {
-      if (debug) console.log(`Open Graph image found: ${imageUrl}`);
-    } else {
-      if (debug) console.log(`No Open Graph image found, looking for the first <img> tag...`);
-      imageUrl = $('img').first().attr('src');
-
-      if (imageUrl) {
-        if (debug) console.log(`First <img> tag found: ${imageUrl}`);
-      } else {
-        if (debug) console.log(`No <img> tags found, looking for favicon...`);
-        imageUrl = $('link[rel="icon"]').attr('href') || $('link[rel="shortcut icon"]').attr('href');
-
-        if (imageUrl) {
-          if (debug) console.log(`Favicon found: ${imageUrl}`);
-        } else {
-          if (debug) console.log(`No favicon found, using domain root favicon.ico as a last resort...`);
-          // Attempt to use /favicon.ico at the domain root
-          const baseUrl = new URL(url);
-          imageUrl = `${baseUrl.origin}/favicon.ico`;
-          if (debug) console.log(`Attempting to use root favicon.ico: ${imageUrl}`);
-        }
-      }
-    }
-
-    // Resolve relative image URLs to absolute
-    if (imageUrl && !imageUrl.startsWith('http')) {
-      if (debug) console.log(`Image URL is relative, converting to absolute...`);
-      const baseUrl = new URL(url);
-      imageUrl = new URL(imageUrl, baseUrl.origin).href;
-      if (debug) console.log(`Converted to absolute URL: ${imageUrl}`);
-    }
-
-    return imageUrl || null; // Return null if no image is found
-  } catch (error) {
-    if (debug) console.error(`Error fetching thumbnail from ${url}:`, error.message);
-    return null;
-  }
-}
 
 
 
@@ -366,16 +311,6 @@ app.post('/api/unsubscribe', authenticateToken, async (req, res) => {
 });
 
 
-function extractRelevantText(htmlContent) {
-  const $ = cheerio.load(htmlContent);
-  let textContent = "";
-
-  $('p').each((i, elem) => {
-    textContent += $(elem).text() + "\n\n"; // Adding two newlines to separate paragraphs
-  });
-
-  return textContent.trim(); // Trim the final string to remove any leading/trailing whitespace
-}
 
 
 app.post('/submitPost', authenticateToken, async (req, res) => {
@@ -391,7 +326,7 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
           return res.status(400).json({ message: 'Failed to submit post. Reason: ' + result.message, error: true });
       }
   } else if (postType === 'url' && contentUrl) {
-      thumbnail = await fetchThumbnail(contentUrl);
+      thumbnail = await fetchURLAndParseForThumb(contentUrl);
 
       try {
           // Fetch content from the URL
