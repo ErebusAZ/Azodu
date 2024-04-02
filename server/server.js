@@ -104,42 +104,44 @@ async function fetchFromRedditAndCreatePosts() {
 
       // Skip processing if the title has already been processed
       if (processedTitles.has(title)) {
+    //    console.log(`Skipping already processed title: ${title}`);
         continue;
       }
 
-      if (postsDone > 0)
-        break;
+      if (postsDone > 0) break; // If a post has been processed, exit loop
       postsDone++;
       
-      // Check if the post already exists
+      // Check if the post already exists in the database
       const checkQuery = 'SELECT post_id FROM my_keyspace.posts WHERE permalink = ? ALLOW FILTERING';
       const checkResult = await client.execute(checkQuery, [permalink], { prepare: true });
-      const originalTitle = title; 
+      const originalTitle = title;
 
       if (checkResult.rowLength === 0) {
-        // Post does not exist, proceed with fetching thumbnail and generating summary
-        const thumbnail = await fetchThumbnail(url); // Ensure fetchThumbnail function is implemented
-
+        // Proceed with fetching thumbnail and generating summary if post does not exist
+        const thumbnail = await fetchThumbnail(url);
+        
         let summary = "";
         try {
-          // Fetch content from the URL to generate summary
           const { data } = await axios.get(url);
-          const extractedText = extractRelevantText(data); // Ensure extractRelevantText function is implemented
-          const titleAndSummary = await generateSummary(extractedText, true,originalTitle); // Adjusted to call your modified function
+          const extractedText = extractRelevantText(data);
+          const titleAndSummary = await generateSummary(extractedText, true, originalTitle);
           summary = titleAndSummary[0];
-          title = titleAndSummary[1] || title; // Use the generated title if available, otherwise keep the original
+          title = titleAndSummary[1] || title; // Use generated title if available
         } catch (fetchError) {
-          console.error('Error fetching URL content or generating summary:', fetchError);
+          console.error('Error fetching URL content or generating summary from: ' + url);
         }
 
         // Insert the post data
-        const postType = 'url';
-        await insertPostData(client, title, author, 'everything', postType, url, thumbnail, summary);
+        await insertPostData(client, title, author, 'everything', 'url', url, thumbnail, summary);
 
-
-        // Add the original title to the set of processed titles to prevent future reposts
+        // Add the original title to the set to prevent future reposts
         processedTitles.add(originalTitle);
       }
+    }
+
+    // If no new posts were processed, log a message
+    if (postsDone === 0) {
+      console.log('No new titles to process. All fetched titles have already been taken.');
     }
   } catch (error) {
     console.error('Failed to fetch from Reddit or insert posts:', error);
@@ -717,7 +719,7 @@ async function main() {
   try {
 
    //    await flushAllTables(client,'my_keyspace','comments'); 
-  //   await dropAllTables(client, 'my_keyspace'); 
+   //  await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
