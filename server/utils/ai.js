@@ -51,19 +51,19 @@ function htmlListToArray(htmlString) {
 // Simulated cache for storing and retrieving generated comments by title
 const commentsCache = {};
 
-async function generateAIComment(title, summary, model) {
+async function generateAIComment(title, summary, model,post_id) {
   // Check if this title's cache indicates all comments have been used
-  if (commentsCache[title] && commentsCache[title].length === 0) {
-    console.log('All comments for this title have been used.');
+  if (commentsCache[post_id] && commentsCache[post_id].length === 0) {
+    console.log('All comments for this title have been used. Title: ' + title);
     return null; // No more comments to serve for this title
   }
 
-  if (commentsCache[title] && commentsCache[title].length > 0) {
+  if (commentsCache[post_id] && commentsCache[post_id].length > 0) {
     console.log('Responding with cached comment');
-    const comment = commentsCache[title].shift();
+    const comment = commentsCache[post_id].shift();
 
     // Check if we've just served the last comment
-    if (commentsCache[title].length === 0) {
+    if (commentsCache[post_id].length === 0) {
       console.log('No more cached comments for this title.');
     }
 
@@ -81,13 +81,13 @@ async function generateAIComment(title, summary, model) {
     let generatedContent = completion.choices[0].message.content.trim();
     const listItems = htmlListToArray(generatedContent);
     if (listItems.length < 1) {
-      commentsCache[title] = []; // Mark this title as having no more comments available
+      commentsCache[post_id] = []; // Mark this title as having no more comments available
       return null;
     }
 
     // Wrap each comment in <p> tags
     const wrappedListItems = listItems.map(comment => `<p>${comment}</p>`);
-    commentsCache[title] = wrappedListItems.slice(1); // Cache the remaining comments
+    commentsCache[post_id] = wrappedListItems.slice(1); // Cache the remaining comments
     
     return wrappedListItems.length > 0 ? wrappedListItems[0] : null;
   } catch (error) {

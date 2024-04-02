@@ -75,7 +75,7 @@ setInterval(async () => {
     if (Math.random() <= COMMENT_POST_CHANCE && postsVoteSummary[postId].ai_summary) {
       const post = postsVoteSummary[postId];
       const model = "gpt-3.5-turbo";
-      const comment = await generateAIComment(post.title, post.ai_summary, model);
+      const comment = await generateAIComment(post.title, post.ai_summary, model,post.post_id);
 
       if (comment == null || comment == 'null') {
         postsVoteSummary[postId].skipCommenting = true; // Mark the post to skip commenting in the future
