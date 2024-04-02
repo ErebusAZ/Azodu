@@ -46,12 +46,20 @@ function htmlListToArray(htmlString) {
   return listItems;
 }
 
+function getRandomNumberBetween(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 
 
 // Simulated cache for storing and retrieving generated comments by title
 const commentsCache = {};
 
-async function generateAIComment(title, summary, model,post_id) {
+async function generateAIComment(title, summary, model, post_id) {
+  
+
+  const maxNum = getRandomNumberBetween(3, 7); 
+
   // Check if this title's cache indicates all comments have been used
   if (commentsCache[post_id] && commentsCache[post_id].length === 0) {
  //   console.log('All comments for this title have been used. Post id: ' + post_id + ' title: ' + title);
@@ -71,11 +79,11 @@ async function generateAIComment(title, summary, model,post_id) {
   }
 
   try {
-    const prompt = 'Respond with 5 varied in opinion, distinct comments in an HTML list to the following: ' + title + ' summary: ' + summary;
+    const prompt = 'Respond with ' + maxNum + ' varied in opinion, distinct comments in an HTML list format. Some comments should use improper grammar (e.g. do not capitalize the start of every sentence) and typos, some should be as long as a paragraph, and some as short as a single sentence. The content is as follows ... Title: ' + title + ' Summary: ' + summary;
     const completion = await openai.chat.completions.create({
       model: model,
       messages: [{ role: "user", content: prompt }],
-      max_tokens: 500,
+      max_tokens: 300 * maxNum,
     });
 
     let generatedContent = completion.choices[0].message.content.trim();
