@@ -93,7 +93,7 @@ setInterval(async () => {
 // Assume we have a global set to store processed titles
 let processedTitles = new Set();
 
-async function fetchFromRedditAndCreatePosts() {
+async function fetchFromExternalAndCreatePosts() {
   try {
     const response = await axios.get('https://old.reddit.com/r/news/.json');
     const posts = response.data.data.children;
@@ -150,7 +150,7 @@ async function fetchFromRedditAndCreatePosts() {
 
 
 // Set the interval to run every minute
-setInterval(fetchFromRedditAndCreatePosts, 60000);
+setInterval(fetchFromExternalAndCreatePosts, 60000);
 
 
 
