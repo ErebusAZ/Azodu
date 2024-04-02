@@ -61,9 +61,9 @@ const updateInterval = 10 * 1000; // how quickly to fetch all posts and update v
 const defaultCategories = ["everything","Books"];
 
 
-const COMMENT_GENERATION_INTERVAL_MS = 5000; // e.g., 60000 ms = 1 minute
+const COMMENT_GENERATION_INTERVAL_MS = 60000 * 1; // 1 min
 const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
-const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000;
+const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 30; // 30 min
 
 // Dedicated blacklist for posts to skip commenting
 const postsCommentBlacklist = {};
