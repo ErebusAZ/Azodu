@@ -63,7 +63,7 @@ const defaultCategories = ["everything","Books"];
 
 const COMMENT_GENERATION_INTERVAL_MS = 60000; // e.g., 60000 ms = 1 minute
 const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
-const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 10000;
+const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000;
 
 setInterval(async () => {
   const postIds = Object.keys(postsVoteSummary); // Get all post IDs from the summary object
