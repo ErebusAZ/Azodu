@@ -2,6 +2,7 @@ const OpenAI = require('openai');
 
 const secrets = require('../secrets.json');
 
+
 openaiApiKey = secrets.OPENAI_API_KEY;
 
 
@@ -28,73 +29,68 @@ function removeFirstSentence(text) {
 }
 
 
-async function generateAIComment(title, summary,model) {
+function htmlListToArray(htmlString) {
+  htmlString = htmlString.trim();
+
+  // Check if the string contains <ul>, <ol>, and at least one <li> tag
+  if ((!htmlString.includes('<ul>') && !htmlString.includes('<ol>')) || !htmlString.includes('<li>')) {
+    console.log('No valid list found in the response.');
+    return []; // Return an empty array to indicate no valid items found
+  }
+
+  // The rest of your original function follows
+  const listItemRegex = /<li>(.*?)<\/li>/gs;
+  const matches = htmlString.matchAll(listItemRegex);
+  const listItems = Array.from(matches).map(match => match[1]);
+
+  return listItems;
+}
+
+
+
+// Simulated cache for storing and retrieving generated comments by title
+const commentsCache = {};
+// Assuming htmlListToArray and commentsCache are defined as shown previously
+
+async function generateAIComment(title, summary, model) {
+  // Check if there are cached comments for this title
+  if (commentsCache[title] && commentsCache[title].length > 0) {
+    console.log('Responding with cached comment');
+    return commentsCache[title].shift();
+  }
+
   try {
-
-    // Define minimum and maximum token limits
-    const minTokens = 60; // For example, minimum of 40 tokens
-    const maxTokens = 300; // For example, maximum of 100 tokens
-
-    // Randomly select a max_tokens value within the specified range
-    const selectedMaxTokens = Math.floor(Math.random() * (maxTokens - minTokens + 1)) + minTokens;
-
-
-
-    // List of popular subreddits to simulate response styles
-    const subreddits = [
-      'r/politics',
-      'r/news',
-      'r/mildlyinteresting',
-      'r/science',
-      'r/worldnews',
-      'r/technology',
-      'r/interestingasfuck',
-      'r/todayilearned',
-      'r/AskReddit',
-    ];
-
-    // Randomly select a subreddit
-    const selectedSubreddit = subreddits[Math.floor(Math.random() * subreddits.length)];
-
-    // Construct the prompt using the selected subreddit
-    let promptVariation = `you are a random redditor and you come across a post titled "${title}" and summarized as "${summary}". Respond as if you frequent ${selectedSubreddit}. usually capitalize but not always, and sometimes bad grammar and misspellings. DO NOT ASK rhetorical questions like "huh?" or regurgitate information. do not say "wow." do not mention reddit or ${selectedSubreddit} in your response.`;
-
-    promptVariations = [promptVariation];
-
-
-    // Randomly select a prompt variation
-    const selectedPrompt = promptVariations[Math.floor(Math.random() * promptVariations.length)];
-
+    const prompt = 'Respond with 5 varied in opinion, distinct comments in an HTML list to the following: ' + title + ' summary: ' + summary;
+    
     const completion = await openai.chat.completions.create({
-      model: model, // Ensure to use the latest model version if possible for improved performance
-      messages: [
-        { role: "user", content: selectedPrompt }
-      ],
-      max_tokens: selectedMaxTokens,
+      model: model,
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 500,
     });
 
     let generatedContent = completion.choices[0].message.content.trim();
 
-    // Process the generated content as before
-    if (generatedContent.startsWith('"') && generatedContent.endsWith('"')) {
-      generatedContent = generatedContent.substring(1, generatedContent.length - 1);
-    }
 
-    generatedContent = removeFirstSentence(generatedContent);
+    // Convert the HTML list to an array using the htmlListToArray function
+    const listItems = htmlListToArray(generatedContent);
+    if (listItems.length < 1)
+      return null; 
 
+    
+    // Wrap each comment in <p> tags
+    const wrappedListItems = listItems.map(comment => `<p>${comment}</p>`);
 
-    generatedContent = generatedContent
-      .split('\n\n')
-      .map(paragraph => `<p>${paragraph.trim()}</p>`)
-      .join('');
-
-
-    return generatedContent;
+    
+    commentsCache[title] = wrappedListItems.slice(1);
+    
+    // Return the first element or null if the list is empty
+    return listItems.length > 0 ? listItems[0] : null;
   } catch (error) {
     console.error('Error generating comment from OpenAI:', error);
     return null;
   }
 }
+
 
 
 

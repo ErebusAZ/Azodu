@@ -61,7 +61,7 @@ const updateInterval = 10 * 1000; // how quickly to fetch all posts and update v
 const defaultCategories = ["everything","Books"];
 
 
-const COMMENT_GENERATION_INTERVAL_MS = 60000; // e.g., 60000 ms = 1 minute
+const COMMENT_GENERATION_INTERVAL_MS = 20000; // e.g., 60000 ms = 1 minute
 const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
 const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000;
 
@@ -679,7 +679,7 @@ async function main() {
   try {
 
     //   await flushAllTables(client,'my_keyspace','comments'); 
-  //  await dropAllTables(client, 'my_keyspace'); 
+    await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
