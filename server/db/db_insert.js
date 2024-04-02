@@ -42,7 +42,7 @@ function sanitizeLink(link) {
   return url.origin + url.pathname;
 }
 
-async function insertPostData(client, title, author, category, postType, content, thumbnail, aiSummary = '') {
+async function insertPostData(client, title, author, category, postType, content, thumbnail, aiSummary = '',skipLinkCheck) {
   const sanitizedLink = postType === 'url' ? sanitizeLink(content) : content;
   const upvotes = 0;
   const downvotes = 0;
@@ -52,11 +52,14 @@ async function insertPostData(client, title, author, category, postType, content
   const timestamp = new Date();
 
   if (postType === 'url') {
-    const linkExistsQuery = 'SELECT link FROM my_keyspace.links WHERE link = ? AND category = ?';
-    const linkExistsResult = await client.execute(linkExistsQuery, [sanitizedLink, category], { prepare: true });
 
-    if (linkExistsResult.rowLength > 0) {
-      throw new Error('The link was already posted to this category.');
+    if (!skipLinkCheck) {
+      const linkExistsQuery = 'SELECT link FROM my_keyspace.links WHERE link = ? AND category = ?';
+      const linkExistsResult = await client.execute(linkExistsQuery, [sanitizedLink, category], { prepare: true });
+
+      if (linkExistsResult.rowLength > 0) {
+        throw new Error('The link was already posted to this category.');
+      }
     }
 
     // Insert the link into the links table if it does not exist

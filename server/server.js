@@ -99,7 +99,7 @@ let processedTitles = new Set();
 
 async function fetchFromExternalAndCreatePosts() {
   try {
-    const response = await axios.get('https://old.reddit.com/r/news/.json');
+    const response = await axios.get('https://old.reddit.com/r/news/top/.json');
     const posts = response.data.data.children;
 
     let postsDone = 0;
@@ -108,50 +108,47 @@ async function fetchFromExternalAndCreatePosts() {
 
       // Skip processing if the title has already been processed
       if (processedTitles.has(title) || processedTitles.has(url)) {
-    //    console.log(`Skipping already processed title: ${title}`);
         continue;
       }
 
       if (postsDone > 0) break; // If a post has been processed, exit loop
       postsDone++;
-      
+
       // Check if the post already exists in the database
-      const checkQuery = 'SELECT post_id FROM my_keyspace.posts WHERE permalink = ? ALLOW FILTERING';
-      const checkResult = await client.execute(checkQuery, [permalink], { prepare: true });
+      const checkQuery = 'SELECT link FROM my_keyspace.links WHERE link = ? AND category = ?';
+      const checkResult = await client.execute(checkQuery, [url, 'everything'], { prepare: true });
       const originalTitle = title;
 
       if (checkResult.rowLength === 0) {
         // Proceed with fetching thumbnail and generating summary if post does not exist
         const thumbnail = await fetchURLAndParseForThumb(url);
-        
+
         let summary = "";
         try {
           const { data } = await axios.get(url);
           const extractedText = extractRelevantText(data);
-          const titleAndSummary = await generateSummary(extractedText, true, originalTitle);
-          summary = titleAndSummary[0];
-          let newTitleFromAI = title; 
-          if ((titleAndSummary[1] && titleAndSummary[1].length > 3)) {
-            newTitleFromAI = titleAndSummary[1]; 
 
-          }
-          title = newTitleFromAI; // Use generated title if available
+
+          summary = await generateSummary(extractedText);
+
+          if (extractedText.length < 1)
+            summary = undefined;
+
+
         } catch (fetchError) {
           console.error('Error fetching URL content or generating summary from: ' + url);
         }
 
-        try {
-          // Insert the post data
-          await insertPostData(client, title, author, 'everything', 'url', url, thumbnail, summary);
-          
-        } catch (error) {
-          processedTitles.add(url);
-          console.log('added url to ignore list ' + url); 
 
-        }
+        await insertPostData(client, title, author, 'everything', 'url', url, thumbnail, summary,true);
+
 
         // Add the original title to the set to prevent future reposts
         processedTitles.add(originalTitle);
+      } else {
+        processedTitles.add(url);
+        console.log('url in links table so adding to ignore list ' + url);
+
       }
     }
 
@@ -349,7 +346,7 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
           const extractedText = extractRelevantText(data); // Implement this function based on your needs
           // Generate a summary of the extracted text
         summary = await generateSummary(extractedText);
-        summary = summary[0]; 
+ 
                
 
       } catch (fetchError) {
@@ -671,7 +668,7 @@ async function main() {
   try {
 
     //   await flushAllTables(client,'my_keyspace','comments'); 
-  //   await dropAllTables(client, 'my_keyspace'); 
+  //  await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
