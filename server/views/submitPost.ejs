@@ -36,7 +36,8 @@
 
         // Fetch and display categories in the select dropdown
         function fetchAndPopulateCategories() {
-          var selectedCategory = getQueryParamByName('cat'); // Get 'cat' query parameter
+          let selectedCategory = "everything";
+          selectedCategory = getQueryParamByName('cat'); // Get 'cat' query parameter
 
           $.ajax({
             url: '/api/categories',
