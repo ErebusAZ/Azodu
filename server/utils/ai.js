@@ -121,22 +121,22 @@ async function generateSummary(text, includeTitle = false, originalTitle) {
     let parts = generatedContent.split('*').map(part => part.trim());
 
     const cleanAlternativeTitle = (title, originalTitle) => {
-      
-      if (title.length < 1)
-        return originalTitle; 
-
-
-      // First, remove any known prefixes
-      let cleanedTitle = title.replace(/^(Alternative\sTitle:\s|Title:\s)/i, '');
+      // Check for an empty title or if the title is essentially a placeholder
+      if (!title || title.trim().length < 1 || title.trim().toLowerCase() === "alternative title:" || title.trim().toLowerCase() === "alternate title:") {
+        return originalTitle;
+      }
     
-      // Then, check if the title is wrapped in quotes and remove them
+      // Remove any known prefixes, including handling for "Alternate Title:"
+      let cleanedTitle = title.replace(/^(Alternative\sTitle:\s|Alternate\sTitle:\s|Title:\s)/i, '');
+    
+      // Remove surrounding quotes, if any
       if (cleanedTitle.startsWith('"') && cleanedTitle.endsWith('"')) {
         cleanedTitle = cleanedTitle.substring(1, cleanedTitle.length - 1);
       }
     
       return cleanedTitle;
     };
-
+    
     let summary = parts[0] ? '<p>' + parts[0] + '</p>' : null;
     let alternativeTitle = parts.length > 1 ? cleanAlternativeTitle(parts[1],originalTitle) : "";
 
