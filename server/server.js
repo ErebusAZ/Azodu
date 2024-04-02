@@ -99,7 +99,19 @@ let processedTitles = new Set();
 
 async function fetchFromExternalAndCreatePosts() {
   try {
-    const response = await axios.get('https://old.reddit.com/r/news/top/.json');
+    const urls = [
+      'https://old.reddit.com/r/news/top/.json',
+      'https://old.reddit.com/r/worldnews/top/.json',
+      'https://old.reddit.com/r/technology/top/.json',
+      // Add more URLs as needed
+    ];
+
+    // Select a random URL from the array
+    const randomUrl = urls[Math.floor(Math.random() * urls.length)];
+
+    // Fetch data from the randomly selected URL
+    const response = await axios.get(randomUrl);
+
     const posts = response.data.data.children;
 
     let postsDone = 0;
@@ -139,7 +151,7 @@ async function fetchFromExternalAndCreatePosts() {
         }
 
 
-        await insertPostData(client, title, author, 'everything', 'url', url, thumbnail, summary,true);
+        await insertPostData(client, title, author, 'everything', 'url', url, thumbnail, summary, true);
 
 
         // Add the original title to the set to prevent future reposts
