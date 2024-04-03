@@ -22,7 +22,8 @@ async function createUsersTable(client) {
       email text,
       date_registered timestamp,
       subscriptions set<text>,
-      roles set<text> // Adjusted to set<text> for multiple roles
+      roles set<text>, // Adjusted to set<text> for multiple roles
+      last_ip text // Field for storing the last known IP address
     );
   `;
   try {
@@ -32,6 +33,7 @@ async function createUsersTable(client) {
     console.error('Error creating users table:', error);
   }
 }
+
 
 async function createCommentsTable(client) {
   const query = `

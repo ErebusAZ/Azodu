@@ -220,14 +220,13 @@ function authenticateToken(req, res, next) {
 
 app.post('/api/register', async (req, res) => {
   const { username, password, email } = req.body;
+  const clientIp = req.ip; 
 
   if (!validateUsername(username).isValid) {
     console.log('client tried invalid username. this should not be possible with client-side validation');
     return;
-
   }
 
-  
   if (!username || !password || !email) {
     return res.status(400).json({ message: 'Username, password, and email are required.' });
   }
@@ -238,22 +237,16 @@ app.post('/api/register', async (req, res) => {
 
   try {
     const insertUserQuery = `
-      INSERT INTO my_keyspace.users (username, password, email, date_registered)
-      VALUES (?, ?, ?, ?) IF NOT EXISTS;
+      INSERT INTO my_keyspace.users (username, password, email, date_registered, last_ip)
+      VALUES (?, ?, ?, ?, ?) IF NOT EXISTS;
     `;
-    const insertResult = await client.execute(insertUserQuery, [username, hashedPassword, email, dateRegistered], { prepare: true });
-    
-    // Check if the user was actually created
+    const insertResult = await client.execute(insertUserQuery, [username, hashedPassword, email, dateRegistered, clientIp], { prepare: true });
+
     if (insertResult && insertResult.rows && insertResult.rows[0] && !insertResult.rows[0]['[applied]']) {
       return res.status(409).json({ message: 'User already exists.' });
     }
 
-    // Use username as the unique identifier in the JWT token
-    const token = jwt.sign({ username: username }, jwtSecret, {
-        expiresIn: loginExpires
-    });
-
-    // Send the token with the success message
+    const token = jwt.sign({ username: username }, jwtSecret, { expiresIn: loginExpires });
     res.status(201).json({ auth: true, token: token, message: 'User created successfully. Redirecting...' });
   } catch (error) {
     console.error('Registration error:', error);
@@ -264,10 +257,10 @@ app.post('/api/register', async (req, res) => {
 
 
 
-app.post('/api/login', async (req, res) => {
 
+app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
-  console.log(username, password); 
+  const clientIp = req.ip; // Capture client IP address
 
   try {
     const queryUser = 'SELECT * FROM my_keyspace.users WHERE username = ?';
@@ -275,32 +268,27 @@ app.post('/api/login', async (req, res) => {
 
     if (result.rowLength > 0) {
       const user = result.first();
-
-      console.log(`User ${username}'s subscriptions:`, user.subscriptions);
-
-
       const passwordIsValid = await bcrypt.compare(password, user.password);
+
       if (!passwordIsValid) {
-        return res.status(200).json({ message: 'Incorrect password.' });
+        return res.status(401).json({ message: 'Incorrect password.' });
       }
 
-      const token = jwt.sign({
-        username: user.username,
-        roles: ['super_admin'] // normally fetched from db
-      }, jwtSecret, {
-        expiresIn: loginExpires
-      });
+      // Update last_ip field in the database
+      const updateIpQuery = 'UPDATE my_keyspace.users SET last_ip = ? WHERE username = ?';
+      await client.execute(updateIpQuery, [clientIp, username], { prepare: true });
 
-      res.status(200).json({ auth: true, token: token, message: 'Login successful.',subscriptions: user.subscriptions
-    });
+      const token = jwt.sign({ username: user.username, roles: ['super_admin'] }, jwtSecret, { expiresIn: loginExpires });
+      res.status(200).json({ auth: true, token: token, message: 'Login successful.' });
     } else {
-      res.status(200).json({ message: 'No user found.' });
+      res.status(404).json({ message: 'No user found.' });
     }
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Error logging in.' });
   }
 });
+
 
 
 app.post('/api/subscribe', authenticateToken, async (req, res) => {
