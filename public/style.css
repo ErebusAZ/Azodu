@@ -397,6 +397,11 @@ right: 5px;
 
 }
 
+.sidebar_button i.fa-sign-in-alt {
+position: relative;
+    top: 3px;
+    right: 8px;
+}
 
 .sidebar_button i.fa-plus-square {position: relative;top: 2px;right: 5px;font-size: 18px;}
 
