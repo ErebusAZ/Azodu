@@ -104,7 +104,15 @@
                         .then(data => {
                             if (data.message) {
 
+                                if (!data.error) {
                                 $('button[type="submit"]').text('Success!');
+
+                                } else {
+                                    
+                                $('button[type="submit"]').prop('disabled', false).text('Submit');
+
+
+                                }
 
                                 // Check if there is a message property in the response data
                                 showNotification(data.message, data.error ? 'error' : 'success', 3000, () => {
