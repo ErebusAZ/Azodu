@@ -34,24 +34,38 @@ async function createUsersTable(client) {
   }
 }
 
+function getRandomDate(startDate, endDate) {
+  return new Date(startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()));
+}
+
+
 async function insertFakeUsers(client, usernames) {
   const baseEmail = "user@example.com";
   const password = "password"; // Consider using hashed passwords in real applications
-  const now = new Date().toISOString();
+
+  // Define the start and end dates for the random date generation (e.g., the past few weeks)
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setDate(endDate.getDate() - 21); // 3 weeks ago
 
   for (const username of usernames) {
+    // Generate a random date for each user
+    const randomDate = getRandomDate(startDate, endDate).toISOString();
+
     const query = `
       INSERT INTO my_keyspace.users (username, password, email, date_registered, subscriptions, roles, last_ip)
       VALUES (?, ?, ?, ?, {'default'}, {'user'}, '127.0.0.1');
     `;
 
     try {
-      await client.execute(query, [username, password, `${username}@${baseEmail}`, now], { prepare: true });
+      await client.execute(query, [username, password, `${username}@${baseEmail}`, randomDate], { prepare: true });
+      console.log(`Inserted fake user: ${username}`);
     } catch (error) {
       console.error(`Error inserting fake user ${username}:`, error);
     }
   }
 }
+
 
 
 
