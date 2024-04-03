@@ -24,7 +24,7 @@ try {
 jwtSecret = secrets.JWT_SECRET;
 
 
-const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable } = require('./db/db_create');
+const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable } = require('./db/db_create');
 const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink } = require('./db/db_insert');
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
@@ -830,7 +830,8 @@ async function main() {
  //   await populateTestData(client, 10);
     await createLinksTable(client); 
 
-    await createDefaultCategories(client,defaultCategories);
+    await createDefaultCategories(client, defaultCategories);
+    // await emptyCommentsTable(client);
 
 
   } catch (error) {

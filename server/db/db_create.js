@@ -215,5 +215,15 @@ async function dropAllTables(client, keyspace) {
   }
 }
 
+async function emptyCommentsTable(client) {
+  try {
+    const query = 'TRUNCATE my_keyspace.comments;';
+    await client.execute(query);
+    console.log('`comments` table has been emptied successfully.');
+  } catch (error) {
+    console.error('Failed to empty the `comments` table:', error);
+  }
+}
 
-module.exports = { createKeyspace, createUsersTable,createCommentsTable,createPostsTable,flushAllTables,dropAllTables,createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable };
+
+module.exports = { createKeyspace, createUsersTable,createCommentsTable,createPostsTable,flushAllTables,dropAllTables,createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable };
