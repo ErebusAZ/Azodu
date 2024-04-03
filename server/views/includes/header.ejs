@@ -267,14 +267,19 @@
     });
 
     $(document).ready(function () {
+        var rolesString = localStorage.getItem('userRoles');
+        var roles = rolesString ? JSON.parse(rolesString) : [];
+        var isAdmin = false;
 
-        const roles = JSON.parse(localStorage.getItem('userRoles'));
-        const isAdmin = roles.some(role => role.toLowerCase().includes('admin'));
-
+        for (var i = 0; i < roles.length; i++) {
+            if (roles[i].toLowerCase().indexOf('admin') !== -1) {
+                isAdmin = true;
+                break; // Break out of the loop once an admin role is found
+            }
+        }
 
         if (isAdmin) {
             $('body').addClass('is_admin');
-
         }
     });
 
