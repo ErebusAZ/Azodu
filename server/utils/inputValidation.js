@@ -12,29 +12,29 @@ function validateComment(content) {
 
   // Check for empty content or content that only has spaces or tab characters
   if (!trimmedContent) {
-      return { isValid: false, message: "Comment cannot be empty." };
+    return { isValid: false, message: "Comment cannot be empty." };
   }
 
   // Check for content length below minimum
   if (trimmedContent.length < minLength) {
-      return { isValid: false, message: `Comment must be at least ${minLength} characters long.` };
+    return { isValid: false, message: `Comment must be at least ${minLength} characters long.` };
   }
 
   // Check for content length exceeding maximum
   if (trimmedContent.length > maxLength) {
-      return { isValid: false, message: `Comment must not exceed ${maxLength} characters.` };
+    return { isValid: false, message: `Comment must not exceed ${maxLength} characters.` };
   }
 
   const unsubstantiveTexts = [
-      "hi", "hello", "hey", "thanks", "thank you", "thx", "good", "great", "nice", "ok", "okay", 
-      "lol", "haha", "hehe", "cool", "yes", "no", "yep", "nope", "wow", "omg", "ugh", "hmm", 
-      "meh", "yay", "nah", "pls", "please", "bye", "goodbye", "see ya", "idk", "imo", "imho", 
-      "fyi", "brb", "gtg", "k", "kk", "👍", "👎", "😂", "😍", "😭", "😊", "😒", "😉", "😜", "🙄"
+    "hi", "hello", "hey", "thanks", "thank you", "thx", "good", "great", "nice", "ok", "okay",
+    "lol", "haha", "hehe", "cool", "yes", "no", "yep", "nope", "wow", "omg", "ugh", "hmm",
+    "meh", "yay", "nah", "pls", "please", "bye", "goodbye", "see ya", "idk", "imo", "imho",
+    "fyi", "brb", "gtg", "k", "kk", "👍", "👎", "😂", "😍", "😭", "😊", "😒", "😉", "😜", "🙄"
   ];
 
   // Check for unsubstantive text content
   if (unsubstantiveTexts.includes(trimmedContent.toLowerCase())) {
-      return { isValid: false, message: "Comment is too short or unsubstantive." };
+    return { isValid: false, message: "Comment is too short or unsubstantive." };
   }
 
   const uniqueChars = new Set(trimmedContent).size;
@@ -52,21 +52,19 @@ function validateComment(content) {
 
 function processHTMLFromUsers(content) {
   if (!content) {
-      return content;
+    return content;
   }
 
   function cleanHtmlContent(content) {
-
-    // replace space with empty string
+    // Replace space encoded as "&nbsp;" with a normal space
     content = content.replace(/&nbsp;/gi, ' ');
 
-    // trim leading and trailing spaces
-    // causes spaces removed around links
-    // content = content.replace(/(>)[\s]+/g, '$1').replace(/[\s]+(<)/g, '$1');
+    content = content.replace(/<p(?:\s+[^>]*)?>\s*(<br\s*\/?>|\s)*<\/p>/gi, '');
 
-    // This regex removes tags that contain only whitespace or a single <br> tag, in addition to entirely empty tags
-    return content.replace(/<(\w+)(?:\s+[^>]*)?>\s*(<br\s*\/?>)?\s*<\/\1>/g, '');
-  }
+    return content;
+}
+
+
 
   function removeDangerousTags(html) {
     // Remove script tags and their content
@@ -116,23 +114,23 @@ function validateUsername(username) {
 
   // Check for empty username
   if (!username) {
-      message = "Username cannot be empty.";
-      isValid = false;
+    message = "Username cannot be empty.";
+    isValid = false;
   }
   // Check for length constraints
   else if (username.length < minLength || username.length > maxLength) {
-      message = `Username must be between ${minLength} and ${maxLength} characters long.`;
-      isValid = false;
+    message = `Username must be between ${minLength} and ${maxLength} characters long.`;
+    isValid = false;
   }
   // Check for spaces or tabs
   else if (/\s/.test(username)) { // \s matches spaces, tabs, and other whitespace characters
-      message = "Username cannot contain spaces or tabs.";
-      isValid = false;
+    message = "Username cannot contain spaces or tabs.";
+    isValid = false;
   }
   // Check for alphanumeric characters only
   else if (!regex.test(username)) {
-      message = "Username must contain only alphanumeric characters.";
-      isValid = false;
+    message = "Username must contain only alphanumeric characters.";
+    isValid = false;
   }
 
   return { isValid, message };
@@ -140,4 +138,4 @@ function validateUsername(username) {
 
 
 
-module.exports = { validateComment,processHTMLFromUsers,validateUsername };
+module.exports = { validateComment, processHTMLFromUsers, validateUsername };

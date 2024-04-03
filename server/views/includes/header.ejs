@@ -98,19 +98,16 @@
         if (!content) {
             return content;
         }
-
         function cleanHtmlContent(content) {
+    // Replace space encoded as "&nbsp;" with a normal space
+    content = content.replace(/&nbsp;/gi, ' ');
 
-            // replace space with empty string
-            content = content.replace(/&nbsp;/gi, ' ');
+    content = content.replace(/<p(?:\s+[^>]*)?>\s*(<br\s*\/?>|\s)*<\/p>/gi, '');
 
-            // trim leading and trailing spaces
-            // causes spaces removed around links
-            // content = content.replace(/(>)[\s]+/g, '$1').replace(/[\s]+(<)/g, '$1');
+    return content;
+}
 
-            // This regex removes tags that contain only whitespace or a single <br> tag, in addition to entirely empty tags
-            return content.replace(/<(\w+)(?:\s+[^>]*)?>\s*(<br\s*\/?>)?\s*<\/\1>/g, '');
-        }
+
 
         function removeDangerousTags(html) {
             // Remove script tags and their content
