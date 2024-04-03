@@ -28,7 +28,7 @@
     color: black;
     font-weight: 600;
     padding: 4px 10px;
-    font-family: arial;
+    font-family: roboto, arial;
 }
 
 #satori_logo a {
@@ -40,14 +40,15 @@
 body {
     background-color: #1a1a1a;
     color: #d7dadc;
-    font-family: Arial, sans-serif;
+    font-family: roboto, arial, sans-serif;
     margin: 0;
     padding: 0;
     /* padding-bottom: 110px; */
 }
 
+
 textarea {
-    font-family: Arial, sans-serif;
+    font-family: roboto, arial, sans-serif;
 }
 
 .container {
