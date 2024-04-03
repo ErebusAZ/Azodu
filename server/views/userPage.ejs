@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <title>asozdu - User Page - <%= user.username %></title>
+  <%- include('includes/header') %>
+
+
+  <div class="container" id="user_page">
+    <div id="user_page_inner">
+        <h1><%= user.username %></h1>
+        <p id="date-registered"></p>
+        <% if (user.roles) { %>
+            <p>Roles: <%= user.roles.join(", ") %></p>
+        <% } else { %>
+            <p>Roles: None</p>
+        <% } %>
+      
+        <div id="user-comments"></div>
+    </div>
+</div>
+
+<script>
+  var comments = <%- JSON.stringify(comments) %>;
+  $(document).ready(function () {
+    // Use the timeAgo function for the "Date Registered"
+    document.getElementById('date-registered').innerText = 'Registered ' + timeAgo(new Date('<%= user.date_registered %>'));
+    
+    // Iterate over the comments and append them to the page
+    comments.forEach(function (comment) {
+      const commentHtml = getCommentHtml(
+        comment.comment_id,
+        comment.author,
+        comment.content,
+        0,
+        comment.upvotes - comment.downvotes,
+        new Date(comment.timestamp).toLocaleString()
+      );
+      $('#user-comments').append(commentHtml);
+    });
+  });
+</script>
+
+
+</body>
+
+</html>

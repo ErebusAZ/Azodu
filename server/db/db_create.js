@@ -57,6 +57,47 @@ async function createCommentsTable(client) {
 }
 
 
+async function createMaterializedViews(client) {
+  await createCommentsByAuthorView(client);
+  await createPostsByAuthorView(client);
+}
+
+async function createCommentsByAuthorView(client) {
+  const query = `
+    CREATE MATERIALIZED VIEW IF NOT EXISTS my_keyspace.comments_by_author AS
+    SELECT *
+    FROM my_keyspace.comments
+    WHERE author IS NOT NULL AND post_id IS NOT NULL AND comment_id IS NOT NULL
+    PRIMARY KEY (author, post_id, comment_id)
+    WITH CLUSTERING ORDER BY (post_id ASC, comment_id ASC);
+  `;
+  try {
+    await client.execute(query);
+    console.log('Materialized view `comments_by_author` created or already exists');
+  } catch (error) {
+    console.error('Error creating materialized view `comments_by_author`:', error);
+  }
+}
+
+async function createPostsByAuthorView(client) {
+  const query = `
+    CREATE MATERIALIZED VIEW IF NOT EXISTS my_keyspace.posts_by_author AS
+    SELECT *
+    FROM my_keyspace.posts
+    WHERE author IS NOT NULL AND category IS NOT NULL AND post_id IS NOT NULL
+    PRIMARY KEY (author, category, post_id)
+    WITH CLUSTERING ORDER BY (category ASC, post_id DESC);
+  `;
+  try {
+    await client.execute(query);
+    console.log('Materialized view `posts_by_author` created or already exists');
+  } catch (error) {
+    console.error('Error creating materialized view `posts_by_author`:', error);
+  }
+}
+
+
+
 async function createPostsTable(client) {
   const query = `
   CREATE TABLE IF NOT EXISTS my_keyspace.posts (
@@ -167,6 +208,7 @@ async function createDefaultCategories(client, defaultCategories) {
 
 
 
+
 async function flushAllTables(client, keyspace, tableNameOptional = null) {
   try {
     if (tableNameOptional) {
@@ -226,4 +268,4 @@ async function emptyCommentsTable(client) {
 }
 
 
-module.exports = { createKeyspace, createUsersTable,createCommentsTable,createPostsTable,flushAllTables,dropAllTables,createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable };
+module.exports = { createKeyspace, createUsersTable,createCommentsTable,createPostsTable,flushAllTables,dropAllTables,createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews };

@@ -1864,3 +1864,29 @@ i.fas.fa-cog.admin-actions-gear {
 body.is_admin i.fas.fa-cog.admin-actions-gear {
 display: block; 
 }
+
+
+
+
+
+/* User Page */
+
+
+div#user_page {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    background-color: #212121;
+    height: 100%;
+    min-height: 680px;
+    margin-top: 70px;
+}
+
+
+
+div#user_page_inner {
+    width: 60%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}

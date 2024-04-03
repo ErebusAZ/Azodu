@@ -24,7 +24,7 @@ try {
 jwtSecret = secrets.JWT_SECRET;
 
 
-const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable } = require('./db/db_create');
+const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews } = require('./db/db_create');
 const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink } = require('./db/db_insert');
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
@@ -510,6 +510,50 @@ app.get('/c/:permalink', async (req, res) => {
 });
 
 
+app.get('/u/:username', async (req, res) => {
+  const username = req.params.username;
+
+  // Query for the user's details remains the same
+  const queryUser = 'SELECT * FROM my_keyspace.users WHERE username = ?';
+
+  // Update the query for the user's posts to use the materialized view
+  const queryPosts = 'SELECT * FROM my_keyspace.posts_by_author WHERE author = ?';
+
+  // Query for the user's comments remains the same
+  const queryComments = 'SELECT * FROM my_keyspace.comments_by_author WHERE author = ?';
+
+  try {
+    // Execute queries
+    const resultUser = await client.execute(queryUser, [username], { prepare: true });
+    const resultPosts = await client.execute(queryPosts, [username], { prepare: true });
+    const resultComments = await client.execute(queryComments, [username], { prepare: true });
+
+    // Check if the user exists
+    if (resultUser.rows.length === 0) {
+      return res.status(404).json({ message: `User ${username} not found.` });
+    }
+
+    // Prepare objects to pass to the template
+    const user = resultUser.rows[0]; // Assuming we're interested in the first (should be only) row
+    const posts = resultPosts.rows;
+    const comments = resultComments.rows;
+
+    // Render the template with user, posts, and comments
+    res.render('userPage', {
+      user: user,
+      posts: posts,
+      comments: comments,
+      category: {} // Assuming you need this for the sidebar or other parts of the template
+    });
+
+  } catch (error) {
+    console.error(`Failed to fetch data for user ${username}:`, error);
+    res.status(500).json({ error: 'Failed to fetch data due to an internal error.' });
+  }
+});
+
+
+
 
 
 app.get('/', async (req, res) => {
@@ -781,7 +825,6 @@ app.post('/api/deletePost', authenticateToken, async (req, res) => {
 
 
 
-
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
@@ -832,6 +875,7 @@ async function main() {
 
     await createDefaultCategories(client, defaultCategories);
     // await emptyCommentsTable(client);
+    await createMaterializedViews(client);
 
 
   } catch (error) {

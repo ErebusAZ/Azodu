@@ -65,7 +65,7 @@
         <div class="content">
             <a href="internal.html" class="post-title">${generateLoremIpsum(wordCount)}</a>
             <p class="post-description">This is a brief description of post ${i + 1}.</p>
-            <p class="post-submitted">submitted ${timeAgo} by <a href="#">${username}</a> to <a href="#">${category}</a></p>
+            <p class="post-submitted">submitted ${timeAgo} by <a href="/u/${username}">${username}</a> to <a href="#">${category}</a></p>
             <div class="post-links">
                 <a href="#">100 comments</a>
                 <a href="#">save</a>
@@ -222,7 +222,7 @@
     </div>
     <div class="post-content">
         ${link}
-        <p class="post-submitted">submitted ${timeAgo(post.timestamp)} by <a href="#">${post.author}</a> to <a href="/c/${post.category}">${post.category}</a></p>
+        <p class="post-submitted">submitted ${timeAgo(post.timestamp)} by <a href="/u/${post.author}">${post.author}</a> to <a href="/c/${post.category}">${post.category}</a></p>
         <div class="post-links">
             <a href="${post.permalink}">${post.comment_count} comments</a>
             <a href="#">save</a>
