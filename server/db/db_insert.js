@@ -42,7 +42,12 @@ function sanitizeLink(link) {
   return url.origin + url.pathname;
 }
 
-async function insertPostData(client, title, author, category, postType, content, thumbnail, aiSummary = '',skipLinkCheck) {
+async function insertPostData(client, title, author, category, postType, content, thumbnail, aiSummary = '', skipLinkCheck) {
+  
+  if (!title || !author || !category || !postType || (postType === 'url' && !content)) {
+    throw new Error('Missing required post data.');
+  }
+  
   const sanitizedLink = postType === 'url' ? sanitizeLink(content) : content;
   const upvotes = 0;
   const downvotes = 0;
