@@ -1177,6 +1177,8 @@ select#postType {
 
 #submit_post_text .ql-editor {
     background-color: #333333;
+    width: 100%;
+    height: 170px;
 }
 
 
