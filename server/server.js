@@ -643,6 +643,59 @@ app.post('/api/pinPost', authenticateToken, async (req, res) => {
 });
 
 
+function deletePostFromSummary(postId) {
+  // Check if the post exists in the summary
+  if (postsVoteSummary.hasOwnProperty(postId)) {
+    // Delete the post from the summary
+    delete postsVoteSummary[postId];
+    console.log(`Deleted post with ID ${postId} from postsVoteSummary.`);
+  } else {
+    console.log(`Post with ID ${postId} not found in postsVoteSummary.`);
+  }
+}
+
+
+app.post('/api/deletePost', authenticateToken, async (req, res) => {
+  const { postId, category } = req.body; // Destructure both postId and category from the request body
+  const username = req.user.username; // Username from JWT after authentication
+
+  if (!postId || !category) {
+    return res.status(400).json({ message: 'Post ID and category are required.' });
+  }
+
+  try {
+    // First, fetch the post to check the author and compare with the authenticated user
+    const postQuery = 'SELECT author FROM my_keyspace.posts WHERE post_id = ? AND category = ?';
+    const postResult = await client.execute(postQuery, [postId, category], { prepare: true });
+
+    if (postResult.rowLength === 0) {
+      return res.status(404).json({ message: 'Post not found.' });
+    }
+
+    const post = postResult.first();
+    const roles = req.user.roles || [];
+
+    // Check if the user is the author or has an admin/super_admin role
+    if (post.author !== username && !roles.includes('admin') && !roles.includes('super_admin')) {
+      return res.status(403).json({ message: 'Access denied. Insufficient permissions.' });
+    }
+
+
+    deletePostFromSummary(postId);
+
+    // Proceed to delete the post using both post_id and category to target the specific post
+    const deleteQuery = 'DELETE FROM my_keyspace.posts WHERE post_id = ? AND category = ?';
+    await client.execute(deleteQuery, [postId, category], { prepare: true });
+    res.json({ message: 'Post deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    res.status(500).json({ message: 'Error deleting the post.' });
+  }
+});
+
+
+
+
 
 
 

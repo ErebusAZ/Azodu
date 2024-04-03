@@ -205,7 +205,7 @@
 
 
                         const postHtml = `
-<div class="post" data-postId="${post.post_id}">
+<div class="post" data-postId="${post.post_id}" data-postcat="${post.category}">
     <div class="post-left">
         <div class="voting">
             <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${post.post_id}">
@@ -229,7 +229,8 @@
         </div>
         ${contentDisplay}
     </div>
-</div>`;
+    <i class="fas fa-cog admin-actions-gear" style="float:right; cursor:pointer;" data-postid="${post.post_id}"></i>
+    </div>`;
 
                         $('.container').append(postHtml);
 

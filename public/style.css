@@ -119,6 +119,7 @@ label {
     min-height: 60px;
     padding-left: 0;
     padding-right: 0;
+    position: relative;
 }
 
 
@@ -506,7 +507,7 @@ position: relative;
 }
 
 .post-content {
-    padding-right: 15px;
+    padding-right: 20px;
 }
 
 .post-content.post-container {
@@ -1802,3 +1803,45 @@ h2#formTitle {
 
 
 
+/* Admin */
+
+
+
+/* Admin Actions Gear Icon */
+.admin-actions-gear {
+    color: #d7dadc; /* Match the site's text color */
+    margin-top: 5px; /* Adjust as needed */
+}
+
+/* Tooltip Container */
+.admin-tooltip {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #3f3f3f;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 100;
+    width: 120px;
+    top: 30px; /* Adjust based on your layout */
+}
+
+/* Tooltip Option Style */
+.admin-tooltip a {
+    color: #d7dadc;
+    display: block;
+    padding: 5px 5px;
+    font-size: 14px;
+}
+
+.admin-tooltip a:hover {
+    text-decoration: underline;
+}
+
+i.fas.fa-cog.admin-actions-gear {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 12px;
+}
