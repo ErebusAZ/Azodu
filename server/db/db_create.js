@@ -34,6 +34,27 @@ async function createUsersTable(client) {
   }
 }
 
+async function insertFakeUsers(client, usernames) {
+  const baseEmail = "user@example.com";
+  const password = "password"; // Consider using hashed passwords in real applications
+  const now = new Date().toISOString();
+
+  for (const username of usernames) {
+    const query = `
+      INSERT INTO my_keyspace.users (username, password, email, date_registered, subscriptions, roles, last_ip)
+      VALUES (?, ?, ?, ?, {'default'}, {'user'}, '127.0.0.1');
+    `;
+
+    try {
+      await client.execute(query, [username, password, `${username}@${baseEmail}`, now], { prepare: true });
+      console.log(`Inserted fake user: ${username}`);
+    } catch (error) {
+      console.error(`Error inserting fake user ${username}:`, error);
+    }
+  }
+}
+
+
 
 async function createCommentsTable(client) {
   const query = `
@@ -268,4 +289,4 @@ async function emptyCommentsTable(client) {
 }
 
 
-module.exports = { createKeyspace, createUsersTable,createCommentsTable,createPostsTable,flushAllTables,dropAllTables,createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews };
+module.exports = { createKeyspace, createUsersTable,createCommentsTable,createPostsTable,flushAllTables,dropAllTables,createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers };
