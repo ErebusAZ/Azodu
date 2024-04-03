@@ -75,7 +75,7 @@
         return true; // User is logged in, continue with the action
     }
 
-    $(document).on('click', 'form, textarea, .ql-editor', function (e) {
+    $(document).on('click', 'form, textarea, .ql-editor,#subscribe_button', function (e) {
         // Check if the clicked element or any of its parents is #loginRegisterForm
         if ($(e.target).closest('#loginRegisterForm').length) {
             // If true, it means the click originated from inside #loginRegisterForm or is #loginRegisterForm itself
