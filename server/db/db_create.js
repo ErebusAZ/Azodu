@@ -47,7 +47,6 @@ async function insertFakeUsers(client, usernames) {
 
     try {
       await client.execute(query, [username, password, `${username}@${baseEmail}`, now], { prepare: true });
-      console.log(`Inserted fake user: ${username}`);
     } catch (error) {
       console.error(`Error inserting fake user ${username}:`, error);
     }
