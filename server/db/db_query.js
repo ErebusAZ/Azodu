@@ -14,7 +14,7 @@ function isCacheValid(lastFetched) {
 async function fetchCategoryByName(client, permalink) {
   // Check if category is in cache and valid
   if (cache.category[permalink] && isCacheValid(cache.category[permalink].lastFetched)) {
-      console.log('Serving category from cache');
+  //    console.log('Serving category from cache');
       return cache.category[permalink].data;
   }
 
