@@ -913,6 +913,11 @@ button#submit-comment {
     /* Space between header and comment text */
 }
 
+.comment-text p:first-child{
+padding-top: 0; 
+margin-top: 5px; 
+}
+
 .username {
     color: #8197bf;
     /* A distinct color for the username */
