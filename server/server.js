@@ -63,7 +63,7 @@ const defaultCategories = ["everything","Books"];
 
 const COMMENT_GENERATION_INTERVAL_MS = 60000 * 1; // 1 min
 const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
-const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 30; // 30 min
+const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 10; // 10 min
 
 // Dedicated blacklist for posts to skip commenting
 const postsCommentBlacklist = {};
@@ -106,9 +106,9 @@ async function fetchFromExternalAndCreatePosts() {
   try {
     const urls = [
       'https://old.reddit.com/r/news/top/.json',
-      'https://old.reddit.com/r/worldnews/top/.json',
+   //   'https://old.reddit.com/r/worldnews/top/.json',
       'https://old.reddit.com/r/technology/top/.json',
-      // Add more URLs as needed
+      'https://old.reddit.com/r/Conservative/top/.json' // Ensure URL format consistency
     ];
 
     // Select a random URL from the array
@@ -121,54 +121,46 @@ async function fetchFromExternalAndCreatePosts() {
 
     let postsDone = 0;
     for (let post of posts) {
-      let { title, permalink, url, author } = post.data;
+      let { title, permalink, url, author, post_hint, subreddit } = post.data;
+
+      // Conditional logic for r/Conservative subreddit to only process 'link' post_hints
+      if (subreddit.toLowerCase() === 'conservative' && post_hint !== 'link') {
+        continue; // Skip non-link posts from r/Conservative
+      }
 
       // Skip processing if the title has already been processed
       if (processedTitles.has(title) || processedTitles.has(url)) {
         continue;
       }
 
-      if (postsDone > 0) break; // If a post has been processed, exit loop
+      if (postsDone > 0) break; // Process only one post for demonstration
       postsDone++;
 
-      // Check if the post already exists in the database
       const checkQuery = 'SELECT link FROM my_keyspace.links WHERE link = ? AND category = ?';
       const checkResult = await client.execute(checkQuery, [url, 'everything'], { prepare: true });
 
       if (checkResult.rowLength === 0) {
-        // Proceed with fetching thumbnail and generating summary if post does not exist
+        // Process new post
         const thumbnail = await fetchURLAndParseForThumb(url);
 
         let summary = "";
         try {
           const { data } = await axios.get(url);
           const extractedText = extractRelevantText(data);
-
-
           summary = await generateSummary(extractedText);
-
-          if (extractedText.length < 1)
-            summary = undefined;
-
-
+          if (extractedText.length < 1) summary = undefined;
         } catch (fetchError) {
           console.error('Error fetching URL content or generating summary from: ' + url);
         }
 
-
         await insertPostData(client, title, author, 'everything', 'url', url, thumbnail, summary, true);
-
-
-        // Add the original title to the set to prevent future reposts
-        processedTitles.add(title);
+        processedTitles.add(title); // Prevent future reposts of the same title
       } else {
-        processedTitles.add(url);
-        console.log('url in links table so adding to ignore list ' + url);
-
+        processedTitles.add(url); // Skip posts already in the database
+        console.log('URL in links table, adding to ignore list: ' + url);
       }
     }
 
-    // If no new posts were processed, log a message
     if (postsDone === 0) {
       console.log('No new titles to process. All fetched titles have already been taken.');
     }
