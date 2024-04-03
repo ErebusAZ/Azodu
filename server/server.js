@@ -220,7 +220,8 @@ function authenticateToken(req, res, next) {
 
 app.post('/api/register', async (req, res) => {
   const { username, password, email } = req.body;
-  const clientIp = req.ip; 
+  const clientIp = req.headers['cf-connecting-ip'] || req.ip;
+
 
   if (!validateUsername(username).isValid) {
     console.log('client tried invalid username. this should not be possible with client-side validation');
@@ -260,7 +261,7 @@ app.post('/api/register', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
-  const clientIp = req.ip; // Capture client IP address
+  const clientIp = req.headers['cf-connecting-ip'] || req.ip;
 
   try {
     const queryUser = 'SELECT * FROM my_keyspace.users WHERE username = ?';
