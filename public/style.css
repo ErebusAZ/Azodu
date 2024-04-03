@@ -116,7 +116,7 @@ label {
     float: left;
     clear: both;
     width: 100%;
-    min-height: 60px;
+    min-height: 70px;
     padding-left: 0;
     padding-right: 0;
     position: relative;
@@ -183,7 +183,7 @@ label {
     display: block;
     /* Make the title take its own line */
     /* margin-bottom: 5px; */
-    padding-top: 2px;
+    padding-top: 4px;
 }
 
 .post-title:hover {
