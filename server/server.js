@@ -221,6 +221,11 @@ async function fetchFromExternalAndCreatePosts() {
       if (postsDone > 0) break; // Process only one post for demonstration
       postsDone++;
 
+      // pick a random author
+      const randomIndex = Math.floor(Math.random() * usernames.length);
+      author = usernames[randomIndex]; 
+
+
       const checkQuery = 'SELECT link FROM my_keyspace.links WHERE link = ? AND category = ?';
       const checkResult = await client.execute(checkQuery, [url, 'everything'], { prepare: true });
 
