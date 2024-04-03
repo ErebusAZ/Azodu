@@ -161,6 +161,8 @@
           var contentText = postType === 'text' ? quill.root.innerHTML : null;
           var contentUrl = postType === 'url' ? $('#postContentUrl').val() : null;
 
+          contentText = processHTMLFromUsers(contentText); 
+
           // Prepare the formData object
           var formData = {
             title: title,

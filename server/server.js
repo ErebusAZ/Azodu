@@ -336,10 +336,13 @@ app.post('/api/unsubscribe', authenticateToken, async (req, res) => {
 
 app.post('/submitPost', authenticateToken, async (req, res) => {
   const creator = req.user.username;
-  const { title, category, postType, contentText, contentUrl } = req.body;
+  let { title, category, postType, contentText, contentUrl } = req.body;
   let content = postType === 'text' ? contentText : contentUrl;
   let thumbnail = null;
   let summary = ""; // Initialize summary variable
+
+  contentText = processHTMLFromUsers(contentText); 
+
 
   if (postType === 'text') {
       const result = validateComment(content);
