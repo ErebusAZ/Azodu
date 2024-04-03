@@ -61,7 +61,7 @@ const updateInterval = 10 * 1000; // how quickly to fetch all posts and update v
 const defaultCategories = ["everything","Books"];
 
 
-const COMMENT_GENERATION_INTERVAL_MS = 60000 * 1; // 1 min
+const COMMENT_GENERATION_INTERVAL_MS = 60000; // 1 min
 const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
 const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 10; // 10 min
 
@@ -69,31 +69,43 @@ const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 10; // 10 min
 const postsCommentBlacklist = {};
 
 setInterval(async () => {
-  const postIds = Object.keys(postsVoteSummary).filter(id => !postsCommentBlacklist[id]); // Use blacklist for filtering
+  const now = new Date().getTime(); // Get current time in milliseconds
 
-  if (postIds.length > 0) {
-    const randomIndex = Math.floor(Math.random() * postIds.length);
-    const postId = postIds[randomIndex];
+  // Convert postIds into an array of objects with postId and its weight based on timestamp
+  const weightedPosts = Object.keys(postsVoteSummary)
+    .filter(id => !postsCommentBlacklist[id])
+    .map(id => {
+      const postAgeHours = (now - new Date(postsVoteSummary[id].timestamp).getTime()) / (1000 * 60 * 60); // Calculate post age in hours
+      const weight = 1 / (postAgeHours + 1); // Add 1 to avoid division by zero and invert age to weight
+      return { id, weight };
+    });
 
-    if (Math.random() <= COMMENT_POST_CHANCE && postsVoteSummary[postId].ai_summary) {
-      const post = postsVoteSummary[postId];
-      const model = "gpt-3.5-turbo";
-      const comment = await generateAIComment(post.title, post.ai_summary, model, postId);
+  // Calculate total weight
+  const totalWeight = weightedPosts.reduce((acc, { weight }) => acc + weight, 0);
 
-      if (comment == null || comment == 'null') {
-   //     console.log('Added to blacklist: ' + postId + ' with title: ' + post.title);
-        postsCommentBlacklist[postId] = true; // Mark the post in the dedicated blacklist
-        return;
-      }
+  // Choose a postId based on weights
+  let accumulator = 0;
+  const random = Math.random() * totalWeight;
+  const postId = weightedPosts.find(({ weight }) => (accumulator += weight) >= random)?.id;
 
-      const generatedCommentId = generatePostIdTimestamp(); // Generate a unique comment ID
-      const timestamp = new Date();
-      const author = model + "_generated";
+  if (postId && Math.random() <= COMMENT_POST_CHANCE && postsVoteSummary[postId].ai_summary) {
+    const post = postsVoteSummary[postId];
+    const model = "gpt-3.5-turbo";
+    const comment = await generateAIComment(post.title, post.ai_summary, model, postId);
 
-      await insertCommentData(client, generatedCommentId, postId, author, postId, "text", comment, 0, 0, `/posts/${postId}/comments/${generatedCommentId}`, timestamp);
+    if (comment == null || comment == 'null') {
+      postsCommentBlacklist[postId] = true; // Mark the post in the dedicated blacklist
+      return;
     }
+
+    const generatedCommentId = generatePostIdTimestamp(); // Generate a unique comment ID
+    const timestamp = new Date();
+    const author = model + "_generated";
+
+    await insertCommentData(client, generatedCommentId, postId, author, postId, "text", comment, 0, 0, `/posts/${postId}/comments/${generatedCommentId}`, timestamp);
   }
 }, COMMENT_GENERATION_INTERVAL_MS);
+
 
 
 
