@@ -591,7 +591,7 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
 
 app.post('/api/pinPost', authenticateToken, async (req, res) => {
   const { category, post_id } = req.body;
-  console.log(category, post_id); 
+  console.log(category, post_id);
   const pinPrefix = 'pinned_';
   const newPostId = `${pinPrefix}${post_id}`;
 
@@ -602,6 +602,13 @@ app.post('/api/pinPost', authenticateToken, async (req, res) => {
 
     if (postResult.rowLength === 0) {
       return res.status(404).json({ message: 'Post not found.' });
+    }
+
+    const roles = req.user.roles || [];
+
+    // Check if the user is the author or has an admin/super_admin role
+    if (!roles.includes('admin') && !roles.includes('super_admin')) {
+      return res.status(403).json({ message: 'Access denied. Insufficient permissions.' });
     }
 
     const post = postResult.first();
@@ -617,16 +624,16 @@ app.post('/api/pinPost', authenticateToken, async (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     `;
     await client.execute(insertQuery, [
-      category, 
-      newPostId, 
-      post.title, 
-      post.author, 
-      post.post_type, 
-      post.content, 
-      post.upvotes, 
-      post.downvotes, 
-      post.comment_count, 
-      newPermalink, 
+      category,
+      newPostId,
+      post.title,
+      post.author,
+      post.post_type,
+      post.content,
+      post.upvotes,
+      post.downvotes,
+      post.comment_count,
+      newPermalink,
       post.timestamp
     ], { prepare: true });
 

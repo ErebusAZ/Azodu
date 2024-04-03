@@ -333,7 +333,33 @@
             });
     }
 
+    function pinPost(postId) {
+        // Retrieve the authToken stored in localStorage
+        var authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            alert('You must be logged in to pin a post.');
+            return;
+        }
+        const category = $(`div.post[data-postid="${postId}"]`).data('postcat');
 
+
+        // Make a POST request to the pinPost API endpoint
+        $.ajax({
+            url: '/api/pinPost',
+            type: 'POST',
+            contentType: 'application/json',
+            headers: { 'Authorization': 'Bearer ' + authToken },
+            data: JSON.stringify({ category: category, post_id: postId }),
+            success: function (response) {
+                alert('Post pinned successfully.');
+                // Optional: perform any additional actions, like updating the UI to reflect the pinned status
+            },
+            error: function (xhr, status, error) {
+                alert('Failed to pin post: ' + xhr.responseText);
+                // Handle error
+            }
+        });
+    }
 
 </script>
 
