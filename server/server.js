@@ -68,6 +68,75 @@ const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 10; // 10 min
 // Dedicated blacklist for posts to skip commenting
 const postsCommentBlacklist = {};
 
+const usernames = [
+  "vortex",
+  "ShadowPaladin",
+  "mystic_monk_59",
+  "VoyagerKnight",
+  "echo",
+  "galactic_paladin_731",
+  "VoyagerMonk",
+  "mystic_ranger_254",
+  "VortexMonk",
+  "novaninja900",
+  "lunarmage527",
+  "pixel_rogue_413",
+  "pixelpaladin857",
+  "infernomage779",
+  "GalacticWizard",
+  "MysticPrincess",
+  "inferno_jester_886",
+  "CosmicWizard",
+  "QuantumMage",
+  "VortexJester",
+  "echosamurai123",
+  "NovaRogue",
+  "echo_jester",
+  "spectralguru501",
+  "GalacticPaladin",
+  "astralprincess949",
+  "cyberprince171",
+  "phantompaladin236",
+  "CyberGuru",
+  "zenith_pirate_286",
+  "lunarwarrior52",
+  "pixel_king",
+  "spectral",
+  "cyber",
+  "cosmic_pirate",
+  "spectral_sorcerer_76",
+  "nova",
+  "astral",
+  "echo_mage",
+  "redditSucks",
+  "LunarKing",
+  "inferno",
+  "NovaQueen",
+  "shadow_hunter_78",
+  "ShadowRunner",
+  "neon_runner_650",
+  "VoyagerGuru",
+  "LunarHunter",
+  "vortexprince699",
+  "NeonQueen",
+  "CosmicAdventurer",
+  "mystic",
+  "PhantomKnight",
+  "galacticpirate921",
+  "quantumguru119",
+  "neon_runner_342",
+  "cyber",
+  "shadowking279",
+  "shadow",
+  "baffled",
+  "STDFree",
+  "Mechwarrior",
+  "mrbastard",
+  "bane",
+
+];
+
+
 setInterval(async () => {
   const now = new Date().getTime(); // Get current time in milliseconds
 
@@ -100,7 +169,11 @@ setInterval(async () => {
 
     const generatedCommentId = generatePostIdTimestamp(); // Generate a unique comment ID
     const timestamp = new Date();
-    const author = model + "_generated";
+    // const author = model + "_generated";
+    // Select a random username from the usernames array
+    const randomIndex = Math.floor(Math.random() * usernames.length);
+    const author = usernames[randomIndex]; // Randomly picked author from the array
+
 
     await insertCommentData(client, generatedCommentId, postId, author, postId, "text", comment, 0, 0, `/posts/${postId}/comments/${generatedCommentId}`, timestamp);
   }
