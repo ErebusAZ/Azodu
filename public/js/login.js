@@ -46,7 +46,7 @@ $(document).ready(function () {
             localStorage.removeItem('authToken');
             localStorage.removeItem('username'); // If you're also storing the username
             localStorage.removeItem('userSubscriptions');
-        
+
             window.location.href = '/'; // Redirect to login page or home page
         });
     }
@@ -65,7 +65,7 @@ $(document).ready(function () {
         loginRegisterButton.addEventListener('click', function () {
             loginRegisterForm.style.display = 'flex'; // Show the form
         });
-        
+
     }
 
     // Switch between login and registration
@@ -113,6 +113,19 @@ $(document).ready(function () {
                     // Handle both login and registration success
                     localStorage.setItem('authToken', data.token || ''); // Fallback to empty string if no token is present
                     localStorage.setItem('username', username); // Store username for displaying
+
+                    const decodedToken = parseJwt(data.token); // Decode the token to access the payload
+                    
+                    // Check if the decoded token has roles
+                    if (decodedToken && decodedToken.roles) {
+                        localStorage.setItem('userRoles', JSON.stringify(decodedToken.roles)); // Store roles in local storage
+                    } else {
+                        // Handle the case where no roles are decoded, or the user has default roles
+                        localStorage.setItem('userRoles', JSON.stringify([]));
+                    }
+
+                    console.log('roles: ' + localStorage.getItem('userRoles'));
+
                     updateUIBasedOnAuthStatus();
                     formMessage.textContent = data.message || 'Action successful. Redirecting...';
                     formMessage.style.color = 'limegreen';
@@ -143,7 +156,7 @@ $(document).ready(function () {
             });
     }
 
- 
+
 
 
     function updateUIBasedOnAuthStatus() {
@@ -151,7 +164,7 @@ $(document).ready(function () {
         const loginRegisterButton = document.getElementById('loginRegisterButton');
         const logoutButton = document.getElementById('logoutButton'); // Get the logout button
         const userDisplayElement = document.getElementById('userDisplay');
-    
+
         if (authToken && !isJwtExpired(authToken)) {
             // Token is present and not expired
             const username = localStorage.getItem('username');
@@ -168,13 +181,13 @@ $(document).ready(function () {
             if (userDisplayElement) {
                 userDisplayElement.style.display = 'none';
             }
-            if(loginRegisterButton)
+            if (loginRegisterButton)
                 loginRegisterButton.style.display = '';
-            if(logoutButton)
-            logoutButton.style.display = 'none'; // Hide the logout button
+            if (logoutButton)
+                logoutButton.style.display = 'none'; // Hide the logout button
         }
     }
-    
+
 
 
     function resetFormFields() {
@@ -229,6 +242,22 @@ $(document).ready(function () {
                 emailInput.required = true;
                 submitAuthButton.before(emailInput);
             }
+        }
+    }
+
+    // Function to decode JWT from the local storage
+    function parseJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+
+            return JSON.parse(jsonPayload);
+        } catch (e) {
+            console.error("Error decoding token: ", e);
+            return null;
         }
     }
 

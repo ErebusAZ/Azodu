@@ -260,7 +260,6 @@ app.post('/api/register', async (req, res) => {
 
 
 
-
 app.post('/api/login', async (req, res) => {
 
   const { username, password } = req.body;
@@ -281,7 +280,10 @@ app.post('/api/login', async (req, res) => {
         return res.status(200).json({ message: 'Incorrect password.' });
       }
 
-      const token = jwt.sign({ username: user.username }, jwtSecret, {
+      const token = jwt.sign({
+        username: user.username,
+        roles: ['super_admin'] // normally fetched from db
+      }, jwtSecret, {
         expiresIn: loginExpires
       });
 
@@ -295,6 +297,7 @@ app.post('/api/login', async (req, res) => {
     res.status(500).json({ message: 'Error logging in.' });
   }
 });
+
 
 app.post('/api/subscribe', authenticateToken, async (req, res) => {
   const { permalink } = req.body; // The permalink of the category to subscribe to

@@ -21,12 +21,16 @@ async function createUsersTable(client) {
       password text,
       email text,
       date_registered timestamp,
-      subscriptions set<text> 
-
+      subscriptions set<text>,
+      roles set<text> // Adjusted to set<text> for multiple roles
     );
   `;
-  await client.execute(query);
-  console.log('Table `users` created or already exists in `my_keyspace`');
+  try {
+    await client.execute(query);
+    console.log('Table `users` created or already exists in `my_keyspace`');
+  } catch (error) {
+    console.error('Error creating users table:', error);
+  }
 }
 
 async function createCommentsTable(client) {
