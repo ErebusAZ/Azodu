@@ -1844,4 +1844,11 @@ i.fas.fa-cog.admin-actions-gear {
     top: 0;
     right: 0;
     font-size: 12px;
+    display: none; 
+}
+
+
+
+body.is_admin i.fas.fa-cog.admin-actions-gear {
+display: block; 
 }

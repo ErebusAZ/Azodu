@@ -266,6 +266,18 @@
         });
     });
 
+    $(document).ready(function () {
+
+        const roles = JSON.parse(localStorage.getItem('userRoles'));
+        const isAdmin = roles.some(role => role.toLowerCase().includes('admin'));
+
+
+        if (isAdmin) {
+            $('body').addClass('is_admin');
+
+        }
+    });
+
 
     function deletePost(postId) {
         // Confirm with the user before proceeding to delete
