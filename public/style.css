@@ -1958,4 +1958,7 @@ h4#ai_moderated {
     padding-bottom: 30px;
 }
 
-#info_bar_1 p {line-height: 18px;padding-top: 5px;}
+#info_bar_1 p {
+    line-height: 18px;
+    padding-top: 5px;
+}

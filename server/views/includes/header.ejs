@@ -99,13 +99,13 @@
             return content;
         }
         function cleanHtmlContent(content) {
-    // Replace space encoded as "&nbsp;" with a normal space
-    content = content.replace(/&nbsp;/gi, ' ');
+            // Replace space encoded as "&nbsp;" with a normal space
+            content = content.replace(/&nbsp;/gi, ' ');
 
-    content = content.replace(/<p(?:\s+[^>]*)?>\s*(<br\s*\/?>|\s)*<\/p>/gi, '');
+            content = content.replace(/<p(?:\s+[^>]*)?>\s*(<br\s*\/?>|\s)*<\/p>/gi, '');
 
-    return content;
-}
+            return content;
+        }
 
 
 
@@ -220,13 +220,13 @@
 
 
     function getCommentHtml(commentId, author, content, depth = 0, votes, timestamp) {
-                const currentUser = localStorage.getItem('username');
-                const backgroundColor = depth % 2 === 0 ? '#2d2d2d' : '#2d2d2d';
+        const currentUser = localStorage.getItem('username');
+        const backgroundColor = depth % 2 === 0 ? '#2d2d2d' : '#2d2d2d';
 
-                // Check if the currentUser is the author of the comment
-                const isAuthor = currentUser === author;
+        // Check if the currentUser is the author of the comment
+        const isAuthor = currentUser === author;
 
-                return `<div data-depth="${depth}" data-commentid="${commentId}" id="comment-${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">
+        return `<div data-depth="${depth}" data-commentid="${commentId}" id="comment-${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">
         <div class="voting">
             <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${commentId}"><img src="/img/up-arrow.svg" alt="Upvote"></a>
             <span class="votes">${votes}</span>
@@ -253,7 +253,7 @@
             </div>
         </div>
     </div>`;
-            }
+    }
 
 
 
