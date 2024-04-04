@@ -25,7 +25,7 @@ jwtSecret = secrets.JWT_SECRET;
 
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers,createPostIdCounterTable } = require('./db/db_create');
-const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink } = require('./db/db_insert');
+const { insertPostData, populateTestData, insertVote,insertCommentData,generateCommentUUID,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink } = require('./db/db_insert');
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink,fetchURLAndParseForThumb,extractRelevantText } = require('./utils/util');
@@ -167,7 +167,7 @@ setInterval(async () => {
       return;
     }
 
-    const generatedCommentId = generatePostIdTimestamp(); // Generate a unique comment ID
+    const generatedCommentId = generateCommentUUID(); // Generate a unique comment ID
     const timestamp = new Date();
     // const author = model + "_generated";
     // Select a random username from the usernames array
@@ -700,7 +700,7 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
     }
   } else {
     // Handle new comment insertion
-    const generatedCommentId = generatePostIdTimestamp(); // Generate a unique comment ID
+    const generatedCommentId = generateCommentUUID(); // Generate a unique comment ID
 
     try {
       await insertCommentData(client, generatedCommentId, post_id.toString(), author, parent_id.toString() || post_id.toString(), 'text', processHTMLFromUsers(content), 0, 0, '/comments/' + generatedCommentId, new Date());

@@ -3,7 +3,7 @@ const { faker } = require('@faker-js/faker');
 
 let postIdIterator = 0; // if we generate 50 posts in the same function, this will make sure the post_id/timestamps are unique
 
-function generatePostIdTimestamp() {
+function generateCommentUUID() {
   const now = new Date();
   const year = now.getUTCFullYear();
   const month = String(now.getUTCMonth() + 1).padStart(2, '0'); // getUTCMonth() returns 0-11
@@ -237,4 +237,4 @@ async function tallyVotesForComment(client, post_id, comment_id,) {
 
 
 
-module.exports = { insertPostData, insertUserData, populateTestData, insertVote, insertCommentData, generatePostIdTimestamp, insertCategoryData, generatePermalink, updateCommentData, tallyVotesForComment, deleteCommentData };
+module.exports = { insertPostData, insertUserData, populateTestData, insertVote, insertCommentData, generateCommentUUID, insertCategoryData, generatePermalink, updateCommentData, tallyVotesForComment, deleteCommentData };
