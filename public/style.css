@@ -1895,3 +1895,8 @@ div#user_page_inner {
 #user_page_inner i {
     padding-right: 10px;
 }
+
+div#user_page_inner h1:first-child {
+position: absolute;
+top: 80px;
+}
