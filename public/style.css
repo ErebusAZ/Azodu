@@ -1278,7 +1278,7 @@ span#rules_span {
 
 #rights, #rules {
     font-size: 14px;
-    margin-left: 6px;
+    margin-left: 30px;
 }
 
 #rights a, #rules a {
@@ -1955,6 +1955,7 @@ h4#ai_moderated {
     margin-right: 20px;
     font-size: 14px;
     padding-top: 10px;
+    padding-bottom: 30px;
 }
 
 #info_bar_1 p {
