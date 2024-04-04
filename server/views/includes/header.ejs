@@ -311,7 +311,139 @@
     }
 
 
+    $(document).ready(function () {
 
+        $('body').on('click', '.edit', function (e) {
+            e.preventDefault();
+
+            const $comment = $(this).closest('.comment');
+            const $commentContent = $comment.find('.comment-content');
+            const originalContentHtml = $commentContent.find('.comment-text').html(); // Assuming the comment text is in <p>
+            const $commentLinks = $comment.find('.comment-links');
+            const postID = $comment.data('commentid');
+            const originalPostID = $comment.data('parentid'); // TODO need to find original post ID
+
+
+            // Remove any existing editor to prevent duplicates
+            $commentContent.find('.quill-editing, .edit-actions').remove();
+
+            // Hide the original comment content and links
+            $commentContent.find('.comment-text, .edit').hide();
+            $commentLinks.hide();
+
+            console.log('hi');
+
+            // Determine the current background color of the comment
+            const currentBgColor = $comment.css('background-color');
+            // Alternate background colors
+            const bgColor1 = 'rgb(38, 38, 38)'; // #262626
+            const bgColor2 = 'rgb(45, 45, 45)'; // #2d2d2d
+            // Determine the new background color
+            const newBgColor = currentBgColor === bgColor1 ? bgColor2 : bgColor1;
+
+            // Remove any existing Quill editors to prevent duplicates
+            $commentContent.find('.quill-editing').remove();
+            $commentContent.find('.comment-text, .edit').hide();
+
+            // Append a Quill editor container
+            const quillContainer = $('<div>').addClass('quill-editing ql-container ql-snow').appendTo($commentContent);
+
+            // Initialize Quill on the new container
+            const quillEditor = new Quill(quillContainer.get(0), {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        ['link']
+                    ]
+                },
+            });
+
+
+            quillEditor.root.innerHTML = originalContentHtml;
+
+            // Apply the determined background color directly to the '.ql-editor' inside the Quill container
+            $(quillEditor.root).css('background-color', newBgColor);
+
+
+            // Append Save and Cancel buttons
+            const actionsHtml = `
+    <div class="edit-actions">
+        <div class="status-message" style="color: red; display: none;"></div>
+        <button class="save-edit">Save</button>
+        <button class="cancel-edit">Cancel</button>
+    </div>`;
+            $(actionsHtml).appendTo($commentContent);
+            const $toolbar = $comment.find('.ql-toolbar');
+
+
+            // Handle the cancel action
+            $commentContent.find('.cancel-edit').on('click', function () {
+
+                quillContainer.remove(); // This should correctly remove the Quill editor container
+                $toolbar.remove();
+                $commentContent.find('.edit-actions').remove(); // Remove the action buttons
+                $commentContent.find('.comment-text, .edit').show(); // Show the original content and edit link
+                $commentLinks.show(); // Show the comment links again
+            });
+
+            // Handle save (similar to your submit logic but for updating existing comments)
+            const saveBtn = $comment.find('.save-edit');
+            const cancelBtn = $comment.find('.cancel-edit');
+
+            const authToken = localStorage.getItem('authToken');
+
+
+            saveBtn.on('click', function () {
+                const updatedContent = processHTMLFromUsers(quillEditor.root.innerHTML);
+                var result = validateComment(updatedContent);
+                if (!result.isValid) {
+
+                    var $statusMessage = $(this).parent().find('.status-message');
+
+                    $statusMessage.text(result.message).css('color', 'red').show().delay(3000).fadeOut();
+
+                    return;
+                }
+                $.ajax({
+                    url: '/api/comment',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}` // Include the auth token in the request headers
+                    },
+                    data: JSON.stringify({ commentId: postID, post_id: originalPostID, content: updatedContent, isEdit: true }),
+                    success: function (response) {
+                        console.log('edit comment success');
+                        quillContainer.remove();
+                        $toolbar.remove();
+
+
+                        $commentContent.find('.comment-text').html(updatedContent).show();
+                        quillEditor.container.remove();
+                        saveBtn.remove();
+                        cancelBtn.remove();
+                        $commentContent.find('.edit').show();
+                        $commentLinks.show();
+
+                    },
+                    error: function (xhr, status, error) {
+                        var $statusMessage = $comment.find('.status-message');
+                        console.error('Error submitting comment', error);
+                        $statusMessage.text('Error submitting comment').css('color', 'red').show().delay(3000).fadeOut();
+                    }
+                });
+
+
+            });
+
+
+
+        });
+
+
+    });
 
 </script>
 
