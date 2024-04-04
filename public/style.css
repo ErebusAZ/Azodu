@@ -1362,231 +1362,6 @@ i.fas.fa-scroll, i.fas.fa-gavel {
 }
 
 
-
-
-/* Mobile */
-
-
-
-@media (max-width: 800px) {
-
-    .post-content {
-        padding-right: 0px;
-    }
-
-    .post-title {
-        font-size: 14px;
-    }
-
-    .voting {
-        display: none;
-    }
-
-    .post-submitted {
-        font-size: 10px;
-    }
-
-    .post-text {
-        margin-left: 15px;
-
-    }
-
-    .thumbnail {
-        margin-left: 7px;
-        width: 58px !important;
-    }
-
-    #logo_satori1 {
-        /* width: 130px; */
-    }
-
-    #sidebar_container {
-        display: none;
-    }
-
-
-    .container {
-        width: 95%;
-        margin-left: auto;
-        margin-right: auto;
-        display: block;
-        float: none;
-        margin-top: 10px;
-        padding: 0;
-        padding-bottom: 70px;
-    }
-
-
-
-
-}
-
-
-/* Mobile comments */
-
-
-.comment {
-    position: relative;
-    /* Smaller left margin for all comments */
-}
-
-.comment::before {
-    content: "";
-    position: absolute;
-    left: -5px;
-    /* Adjust based on actual layout */
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    /* Thickness of the line */
-    background-color: #ccc;
-    /* Line color */
-}
-
-/* Adjustments for the first level comments to remove the vertical line */
-.comments>.comment::before {
-    display: none;
-}
-
-/* Adjustments for nested comment margins using percentages */
-.comment[data-depth="1"] {
-    margin-left: 2.5% !important;
-}
-
-.comment[data-depth="2"] {
-    margin-left: 5% !important;
-}
-
-.comment[data-depth="3"] {
-    margin-left: 7% !important;
-}
-
-.comment[data-depth="4"] {
-    margin-left: 10% !important;
-    /* Slightly bigger increment */
-}
-
-.comment[data-depth="5"] {
-    margin-left: 11% !important;
-    /* Smaller increment */
-}
-
-.comment[data-depth="6"] {
-    margin-left: 12% !important;
-    /* Smaller increment */
-}
-
-.comment[data-depth="7"] {
-    margin-left: 13% !important;
-    /* Smaller increment */
-}
-
-.comment[data-depth="8"] {
-    margin-left: 14% !important;
-    /* Smaller increment */
-}
-
-.comment[data-depth="9"] {
-    margin-left: 15% !important;
-    /* Smaller increment */
-}
-
-.comment[data-depth="10"] {
-    margin-left: 16% !important;
-    /* Smaller increment */
-}
-
-
-
-/* Apply vertical lines for comments deeper than the first depth */
-.comment[data-depth="1"]::before {
-    background-color: green;
-    /* Color for depth 1 */
-}
-
-.comment[data-depth="2"]::before {
-    background-color: #4949e5;
-    /* Color for depth 2 */
-}
-
-.comment[data-depth="3"]::before {
-    background-color: red;
-    /* Color for depth 3 */
-}
-
-.comment[data-depth="4"]::before {
-    background-color: yellow;
-    /* Color for depth 4 */
-}
-
-.comment[data-depth="5"]::before {
-    background-color: purple;
-    /* Color for depth 5 */
-}
-
-.comment[data-depth="6"]::before {
-    background-color: orange;
-    /* Color for depth 6 */
-}
-
-.comment[data-depth="7"]::before {
-    background-color: pink;
-    /* Color for depth 7 */
-}
-
-.comment[data-depth="8"]::before {
-    background-color: cyan;
-    /* Color for depth 8 */
-}
-
-.comment[data-depth="9"]::before {
-    background-color: lime;
-    /* Color for depth 9 */
-}
-
-.comment[data-depth="10"]::before {
-    background-color: magenta;
-    /* Color for depth 10 */
-}
-
-/* Add more depths as needed, changing the color for each */
-
-.comment::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    /* Adjust this value to align with your layout */
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    /* Thickness of the line */
-    display: none;
-    /* Initially hide, show for specific depths */
-}
-
-/* Only show the line for comments beyond the first depth */
-.comment[data-depth="1"]::before,
-.comment[data-depth="2"]::before,
-.comment[data-depth="3"]::before,
-.comment[data-depth="4"]::before,
-.comment[data-depth="5"]::before,
-.comment[data-depth="6"]::before,
-.comment[data-depth="7"]::before,
-.comment[data-depth="8"]::before,
-.comment[data-depth="9"]::before,
-.comment[data-depth="10"]::before {
-    display: block;
-}
-
-
-
-
-
-#comment * {
-    all: revert;
-}
-
-
 /* Quill */
 
 
@@ -1909,6 +1684,7 @@ div#user_page_inner {
     display: block;
     margin-left: auto;
     margin-right: auto;
+    padding-top: 30px;
 }
 
 
@@ -1964,3 +1740,239 @@ h4#ai_moderated {
     line-height: 18px;
     padding-top: 5px;
 }
+
+
+
+
+
+
+
+
+
+
+/* Mobile */
+
+
+
+@media (max-width: 800px) {
+
+    .post-content {
+        padding-right: 0px;
+    }
+
+    .post-title {
+        font-size: 14px;
+    }
+
+    .voting {
+        display: none;
+    }
+
+    .post-submitted {
+        font-size: 10px;
+    }
+
+    .post-text {
+        margin-left: 15px;
+
+    }
+
+    .thumbnail {
+        margin-left: 7px;
+        width: 58px !important;
+    }
+
+    #logo_satori1 {
+        /* width: 130px; */
+    }
+
+    #sidebar_container {
+        display: none;
+    }
+
+
+    .container {
+        width: 95%;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        float: none;
+        margin-top: 10px;
+        padding: 0;
+        padding-bottom: 70px;
+    }
+
+    div#user_page_inner {
+        width: 90%;
+    }
+
+
+
+
+}
+
+
+/* Mobile comments */
+
+
+.comment {
+    position: relative;
+    /* Smaller left margin for all comments */
+}
+
+.comment::before {
+    content: "";
+    position: absolute;
+    left: -5px;
+    /* Adjust based on actual layout */
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    /* Thickness of the line */
+    background-color: #ccc;
+    /* Line color */
+}
+
+/* Adjustments for the first level comments to remove the vertical line */
+.comments>.comment::before {
+    display: none;
+}
+
+/* Adjustments for nested comment margins using percentages */
+.comment[data-depth="1"] {
+    margin-left: 2.5% !important;
+}
+
+.comment[data-depth="2"] {
+    margin-left: 5% !important;
+}
+
+.comment[data-depth="3"] {
+    margin-left: 7% !important;
+}
+
+.comment[data-depth="4"] {
+    margin-left: 10% !important;
+    /* Slightly bigger increment */
+}
+
+.comment[data-depth="5"] {
+    margin-left: 11% !important;
+    /* Smaller increment */
+}
+
+.comment[data-depth="6"] {
+    margin-left: 12% !important;
+    /* Smaller increment */
+}
+
+.comment[data-depth="7"] {
+    margin-left: 13% !important;
+    /* Smaller increment */
+}
+
+.comment[data-depth="8"] {
+    margin-left: 14% !important;
+    /* Smaller increment */
+}
+
+.comment[data-depth="9"] {
+    margin-left: 15% !important;
+    /* Smaller increment */
+}
+
+.comment[data-depth="10"] {
+    margin-left: 16% !important;
+    /* Smaller increment */
+}
+
+
+
+/* Apply vertical lines for comments deeper than the first depth */
+.comment[data-depth="1"]::before {
+    background-color: green;
+    /* Color for depth 1 */
+}
+
+.comment[data-depth="2"]::before {
+    background-color: #4949e5;
+    /* Color for depth 2 */
+}
+
+.comment[data-depth="3"]::before {
+    background-color: red;
+    /* Color for depth 3 */
+}
+
+.comment[data-depth="4"]::before {
+    background-color: yellow;
+    /* Color for depth 4 */
+}
+
+.comment[data-depth="5"]::before {
+    background-color: purple;
+    /* Color for depth 5 */
+}
+
+.comment[data-depth="6"]::before {
+    background-color: orange;
+    /* Color for depth 6 */
+}
+
+.comment[data-depth="7"]::before {
+    background-color: pink;
+    /* Color for depth 7 */
+}
+
+.comment[data-depth="8"]::before {
+    background-color: cyan;
+    /* Color for depth 8 */
+}
+
+.comment[data-depth="9"]::before {
+    background-color: lime;
+    /* Color for depth 9 */
+}
+
+.comment[data-depth="10"]::before {
+    background-color: magenta;
+    /* Color for depth 10 */
+}
+
+/* Add more depths as needed, changing the color for each */
+
+.comment::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    /* Adjust this value to align with your layout */
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    /* Thickness of the line */
+    display: none;
+    /* Initially hide, show for specific depths */
+}
+
+/* Only show the line for comments beyond the first depth */
+.comment[data-depth="1"]::before,
+.comment[data-depth="2"]::before,
+.comment[data-depth="3"]::before,
+.comment[data-depth="4"]::before,
+.comment[data-depth="5"]::before,
+.comment[data-depth="6"]::before,
+.comment[data-depth="7"]::before,
+.comment[data-depth="8"]::before,
+.comment[data-depth="9"]::before,
+.comment[data-depth="10"]::before {
+    display: block;
+}
+
+
+
+
+
+#comment * {
+    all: revert;
+}
+
