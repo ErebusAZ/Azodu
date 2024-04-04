@@ -1954,10 +1954,8 @@ h4#ai_moderated {
     border-radius: 5px;
     margin-right: 20px;
     font-size: 14px;
-    padding-top: 10px;
+    /* padding-top: 10px; */
     padding-bottom: 30px;
 }
 
-#info_bar_1 p {
-line-height: 18px; 
-}
+#info_bar_1 p {line-height: 18px;padding-top: 5px;}
