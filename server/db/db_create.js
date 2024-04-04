@@ -98,12 +98,13 @@ async function createMaterializedViews(client) {
 
 async function createCommentsByAuthorView(client) {
   const query = `
-    CREATE MATERIALIZED VIEW IF NOT EXISTS my_keyspace.comments_by_author AS
-    SELECT *
-    FROM my_keyspace.comments
-    WHERE author IS NOT NULL AND post_id IS NOT NULL AND comment_id IS NOT NULL
-    PRIMARY KEY (author, post_id, comment_id)
-    WITH CLUSTERING ORDER BY (post_id ASC, comment_id ASC);
+  CREATE MATERIALIZED VIEW IF NOT EXISTS my_keyspace.comments_by_author AS
+  SELECT *
+  FROM my_keyspace.comments
+  WHERE author IS NOT NULL AND comment_id IS NOT NULL AND post_id IS NOT NULL
+  PRIMARY KEY ((author), post_id, comment_id)
+  WITH CLUSTERING ORDER BY (post_id DESC, comment_id DESC);
+  
   `;
   try {
     await client.execute(query);
@@ -113,14 +114,16 @@ async function createCommentsByAuthorView(client) {
   }
 }
 
+
 async function createPostsByAuthorView(client) {
   const query = `
-    CREATE MATERIALIZED VIEW IF NOT EXISTS my_keyspace.posts_by_author AS
-    SELECT *
-    FROM my_keyspace.posts
-    WHERE author IS NOT NULL AND category IS NOT NULL AND post_id IS NOT NULL
-    PRIMARY KEY (author, category, post_id)
-    WITH CLUSTERING ORDER BY (category ASC, post_id DESC);
+  CREATE MATERIALIZED VIEW IF NOT EXISTS my_keyspace.posts_by_author AS
+  SELECT *
+  FROM my_keyspace.posts
+  WHERE author IS NOT NULL AND post_id IS NOT NULL AND category IS NOT NULL
+  PRIMARY KEY ((author), category, post_id)
+  WITH CLUSTERING ORDER BY (category ASC, post_id DESC);
+  
   `;
   try {
     await client.execute(query);
@@ -271,8 +274,29 @@ async function flushAllTables(client, keyspace, tableNameOptional = null) {
 }
 
 
+async function dropAllMaterializedViews(client, keyspace) {
+  try {
+    const queryGetViews = `SELECT view_name FROM system_schema.views WHERE keyspace_name = '${keyspace}'`;
+    const resultViews = await client.execute(queryGetViews);
+
+    for (let row of resultViews.rows) {
+      const viewName = row['view_name'];
+      const queryDropView = `DROP MATERIALIZED VIEW IF EXISTS ${keyspace}.${viewName}`;
+      await client.execute(queryDropView);
+      console.log(`Dropped materialized view: ${keyspace}.${viewName}`);
+    }
+
+    console.log(`All materialized views in keyspace '${keyspace}' have been dropped.`);
+  } catch (error) {
+    console.error('Failed to drop materialized views', error);
+  }
+}
+
 async function dropAllTables(client, keyspace) {
   try {
+    // First, drop all materialized views to avoid dependency issues
+    await dropAllMaterializedViews(client, keyspace);
+
     // Retrieve all table names within the keyspace
     const queryGetTables = `SELECT table_name FROM system_schema.tables WHERE keyspace_name = '${keyspace}'`;
     const resultTables = await client.execute(queryGetTables);
@@ -291,6 +315,7 @@ async function dropAllTables(client, keyspace) {
   }
 }
 
+
 async function emptyCommentsTable(client) {
   try {
     const query = 'TRUNCATE my_keyspace.comments;';
@@ -302,4 +327,4 @@ async function emptyCommentsTable(client) {
 }
 
 
-module.exports = { createKeyspace, createUsersTable,createCommentsTable,createPostsTable,flushAllTables,dropAllTables,createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers };
+module.exports = { createKeyspace, createUsersTable, createCommentsTable, createPostsTable, flushAllTables, dropAllTables, createVotesTable, createCategoriesTable, createDefaultCategories, createLinksTable, emptyCommentsTable, createMaterializedViews, insertFakeUsers };
