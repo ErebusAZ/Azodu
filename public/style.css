@@ -1890,3 +1890,8 @@ div#user_page_inner {
     margin-left: auto;
     margin-right: auto;
 }
+
+
+#user_page_inner i {
+    padding-right: 10px;
+}
