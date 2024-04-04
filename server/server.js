@@ -864,7 +864,7 @@ async function main() {
   try {
 
     //   await flushAllTables(client,'my_keyspace','comments'); 
-    await dropAllTables(client, 'my_keyspace'); 
+  //  await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
