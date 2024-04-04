@@ -4,21 +4,21 @@ const { faker } = require('@faker-js/faker');
 let postIdIterator = 0; // if we generate 50 posts in the same function, this will make sure the post_id/timestamps are unique
 
 function generatePostIdTimestamp() {
-    const now = new Date();
-    const year = now.getUTCFullYear();
-    const month = String(now.getUTCMonth() + 1).padStart(2, '0'); // getUTCMonth() returns 0-11
-    const day = String(now.getUTCDate()).padStart(2, '0');
-    const hour = String(now.getUTCHours()).padStart(2, '0');
-    const minute = String(now.getUTCMinutes()).padStart(2, '0');
-    const second = String(now.getUTCSeconds()).padStart(2, '0');
-    const millisecond = String(now.getUTCMilliseconds()).padStart(3, '0');
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  const month = String(now.getUTCMonth() + 1).padStart(2, '0'); // getUTCMonth() returns 0-11
+  const day = String(now.getUTCDate()).padStart(2, '0');
+  const hour = String(now.getUTCHours()).padStart(2, '0');
+  const minute = String(now.getUTCMinutes()).padStart(2, '0');
+  const second = String(now.getUTCSeconds()).padStart(2, '0');
+  const millisecond = String(now.getUTCMilliseconds()).padStart(3, '0');
 
-    // Ensure the iterator is always at least two digits, resetting if it exceeds 99
-    const iterator = String(postIdIterator++ % 100).padStart(2, '0');
-    
-    // Concatenate all parts to form the ID, including the iterator
-    const timestampId = `${year}${month}${day}${hour}${minute}${second}${millisecond}${iterator}`;
-    return timestampId;
+  // Ensure the iterator is always at least two digits, resetting if it exceeds 99
+  const iterator = String(postIdIterator++ % 100).padStart(2, '0');
+
+  // Concatenate all parts to form the ID, including the iterator
+  const timestampId = `${year}${month}${day}${hour}${minute}${second}${millisecond}${iterator}`;
+  return timestampId;
 }
 
 
@@ -42,17 +42,39 @@ function sanitizeLink(link) {
   return url.origin + url.pathname;
 }
 
+async function getNextPostId(client) {
+  const updateQuery = `UPDATE my_keyspace.post_id_counter SET id_counter = id_counter + 1 WHERE id_name = 'postID'`;
+  const selectQuery = `SELECT id_counter FROM my_keyspace.post_id_counter WHERE id_name = 'postID'`;
+
+  try {
+    // Increment the counter
+    await client.execute(updateQuery);
+
+    // Fetch the updated counter value
+    const result = await client.execute(selectQuery);
+    if (result.rowLength > 0) {
+      const newId = result.first()['id_counter'].toString();
+      return newId;
+    } else {
+      throw new Error('Failed to fetch updated post ID counter.');
+    }
+  } catch (error) {
+    console.error('Error getting next post ID:', error);
+    throw error; // Rethrow to handle it in the calling function
+  }
+}
+
 async function insertPostData(client, title, author, category, postType, content, thumbnail, aiSummary = '', skipLinkCheck) {
-  
+
   if (!title || !author || !category || !postType || (postType === 'url' && !content)) {
     throw new Error('Missing required post data.');
   }
-  
+
   const sanitizedLink = postType === 'url' ? sanitizeLink(content) : content;
   const upvotes = 0;
   const downvotes = 0;
   const commentCount = 0;
-  const postID = generatePostIdTimestamp();
+  const postID = await getNextPostId(client); // Adjusted to use the counter
   const permalink = generatePermalink(title, category, postID);
   const timestamp = new Date();
 
@@ -90,13 +112,15 @@ async function insertPostData(client, title, author, category, postType, content
 
 
 
+
+
 async function insertCategoryData(client, name, creator, description, permalink, dateCreated, moderators) {
   const query = `
     INSERT INTO my_keyspace.categories (
       name, creator, description, permalink, date_created, moderators
     ) VALUES (?, ?, ?, ?, ?, ?);
   `;
-  
+
   const params = [name, creator, description, permalink, dateCreated, moderators];
 
   try {
@@ -114,7 +138,7 @@ async function insertCommentData(client, comment_id, post_id, author, parent_id,
     INSERT INTO my_keyspace.comments (comment_id, post_id, author, parent_id, post_type, content, upvotes, downvotes, permalink, timestamp)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
   await client.execute(query, [comment_id, post_id, author, parent_id, post_type, content, upvotes, downvotes, permalink, timestamp], { prepare: true });
-  
+
 
 }
 
@@ -184,7 +208,7 @@ async function insertVote(client, post_id, isUpvote, ip) {
 
   try {
     await client.execute(query, params, { prepare: true });
-  //  console.log('Vote recorded successfully');
+    //  console.log('Vote recorded successfully');
   } catch (error) {
     console.error('Error inserting vote:', error);
   }
@@ -206,11 +230,11 @@ async function tallyVotesForComment(client, post_id, comment_id,) {
   const updateQuery = `UPDATE my_keyspace.comments SET upvotes = ?, downvotes = ? WHERE post_id = ? AND comment_id = ?`;
   await client.execute(updateQuery, [upvotes, downvotes, post_id, comment_id], { prepare: true });
 
- // console.log(`Updated votes for entity ${comment_id}: ${upvotes} upvotes, ${downvotes} downvotes`);
+  // console.log(`Updated votes for entity ${comment_id}: ${upvotes} upvotes, ${downvotes} downvotes`);
 }
 
 
 
 
 
-module.exports = { insertPostData, insertUserData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,generatePermalink,updateCommentData,tallyVotesForComment,deleteCommentData };
+module.exports = { insertPostData, insertUserData, populateTestData, insertVote, insertCommentData, generatePostIdTimestamp, insertCategoryData, generatePermalink, updateCommentData, tallyVotesForComment, deleteCommentData };

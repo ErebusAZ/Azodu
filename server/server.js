@@ -24,7 +24,7 @@ try {
 jwtSecret = secrets.JWT_SECRET;
 
 
-const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers } = require('./db/db_create');
+const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers,createPostIdCounterTable } = require('./db/db_create');
 const { insertPostData, populateTestData, insertVote,insertCommentData,generatePostIdTimestamp,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink } = require('./db/db_insert');
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
@@ -864,7 +864,7 @@ async function main() {
   try {
 
     //   await flushAllTables(client,'my_keyspace','comments'); 
-  //  await dropAllTables(client, 'my_keyspace'); 
+    await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
@@ -874,6 +874,7 @@ async function main() {
     await insertFakeUsers(client,usernames); 
     await createCommentsTable(client);
     await createPostsTable(client);
+    await createPostIdCounterTable(client);
     await createVotesTable(client);
     await createCategoriesTable(client);
 
@@ -883,6 +884,8 @@ async function main() {
     await createDefaultCategories(client, defaultCategories);
     // await emptyCommentsTable(client);
     await createMaterializedViews(client);
+
+    await populateTestData(client, 50);
 
 
   } catch (error) {

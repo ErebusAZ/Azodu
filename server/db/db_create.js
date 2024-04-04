@@ -158,6 +158,23 @@ async function createPostsTable(client) {
   console.log('Table `posts` created or already exists in `my_keyspace`');
 }
 
+
+async function createPostIdCounterTable(client) {
+  const query = `
+    CREATE TABLE IF NOT EXISTS my_keyspace.post_id_counter (
+      id_name text PRIMARY KEY,
+      id_counter counter
+    );
+  `;
+  try {
+    await client.execute(query);
+    console.log('Post ID counter table created successfully.');
+  } catch (error) {
+    console.error('Failed to create post ID counter table:', error);
+  }
+}
+
+
 async function createLinksTable(client) {
   const query = `
     CREATE TABLE IF NOT EXISTS my_keyspace.links (
@@ -327,4 +344,4 @@ async function emptyCommentsTable(client) {
 }
 
 
-module.exports = { createKeyspace, createUsersTable, createCommentsTable, createPostsTable, flushAllTables, dropAllTables, createVotesTable, createCategoriesTable, createDefaultCategories, createLinksTable, emptyCommentsTable, createMaterializedViews, insertFakeUsers };
+module.exports = { createKeyspace, createUsersTable, createCommentsTable, createPostsTable, flushAllTables, dropAllTables, createVotesTable, createCategoriesTable, createDefaultCategories, createLinksTable, emptyCommentsTable, createMaterializedViews, insertFakeUsers,createPostIdCounterTable };
