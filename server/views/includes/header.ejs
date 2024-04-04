@@ -228,6 +228,8 @@
 
         // Function to check if a link should be displayed
         const shouldDisplayLink = (linkText) => {
+            if (!linkBlacklist)
+                return true;
             return !linkBlacklist.includes(linkText);
         };
 
