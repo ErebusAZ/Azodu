@@ -318,34 +318,34 @@ div#post_meta {
     font-size: 12px;
     padding-left: 10px;
     padding-right: 10px;
-    cursor: pointer; 
-    visibility: hidden; 
+    cursor: pointer;
+    visibility: hidden;
 }
 
 #subscribe_button.unsubscribe {
-background-color: #b72d2d; 
+    background-color: #b72d2d;
 }
 
 #subscribe_button:hover {
-text-decoration: underline; 
+    text-decoration: underline;
 }
 
 
 .category-metadata-box {
-background-color: #2d2d2d;
-font-size: 12px;
-border-radius: 5px;
-width: 200px;
-padding: 20px;
-margin-right: 20px;
-margin-top: 20px;
-float: right;
+    background-color: #2d2d2d;
+    font-size: 12px;
+    border-radius: 5px;
+    width: 200px;
+    padding: 20px;
+    margin-right: 20px;
+    margin-top: 20px;
+    float: right;
 
 }
 
 .category-metadata-box h2 {
-margin-top: 0;
-margin-bottom: 0; 
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 #cat_createdby, #cat_createdtime {
@@ -365,7 +365,10 @@ margin-bottom: 0;
     overflow: hidden;
 }
 
-#cat_createdby,#cat_createdtime {color: gray;font-size: 12px;}
+#cat_createdby, #cat_createdtime {
+    color: gray;
+    font-size: 12px;
+}
 
 
 #sidebar_container {
@@ -392,24 +395,29 @@ margin-bottom: 0;
 }
 
 .sidebar_button i {
-font-size: 12px; 
+    font-size: 12px;
 }
 
 
 .sidebar_button i.fa-pencil-alt {
-position: relative;
-top: 2px;
-right: 5px;
+    position: relative;
+    top: 2px;
+    right: 5px;
 
 }
 
 .sidebar_button i.fa-sign-in-alt {
-position: relative;
+    position: relative;
     top: 3px;
     right: 8px;
 }
 
-.sidebar_button i.fa-plus-square {position: relative;top: 2px;right: 5px;font-size: 18px;}
+.sidebar_button i.fa-plus-square {
+    position: relative;
+    top: 2px;
+    right: 5px;
+    font-size: 18px;
+}
 
 
 .sidebar ul {
@@ -503,9 +511,9 @@ position: relative;
 
 .sort-container {
     width: 100%;
-    
+
     /* Space between the sort dropdown and the first post */
-    
+
     /* Align the dropdown to the right */
     font-size: 12px;
     text-align: left;
@@ -516,7 +524,7 @@ position: relative;
 }
 
 .post-content.post-container {
-margin-top: 20px; 
+    margin-top: 20px;
 }
 
 
@@ -644,7 +652,7 @@ margin-top: 20px;
 }
 
 
-.community-links,#subscribed_links {
+.community-links, #subscribed_links {
     list-style: none;
     padding: 0;
     float: left;
@@ -656,8 +664,9 @@ margin-top: 20px;
     margin-bottom: 30px;
     padding-left: 40px;
 }
-.community-links li,#subscribed_links li {
-margin-top: 10px; 
+
+.community-links li, #subscribed_links li {
+    margin-top: 10px;
 }
 
 .communities-section {
@@ -913,9 +922,9 @@ button#submit-comment {
     /* Space between header and comment text */
 }
 
-.comment-text p:first-child{
-padding-top: 0; 
-margin-top: 5px; 
+.comment-text p:first-child {
+    padding-top: 0;
+    margin-top: 5px;
 }
 
 .username {
@@ -1068,13 +1077,15 @@ margin-top: 5px;
 }
 
 .dropdown-select::after {
-    content: '\25BC'; /* Down arrow */
+    content: '\25BC';
+    /* Down arrow */
     font-size: 0.8em;
     margin-left: 10px;
 }
 
 .dropdown {
-    width: 110px; /* Adjust the width of the dropdown to fit your layout */
+    width: 110px;
+    /* Adjust the width of the dropdown to fit your layout */
 }
 
 
@@ -1182,7 +1193,7 @@ select#postType {
 }
 
 
-div#categoryDescription,#submit_post_text {
+div#categoryDescription, #submit_post_text {
     margin-top: 0;
 }
 
@@ -1241,6 +1252,7 @@ span.ai_summary_heading {
     text-align: right;
     padding-bottom: 4px;
 }
+
 .single-line {
     /* white-space: nowrap; */
     /* overflow: hidden; */
@@ -1820,8 +1832,10 @@ h2#formTitle {
 
 /* Admin Actions Gear Icon */
 .admin-actions-gear {
-    color: #d7dadc; /* Match the site's text color */
-    margin-top: 5px; /* Adjust as needed */
+    color: #d7dadc;
+    /* Match the site's text color */
+    margin-top: 5px;
+    /* Adjust as needed */
 }
 
 /* Tooltip Container */
@@ -1835,7 +1849,8 @@ h2#formTitle {
     border-radius: 5px;
     z-index: 100;
     width: 120px;
-    top: 30px; /* Adjust based on your layout */
+    top: 30px;
+    /* Adjust based on your layout */
 }
 
 /* Tooltip Option Style */
@@ -1855,17 +1870,17 @@ i.fas.fa-cog.admin-actions-gear {
     top: 0;
     right: 0;
     font-size: 12px;
-    display: none; 
+    display: none;
 }
 
 
 
 body.is_admin i.fas.fa-cog.admin-actions-gear {
-display: block; 
+    display: block;
 }
 
 body.is_admin .admin-ui {
-display: block !important; 
+    display: block !important;
 }
 
 
@@ -1900,14 +1915,17 @@ div#user_page_inner {
 }
 
 div#user_page_inner h1:first-child {
-position: absolute;
-top: 80px;
+    position: absolute;
+    top: 80px;
 }
 
 div#user-comments {
     margin-top: 30px;
 }
 
+
+
+/* Info area in sidebar */
 
 
 h4#ai_moderated {
@@ -1925,4 +1943,20 @@ h4#ai_moderated {
 }
 
 
-#info_bar_1 {display: block;clear: both;width: 200px;background-color: #2d2d2d;padding: 20px;margin-top: 22px;float: right;border-radius: 5px;margin-right: 20px;font-size: 14px;padding-top: 10px;}
+#info_bar_1 {
+    display: block;
+    clear: both;
+    width: 200px;
+    background-color: #2d2d2d;
+    padding: 20px;
+    margin-top: 22px;
+    float: right;
+    border-radius: 5px;
+    margin-right: 20px;
+    font-size: 14px;
+    padding-top: 10px;
+}
+
+#info_bar_1 p {
+line-height: 18px; 
+}
