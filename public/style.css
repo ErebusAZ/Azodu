@@ -1865,6 +1865,10 @@ body.is_admin i.fas.fa-cog.admin-actions-gear {
 display: block; 
 }
 
+body.is_admin .admin-ui {
+display: block !important; 
+}
+
 
 
 
