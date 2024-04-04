@@ -44,7 +44,8 @@
         comment.content,
         0,
         comment.upvotes - comment.downvotes,
-        new Date(comment.timestamp).toLocaleString()
+        new Date(comment.timestamp).toLocaleString(),
+        comment.parent_id
       );
 
       $('#user-comments').append(commentHtml);

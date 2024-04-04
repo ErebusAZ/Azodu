@@ -92,7 +92,7 @@
 
                 comments.forEach(comment => {
                     // Use getCommentHtml with individual parameters
-                    html += getCommentHtml(comment.comment_id, comment.author, comment.content, depth, comment.upvotes - comment.downvotes, comment.timestamp);
+                    html += getCommentHtml(comment.comment_id, comment.author, comment.content, depth, comment.upvotes - comment.downvotes, comment.timestamp,comment.parent_id);
 
                     // Check for replies and recursively render them
                     if (comment.replies && comment.replies.length > 0) {
@@ -112,48 +112,6 @@
 
 
 
-
-            $(document).on('click', '.delete', function (e) {
-                e.preventDefault();
-                const $comment = $(this).closest('.comment');
-                const commentId = $comment.data('commentid');
-
-                const confirmed = confirm('Are you sure you want to delete this comment?');
-                if (confirmed) {
-                    deleteComment(commentId);
-                }
-            });
-
-            function deleteComment(commentId) {
-                const authToken = localStorage.getItem('authToken');
-                // Prepare the request payload indicating a deletion action
-                const data = JSON.stringify({
-                    commentId: commentId,
-                    isDelete: true, // Indicate this is a delete operation
-                    post_id: '<%= post.post_id %>',
-                    isEdit: false
-
-                });
-
-                $.ajax({
-                    url: `/api/comment`, // Adjusted to the generalized endpoint for comment management
-                    type: 'POST', // Using POST as per the updated backend endpoint
-                    contentType: 'application/json', // Specify the content type of the request
-                    headers: {
-                        'Authorization': `Bearer ${authToken}`
-                    },
-                    data: data, // Pass the stringified payload
-                    success: function () {
-                        console.log('Comment deleted successfully');
-                        // Optionally remove the comment from the DOM or refresh the comments section
-                        $(`#comment-${commentId}`).remove();
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error deleting comment', error);
-                        // Handle the error (show a message to the user, log the error, etc.)
-                    }
-                });
-            }
 
 
 
@@ -261,7 +219,7 @@
 
                             const newCommentID = response.commentId;
 
-                            var commentHTML = getCommentHtml(newCommentID, author, commentContent, depth, 1); // Assuming your getCommentHtml can handle these parameters
+                            var commentHTML = getCommentHtml(newCommentID, author, commentContent, depth, 1,undefined,post_id); // Assuming your getCommentHtml can handle these parameters
                             // Inserting the comment in the correct position
                             if (post_id == truePostId) {
                                 $('.comments').prepend(commentHTML); // Add to the start for top-level comments
