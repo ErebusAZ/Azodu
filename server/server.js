@@ -864,7 +864,7 @@ async function main() {
   try {
 
     //   await flushAllTables(client,'my_keyspace','comments'); 
-    await dropAllTables(client, 'my_keyspace'); 
+   // await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
@@ -885,7 +885,7 @@ async function main() {
     // await emptyCommentsTable(client);
     await createMaterializedViews(client);
 
-    await populateTestData(client, 50);
+  //  await populateTestData(client, 50);
 
 
   } catch (error) {
