@@ -245,9 +245,9 @@ async function createDefaultCategories(client, defaultCategories) {
     }
 
     // Using Lorem Ipsum text for default values where needed
-    const creator = "Lorem ipsum dolor sit amet, consectetur adipiscing elit";
-    const description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua";
-    const moderators = "Lorem ipsum"; // Adjust based on how moderators are stored. If it's a list, you might need to serialize it accordingly.
+    const creator = "azodu";
+    const description = "The category for everything and anything! Post anything you'd like here.";
+    const moderators = "azodu"; // Adjust based on how moderators are stored. If it's a list, you might need to serialize it accordingly.
     const isDefault = true;
 
     try {
