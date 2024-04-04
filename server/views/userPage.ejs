@@ -26,6 +26,12 @@
   $(document).ready(function () {
     // Use the timeAgo function for the "Date Registered"
     document.getElementById('date-registered').innerText = 'Registered ' + timeAgo(new Date('<%= user.date_registered %>'));
+   
+    if(comments.length < 1) {
+      $('#user-comments').append(`<p style="color: gray;"><%= user.username %> hasn't written any comments.</p>`);
+
+
+    } else {
     
     // Iterate over the comments and append them to the page
     comments.forEach(function (comment) {
@@ -37,8 +43,13 @@
         comment.upvotes - comment.downvotes,
         new Date(comment.timestamp).toLocaleString()
       );
+
       $('#user-comments').append(commentHtml);
     });
+
+  }
+
+    
   });
 </script>
 

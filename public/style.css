@@ -1900,3 +1900,7 @@ div#user_page_inner h1:first-child {
 position: absolute;
 top: 80px;
 }
+
+div#user-comments {
+    margin-top: 30px;
+}
