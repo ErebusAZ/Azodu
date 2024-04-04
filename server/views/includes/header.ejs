@@ -219,40 +219,47 @@
     }
 
 
-    function getCommentHtml(commentId, author, content, depth = 0, votes, timestamp,parent_id) {
+    function getCommentHtml(commentId, author, content, depth = 0, votes, timestamp, parent_id, linkBlacklist) {
         const currentUser = localStorage.getItem('username');
         const backgroundColor = depth % 2 === 0 ? '#2d2d2d' : '#2d2d2d';
 
         // Check if the currentUser is the author of the comment
         const isAuthor = currentUser === author;
 
+        // Function to check if a link should be displayed
+        const shouldDisplayLink = (linkText) => {
+            return !linkBlacklist.includes(linkText);
+        };
+
         return `<div data-depth="${depth}" data-parentid="${parent_id}" data-commentid="${commentId}" id="comment-${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">
-        <div class="voting">
-            <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${commentId}"><img src="/img/up-arrow.svg" alt="Upvote"></a>
-            <span class="votes">${votes}</span>
-            <a title="downvote" description="downvote" href="#" class="downvote" data-postid="${commentId}"><img src="/img/down-arrow.svg" alt="Downvote"></a>
+    <div class="voting">
+        <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${commentId}"><img src="/img/up-arrow.svg" alt="Upvote"></a>
+        <span class="votes">${votes}</span>
+        <a title="downvote" description="downvote" href="#" class="downvote" data-postid="${commentId}"><img src="/img/down-arrow.svg" alt="Downvote"></a>
+    </div>
+    <div class="comment-content">
+        <div class="comment-header">
+            <a href="/u/${author}" class="username">${author}</a>
+            <span class="time">${timestamp ? timeAgo(timestamp) : 'just now'}</span>
         </div>
-        <div class="comment-content">
-            <div class="comment-header">
-                <a href="/u/${author}" class="username">${author}</a>
-                <span class="time">${timestamp ? timeAgo(timestamp) : 'just now'}</span>
-            </div>
-            <div class="comment-text">${content}</div>
-            <div class="comment-links">
-                <a target="_blank" href="#comment-${commentId}">link</a>
-                <a href="#">save</a>
-                ${isAuthor ? `<a href="#edit" class="edit">edit</a>` : ''}
-                ${isAuthor ? `<a href="#delete" class="delete">delete</a>` : ''}
-                <a href="#reply" class="reply">reply</a>
-            </div>
-            <div class="reply-form" style="display: none;">
-                <div class="reply-input"></div>
-                <div class="status-message" style="color: red; display: none;"></div>
-                <button type="button" class="submit-reply" data-postid="${commentId}">Submit</button>
-                <button type="button" class="cancel-reply">Cancel</button>
-            </div>
+        <div class="comment-text">${content}</div>
+
+        <div class="comment-links">
+            <a target="_blank" href="#comment-${commentId}">link</a>
+            <a href="#">save</a>
+            ${isAuthor && shouldDisplayLink('edit') ? `<a href="#edit" class="edit">edit</a>` : ''}
+            ${isAuthor && shouldDisplayLink('delete') ? `<a href="#delete" class="delete">delete</a>` : ''}
+            ${shouldDisplayLink('reply') ? `<a href="#reply" class="reply">reply</a>` : ''}
         </div>
-    </div>`;
+        
+        <div class="reply-form" style="display: none;">
+            <div class="reply-input"></div>
+            <div class="status-message" style="color: red; display: none;"></div>
+            <button type="button" class="submit-reply" data-postid="${commentId}">Submit</button>
+            <button type="button" class="cancel-reply">Cancel</button>
+        </div>
+    </div>
+</div>`;
     }
 
 
@@ -262,15 +269,15 @@
         const $comment = $(this).closest('.comment');
         const commentId = $comment.data('commentid');
         const parentId = $comment.data('parentid');
-        console.log(parentId); 
+        console.log(parentId);
 
         const confirmed = confirm('Are you sure you want to delete this comment?');
         if (confirmed) {
-            deleteComment(commentId,parentId);
+            deleteComment(commentId, parentId);
         }
     });
 
-    function deleteComment(commentId,postID) {
+    function deleteComment(commentId, postID) {
         const authToken = localStorage.getItem('authToken');
         // Prepare the request payload indicating a deletion action
         const data = JSON.stringify({
