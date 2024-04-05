@@ -1,7 +1,59 @@
 const uuid = require('uuid');
+const os = require('os');
+
 const { faker } = require('@faker-js/faker');
 
 let postIdIterator = 0; // if we generate 50 posts in the same function, this will make sure the post_id/timestamps are unique
+
+
+
+function getServerIpAddress() {
+  const interfaces = os.networkInterfaces();
+  for (const iface of Object.values(interfaces)) {
+    for (const alias of iface) {
+      if (alias.family === 'IPv4' && !alias.internal) {
+        return alias.address;
+      }
+    }
+  }
+  return '0.0.0.0'; // Fallback if no external IP found
+}
+
+
+
+function generatePostId() {
+
+  function ipToNumber(ip) {
+    return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0);
+  }
+
+  function toBase62(num) {
+    const characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = '';
+    while (num > 0) {
+      result = characters[num % 62] + result;
+      num = Math.floor(num / 62);
+    }
+    return result;
+  }
+
+  const timestampPart = Date.now(); // Millisecond precision timestamp
+  const highResTimePart = process.hrtime.bigint() % BigInt(1e9); // Corrected: Use BigInt for the modulo operation
+  const ipAddressPart = ipToNumber(getServerIpAddress()); // IP address as a number
+  const processId = process.pid; // Process identifier
+  const randomPart = Math.floor(Math.random() * 1e6); // 6 digit random number for added entropy
+
+  // Convert all parts to base62 and concatenate
+  const encodedTimestamp = toBase62(timestampPart);
+  const encodedHighResTime = toBase62(Number(highResTimePart)); // Ensure conversion to Number before encoding
+  const encodedIpAddress = toBase62(ipAddressPart);
+  const encodedProcessId = toBase62(processId);
+  const encodedRandom = toBase62(randomPart);
+
+  return `${encodedTimestamp}${encodedHighResTime}${encodedIpAddress}${encodedProcessId}${encodedRandom}`;
+}
+
+
 
 function generateCommentUUID() {
   const now = new Date();
@@ -74,7 +126,7 @@ async function insertPostData(client, title, author, category, postType, content
   const upvotes = 0;
   const downvotes = 0;
   const commentCount = 0;
-  const postID = await getNextPostId(client); // Adjusted to use the counter
+  const postID = generatePostId(); // Adjusted to use the counter
   const permalink = generatePermalink(title, category, postID);
   const timestamp = new Date();
 
