@@ -177,8 +177,8 @@
                     e.preventDefault();
 
                     var $thisButton = $(this);
-                    var post_id = $thisButton.data('postid'); // The ID of the post or parent comment
-                    var truePostId = '<%= post.post_id %>'; // Assuming this is provided by your server-side template
+                    var parent_post_id = $thisButton.data('postid'); // The ID of the post or parent comment
+                    var originalPostID = '<%= post.post_id %>'; // Assuming this is provided by your server-side template
                     var commentContent = processHTMLFromUsers(quillEditors[post_id].root.innerHTML); // Content from Quill editor
                     var result = validateComment(commentContent);
                     if (!result.isValid) {
@@ -194,7 +194,7 @@
 
                     // Determine depth for new comment
                     var depth = 0; // Default depth for top-level comments
-                    if (post_id !== truePostId) { // If it's a reply to another comment
+                    if (parent_post_id !== originalPostID) { // If it's a reply to another comment
                         var $parentComment = $thisButton.closest('.comment');
                         depth = parseInt($parentComment.data('depth')) + 1;
                     }
@@ -214,22 +214,22 @@
                         headers: {
                             'Authorization': `Bearer ${authToken}` // Include the auth token in the request headers
                         },
-                        data: JSON.stringify({ post_id: truePostId, content: commentContent, parent_id: post_id }),
+                        data: JSON.stringify({ post_id: originalPostID, content: commentContent, parent_id: parent_post_id }),
                         success: function (response) {
 
                             const newCommentID = response.commentId;
 
-                            var commentHTML = getCommentHtml(newCommentID, author, commentContent, depth, 1,undefined,post_id); // Assuming your getCommentHtml can handle these parameters
+                            var commentHTML = getCommentHtml(newCommentID, author, commentContent, depth, 1,undefined,parent_post_id); // Assuming your getCommentHtml can handle these parameters
                             // Inserting the comment in the correct position
-                            if (post_id == truePostId) {
+                            if (parent_post_id == originalPostID) {
                                 $('.comments').prepend(commentHTML); // Add to the start for top-level comments
                             } else {
                                 $thisButton.closest('.comment').after(commentHTML); // Add after the parent comment for nested replies
                             }
 
                             // Clearing the Quill editor and hiding the reply form
-                            if (quillEditors[post_id]) {
-                                quillEditors[post_id].setContents([]);
+                            if (quillEditors[parent_post_id]) {
+                                quillEditors[parent_post_id].setContents([]);
                             }
                             $statusMessage.text('').hide();
                             $thisButton.closest('.reply-form').hide();
