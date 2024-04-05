@@ -264,7 +264,7 @@ async function fetchFromExternalAndCreatePosts() {
         continue; // Skip non-link posts from r/Conservative
       }
 
-      if (url.includes('reddit.com'))
+      if (url.includes('reddit.com') || url.includes('redd.it'))
         continue; 
 
       // Skip processing if the title has already been processed
