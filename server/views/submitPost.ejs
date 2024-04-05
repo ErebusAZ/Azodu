@@ -187,7 +187,7 @@
           })
             .then(response => response.json()) // Always parse JSON, regardless of the response status
             .then(data => {
-              if (data.error) {
+              if (data.status =="error") {
                 throw new Error(data.message); // Use the server-provided error message
                 console.log('data error');
               } else {

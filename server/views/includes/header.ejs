@@ -431,7 +431,7 @@
                     error: function (xhr, status, error) {
                         var $statusMessage = $comment.find('.status-message');
                         console.error('Error submitting comment', error);
-                        $statusMessage.text('Error submitting comment').css('color', 'red').show().delay(3000).fadeOut();
+                        $statusMessage.text(error.includes('error') ? error: 'Error submitting comment: ' + error).css('color', 'red').show().delay(3000).fadeOut();
                     }
                 });
 
