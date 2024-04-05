@@ -885,7 +885,7 @@ async function main() {
     await createLinksTable(client); 
 
     await createDefaultCategories(client, defaultCategories);
-    // await emptyCommentsTable(client);
+   //  await emptyCommentsTable(client);
     await createMaterializedViews(client);
 
   //  await populateTestData(client, 50);
