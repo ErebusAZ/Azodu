@@ -79,7 +79,7 @@ async function generateAIComment(title, summary, model, post_id) {
   }
 
   try {
-    const prompt = 'Respond with ' + maxNum + ' varied in opinion and diverse in perspective comments in an HTML list format. Some comments should use improper grammar (e.g. do not capitalize the start of every sentence) and typos. 4 very short, no longer than 7-10 words max. But one as long as a paragraph. Do not use slang or shorthand SMS talk like writing "you" as "u". The content is as follows ... Title: ' + title + ' Summary: ' + summary;
+    const prompt = 'Respond with ' + maxNum + ' different perspective comments in an HTML list format. Some comments should use improper grammar (e.g. do not capitalize the start of every sentence) and typos. Keep the comments shorts. Do not say things like "this is interesting." Try to mimic a reddit user as best as possible. Do not use slang or shorthand SMS talk like writing "you" as "u". The content is as follows ... Title: ' + title + ' Summary: ' + summary;
     const completion = await openai.chat.completions.create({
       model: model,
       messages: [{ role: "user", content: prompt }],
