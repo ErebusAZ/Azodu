@@ -313,6 +313,10 @@
             },
             error: function (xhr, status, error) {
                 console.error('Error deleting comment', error);
+                var commentDiv = $('div[data-commentid="' + commentId + '"]');
+
+                showNotification('Error deleting comment: ' +  error, 'error', 5000);
+
                 // Handle the error (show a message to the user, log the error, etc.)
             }
         });
