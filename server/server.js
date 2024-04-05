@@ -8,8 +8,7 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const axios = require('axios');
 const cheerio = require('cheerio');
-
-
+const rateLimit = require('express-rate-limit');
 
 
 
@@ -43,6 +42,44 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json()); // This line is added to parse JSON request bodies
+
+
+// Define a rate limit rule with a custom key generator
+const getRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // limit each IP to 200 requests per windowMs
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: 'Too many requests, please try again later.',
+  keyGenerator: (req /*, res*/) => {
+    // Use the CF-Connecting-IP header to get the client's IP address
+    return req.headers['cf-connecting-ip'] || req.ip;
+  },
+});
+
+app.get('/*', getRateLimiter);
+
+// Define a rate limit rule with a custom key generator
+let postLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 min
+  max: 5, // limit each IP to 5 requests per windowMs
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  message: 'Too many requests, please try again later.',
+  keyGenerator: (req /*, res*/) => {
+    // Use the CF-Connecting-IP header to get the client's IP address
+    return req.headers['cf-connecting-ip'] || req.ip;
+  },
+});
+
+app.post('/*', postLimiter);
+
+
+
+
+
+
+
 
 const client = new cassandra.Client({
   contactPoints: ['149.28.231.86', '45.77.101.209'],
