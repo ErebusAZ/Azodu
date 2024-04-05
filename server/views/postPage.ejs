@@ -85,18 +85,16 @@
 
 
 
-
-
-            function renderComments(comments, depth = 0) {
+            function renderComments(comments, depth = 0,postPermalink) {
                 let html = ''; // Start with an empty string
 
                 comments.forEach(comment => {
                     // Use getCommentHtml with individual parameters
-                    html += getCommentHtml(comment.comment_id, comment.author, comment.content, depth, comment.upvotes - comment.downvotes, comment.timestamp,comment.parent_id);
+                    html += getCommentHtml(comment.comment_id, comment.author, comment.content, depth, comment.upvotes - comment.downvotes, comment.timestamp,comment.parent_id,undefined,postPermalink);
 
                     // Check for replies and recursively render them
                     if (comment.replies && comment.replies.length > 0) {
-                        html += renderComments(comment.replies, depth + 1); // Increment depth for nested comments
+                        html += renderComments(comment.replies, depth + 1,postPermalink); // Increment depth for nested comments
                     }
                 });
 
@@ -105,7 +103,7 @@
 
             // Use the functions
             const organizedComments = organizeComments(post.comments);
-            const commentsHTML = renderComments(organizedComments);
+            const commentsHTML = renderComments(organizedComments,0,post.permalink);
 
 
             // In an EJS template, you might then inject commentsHTML where appropriate
@@ -122,7 +120,7 @@
                     $('.sort-container').css({ 'display': 'block' });
 
                 const organizedComments = organizeComments(post.comments);
-                const commentsHTML = renderComments(organizedComments);
+                const commentsHTML = renderComments(organizedComments,0,post.permalink);
                 $('.comments').append(commentsHTML);
 
                 scrollToComment();
@@ -179,7 +177,8 @@
                     var $thisButton = $(this);
                     var postReplyingToPostID = $thisButton.data('postid'); // The ID of the post or parent comment
                     var originalPostID = '<%= post.post_id %>'; // Assuming this is provided by your server-side template
-                    var commentContent = processHTMLFromUsers(quillEditors[post_id].root.innerHTML); // Content from Quill editor
+                    var commentContent = processHTMLFromUsers(quillEditors[postReplyingToPostID].root.innerHTML); // Content from Quill editor
+                    var postPermalink = '<%= post.permalink %>' ? '<%= post.permalink %>' : $thisButton.closest('.comment').data('postpermalink'); 
                     var result = validateComment(commentContent);
                     if (!result.isValid) {
 
@@ -214,12 +213,12 @@
                         headers: {
                             'Authorization': `Bearer ${authToken}` // Include the auth token in the request headers
                         },
-                        data: JSON.stringify({ post_id: originalPostID, content: commentContent, parent_id: postReplyingToPostID }),
+                        data: JSON.stringify({ post_id: originalPostID, content: commentContent, parent_id: postReplyingToPostID,postPermalink:postPermalink }),
                         success: function (response) {
 
                             const newCommentID = response.commentId;
 
-                            var commentHTML = getCommentHtml(newCommentID, author, commentContent, depth, 1,undefined,postReplyingToPostID); // Assuming your getCommentHtml can handle these parameters
+                            var commentHTML = getCommentHtml(newCommentID, author, commentContent, depth, 1,undefined,postReplyingToPostID,undefined,'<%= post.permalink %>'); // Assuming your getCommentHtml can handle these parameters
                             // Inserting the comment in the correct position
                             if (postReplyingToPostID == originalPostID) {
                                 $('.comments').prepend(commentHTML); // Add to the start for top-level comments

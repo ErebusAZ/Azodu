@@ -226,7 +226,7 @@ setInterval(async () => {
     const author = usernames[randomIndex]; // Randomly picked author from the array
 
 
-    await insertCommentData(client, generatedCommentId, postId, author, postId, "text", comment, 0, 0, `/posts/${postId}/comments/${generatedCommentId}`, timestamp);
+    await insertCommentData(client, generatedCommentId, postId, author, postId, "text", comment, 0, 0, `${post.permalink}`, timestamp);
   }
 }, COMMENT_GENERATION_INTERVAL_MS);
 
@@ -704,7 +704,7 @@ app.post('/api/vote', async (req, res) => {
 
 
 app.post('/api/comment', authenticateToken, async (req, res) => {
-  let { post_id, content, parent_id, isEdit, commentId, isDelete } = req.body;
+  let { post_id, content, parent_id, isEdit, commentId, isDelete,postPermalink } = req.body;
   const author = req.user.username; // Ideally, this comes from the session or authentication mechanism
 
 
@@ -712,7 +712,6 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
   if (isDelete) {
     try {
 
-      console.log(post_id, content, parent_id, isEdit, commentId, isDelete);
       // Fetch the current details of the comment from the database
       const commentDetails = await getCommentDetails(client, post_id, commentId);
       // Verify if the author of the request is the same as the author of the comment
@@ -757,7 +756,7 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
     const generatedCommentId = generateCommentUUID(); // Generate a unique comment ID
 
     try {
-      await insertCommentData(client, generatedCommentId, post_id.toString(), author, parent_id.toString() || post_id.toString(), 'text', processHTMLFromUsers(content), 0, 0, '/comments/' + generatedCommentId, new Date());
+      await insertCommentData(client, generatedCommentId, post_id.toString(), author, parent_id.toString() || post_id.toString(), 'text', processHTMLFromUsers(content), 0, 0, postPermalink, new Date());
       res.json({ message: 'Comment added successfully.', commentId: generatedCommentId });
     } catch (error) {
       console.error('Error inserting comment:', error);
@@ -936,7 +935,7 @@ async function main() {
     await createLinksTable(client); 
 
     await createDefaultCategories(client, defaultCategories);
-   //  await emptyCommentsTable(client);
+     await emptyCommentsTable(client);
     await createMaterializedViews(client);
 
   //  await populateTestData(client, 50);

@@ -44,6 +44,7 @@
         new Date(comment.timestamp).toLocaleString(),
         comment.parent_id,
         ['reply'],
+        comment.permalink
       );
 
       $('#user-comments').append(commentHtml);

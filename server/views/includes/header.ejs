@@ -49,6 +49,14 @@
         }, duration);
     }
 
+    function getThirdPathSegment(url) {
+        const segments = url.split('/');
+        // Assuming the URL format is always like the example you provided,
+        // and there is a leading slash, making the third segment actually the fourth item.
+        return segments[3]; // This will return '9' for your given example
+    }
+
+
     function isJwtExpired(token) {
         if (!token) return true; // No token means "expired"
 
@@ -219,7 +227,7 @@
     }
 
 
-    function getCommentHtml(commentId, author, content, depth = 0, votes, timestamp, parent_id, linkBlacklist) {
+    function getCommentHtml(commentId, author, content, depth = 0, votes, timestamp, parent_id, linkBlacklist, postPermalink) {
         const currentUser = localStorage.getItem('username');
         const backgroundColor = depth % 2 === 0 ? '#2d2d2d' : '#2d2d2d';
 
@@ -233,7 +241,7 @@
             return !linkBlacklist.includes(linkText);
         };
 
-        return `<div data-depth="${depth}" data-parentid="${parent_id}" data-commentid="${commentId}" id="comment-${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">
+        return `<div data-postpermalink="${postPermalink}" data-depth="${depth}" data-parentid="${parent_id}" data-commentid="${commentId}" id="comment-${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">
     <div class="voting">
         <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${commentId}"><img src="/img/up-arrow.svg" alt="Upvote"></a>
         <span class="votes">${votes}</span>
@@ -271,11 +279,11 @@
         const $comment = $(this).closest('.comment');
         const commentId = $comment.data('commentid');
         const parentId = $comment.data('parentid');
-        console.log(parentId);
+        const originalPostID = getThirdPathSegment($comment.data('postpermalink'));
 
         const confirmed = confirm('Are you sure you want to delete this comment?');
         if (confirmed) {
-            deleteComment(commentId, parentId);
+            deleteComment(commentId, originalPostID);
         }
     });
 
@@ -313,6 +321,7 @@
 
     $(document).ready(function () {
 
+
         $('body').on('click', '.edit', function (e) {
             e.preventDefault();
 
@@ -321,7 +330,9 @@
             const originalContentHtml = $commentContent.find('.comment-text').html(); // Assuming the comment text is in <p>
             const $commentLinks = $comment.find('.comment-links');
             const postID = $comment.data('commentid');
-            const originalPostID = $comment.data('parentid'); // TODO need to find original post ID
+            const permalink = $comment.data('postpermalink');
+            const originalPostID = getThirdPathSegment(permalink); // get the original post id from the permalink
+
 
 
             // Remove any existing editor to prevent duplicates
@@ -331,7 +342,6 @@
             $commentContent.find('.comment-text, .edit').hide();
             $commentLinks.hide();
 
-            console.log('hi');
 
             // Determine the current background color of the comment
             const currentBgColor = $comment.css('background-color');
@@ -413,7 +423,7 @@
                     headers: {
                         'Authorization': `Bearer ${authToken}` // Include the auth token in the request headers
                     },
-                    data: JSON.stringify({ commentId: postID, post_id: originalPostID, content: updatedContent, isEdit: true }),
+                    data: JSON.stringify({ commentId: postID, post_id: originalPostID, content: updatedContent, isEdit: true, postPermalink: originalPostID }),
                     success: function (response) {
                         console.log('edit comment success');
                         quillContainer.remove();
@@ -431,7 +441,7 @@
                     error: function (xhr, status, error) {
                         var $statusMessage = $comment.find('.status-message');
                         console.error('Error submitting comment', error);
-                        $statusMessage.text(error.includes('error') ? error: 'Error submitting comment: ' + error).css('color', 'red').show().delay(3000).fadeOut();
+                        $statusMessage.text(error.includes('error') ? error : 'Error submitting comment: ' + error).css('color', 'red').show().delay(3000).fadeOut();
                     }
                 });
 
@@ -453,7 +463,8 @@
 <body>
 
     <div id="logo_cont">
-        <a href="/"><img style="display: none; width: 34px;padding-right: 10px;" src="/branding/azodu-icon.png" /><img id="logo_satori1" src="/branding/azodu.png" /></a>
+        <a href="/"><img style="display: none; width: 34px;padding-right: 10px;" src="/branding/azodu-icon.png" /><img
+                id="logo_satori1" src="/branding/azodu.png" /></a>
     </div>
 
     <div id="loginRegisterForm" class="lightbox" style="display: none;">
