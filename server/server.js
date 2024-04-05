@@ -55,6 +55,13 @@ const getRateLimiter = rateLimit({
     // Use the CF-Connecting-IP header to get the client's IP address
     return req.headers['cf-connecting-ip'] || req.ip;
   },
+  handler: function (req, res /*, next*/) {
+    // You can customize the status code and message here
+    res.status(429).json({
+      status: 'error',
+      message: 'Too many requests, please try again later.'
+    });
+  },
 });
 
 app.get('/*', getRateLimiter);
@@ -69,6 +76,13 @@ let postLimiter = rateLimit({
   keyGenerator: (req /*, res*/) => {
     // Use the CF-Connecting-IP header to get the client's IP address
     return req.headers['cf-connecting-ip'] || req.ip;
+  },
+  handler: function (req, res /*, next*/) {
+    // You can customize the status code and message here
+    res.status(429).json({
+      status: 'error',
+      message: 'Too many requests, please try again later.'
+    });
   },
 });
 
