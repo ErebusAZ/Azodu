@@ -10,9 +10,6 @@
   <div class="container" id="user_page">
     <div id="user_page_inner">
         <h1><i class="fa fa-user"></i><%= user.username %></h1>
-        <div id="admin_area_user_page" style="display: none;" class="admin-ui">
-        <p>Last known IP: <%= user.last_ip %></p>
-      </div>
         <p id="date-registered"></p>
         <% if (user.roles) { %>
             <p>Roles: <%= user.roles.join(", ") %></p>
