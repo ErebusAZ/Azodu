@@ -255,7 +255,7 @@
         <div class="comment-text">${content}</div>
 
         <div class="comment-links">
-            <a target="_blank" href="#comment-${commentId}">link</a>
+            <a target="_blank" href="${postPermalink}#comment-${commentId}">link</a>
             <a href="#">save</a>
             ${isAuthor && shouldDisplayLink('edit') ? `<a href="#edit" class="edit">edit</a>` : ''}
             ${isAuthor && shouldDisplayLink('delete') ? `<a href="#delete" class="delete">delete</a>` : ''}
