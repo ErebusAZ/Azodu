@@ -21,7 +21,7 @@ function getServerIpAddress() {
 
 
 
-function generatePostId() {
+function generateContentId() {
 
   function ipToNumber(ip) {
     return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0);
@@ -126,7 +126,7 @@ async function insertPostData(client, title, author, category, postType, content
   const upvotes = 0;
   const downvotes = 0;
   const commentCount = 0;
-  const postID = generatePostId(); // Adjusted to use the counter
+  const postID = generateContentId(); // Adjusted to use the counter
   const permalink = generatePermalink(title, category, postID);
   const timestamp = new Date();
 
@@ -289,4 +289,4 @@ async function tallyVotesForComment(client, post_id, comment_id,) {
 
 
 
-module.exports = { insertPostData, insertUserData, populateTestData, insertVote, insertCommentData, generateCommentUUID, insertCategoryData, generatePermalink, updateCommentData, tallyVotesForComment, deleteCommentData };
+module.exports = { insertPostData, insertUserData, populateTestData, insertVote, insertCommentData, generateCommentUUID, generateContentId,insertCategoryData, generatePermalink, updateCommentData, tallyVotesForComment, deleteCommentData };
