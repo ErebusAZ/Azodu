@@ -50,6 +50,13 @@ function getRandomNumberBetween(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function removeQuotesFromString(inputString) {
+  // Replace all occurrences of double quotes in the string
+  const withoutDoubleQuotes = inputString.replace(/"/g, '');
+  // Replace all occurrences of single quotes in the string
+  const result = withoutDoubleQuotes.replace(/'/g, '');
+  return result;
+}
 
 
 // Simulated cache for storing and retrieving generated comments by title
@@ -95,7 +102,7 @@ async function generateAIComment(title, summary, model, post_id) {
     }
 
     // Wrap each comment in <p> tags
-    const wrappedListItems = listItems.map(comment => `<p>${comment}</p>`);
+    const wrappedListItems = listItems.map(comment => `<p>${removeQuotesFromString(comment)}</p>`);
     commentsCache[post_id] = wrappedListItems.slice(1); // Cache the remaining comments
     
     return wrappedListItems.length > 0 ? wrappedListItems[0] : null;
