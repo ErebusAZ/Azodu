@@ -218,7 +218,7 @@
                 success: function (response) {
                     console.log('Post saved successfully:', response);
                     alert('Post saved successfully!');
-                    $button.text('unsave'); // Use $button which refers to the clicked button
+                    $button.remove(); // this should change to save
                 },
                 error: function (xhr, status, error) {
                     console.error('Failed to save post:', error);
