@@ -38,6 +38,26 @@ function getRandomDate(startDate, endDate) {
   return new Date(startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()));
 }
 
+async function createUserSavedPostsTable(client) {
+  const query = `
+    CREATE TABLE IF NOT EXISTS my_keyspace.user_saved_posts (
+      username text,
+      post_id text,
+      saved_timestamp timestamp,
+      PRIMARY KEY (username, saved_timestamp)
+    ) WITH CLUSTERING ORDER BY (saved_timestamp DESC);
+  `;
+
+  try {
+    await client.execute(query);
+    console.log('Table `user_saved_posts` created or already exists in `my_keyspace`');
+  } catch (error) {
+    console.error('Error creating table `user_saved_posts`:', error);
+    throw error; // Rethrow the error to be caught by the calling function
+  }
+}
+
+
 
 async function insertFakeUsers(client, usernames) {
   const baseEmail = "user@example.com";
@@ -344,4 +364,4 @@ async function emptyCommentsTable(client) {
 }
 
 
-module.exports = { createKeyspace, createUsersTable, createCommentsTable, createPostsTable, flushAllTables, dropAllTables, createVotesTable, createCategoriesTable, createDefaultCategories, createLinksTable, emptyCommentsTable, createMaterializedViews, insertFakeUsers,createPostIdCounterTable };
+module.exports = { createKeyspace, createUsersTable, createCommentsTable, createPostsTable, flushAllTables, dropAllTables, createVotesTable, createCategoriesTable, createDefaultCategories, createLinksTable, emptyCommentsTable, createMaterializedViews, insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable };

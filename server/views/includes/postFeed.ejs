@@ -22,7 +22,7 @@
         const totalNumberOfPosts = 400; // max posts to generate
         const postsToShowInitially = 25; // Posts to show initially and on each scroll
 
-     //   showSkeletonPosts(postsToShowInitially); // Or however many you expect to load initially
+        //   showSkeletonPosts(postsToShowInitially); // Or however many you expect to load initially
 
         let postsShown = 0; // Tracker for how many posts are currently shown
 
@@ -112,8 +112,8 @@
                         const postTitleHref = post.post_type === 'url' ? post.content : post.permalink;
 
                         let contentDisplay = `<div style="display:none;" class="post-text">${post.content}</div>`;
-                        
-                        if(post.post_type === 'url' && post.ai_summary) {
+
+                        if (post.post_type === 'url' && post.ai_summary) {
 
                             contentDisplay = `<div style="display:none;" class="post-text">${post.ai_summary}<span class="ai_summary_heading">AI-generated summary</span></div>`;
 
@@ -122,45 +122,45 @@
 
 
                         var link = `<a href="${postTitleHref}" class="post-title single-line">${post.title}</a><i class="fas fa-plus open-content" style="float:left;"></i>`;
-                        
+
                         if (post.post_type === 'url') {
 
                             link = `<a href="${postTitleHref}" class="post-title single-line" target="_blank">${post.title}<i class="fas fa-external-link-alt"></i></a><i class="fas fa-plus open-content" style="float:left;"></i>`;
 
-                            
+
                         }
-                        
 
 
 
-                        
-
-                            // Check if thumbnail exists, otherwise use a Font Awesome icon
-
-                            let thumbnailHtml;
-                            if(post.post_type === 'url' ) {
-    thumbnailHtml = post.thumbnail ? `<img src="${post.thumbnail}" alt="Post Thumbnail">` : `<i class="fas fa-link"></i>`;
-
-    // more options
-// <i class="far fa-file-alt"></i>
-// <i class="fas fa-link"></i>
-// <i class="far fa-newspaper"></i>
-// <i class="fas fa-external-link-alt"></i>
-// <i class="fas fa-edit"></i>
-
-
-                            } else {
-                                thumbnailHtml = '<i class="fas fa-pencil-alt"></i>';
-//<i class="far fa-file-alt"></i>
-// <i class="far fa-file-word"></i>
-// <i class="fas fa-feather-alt"></i>
-// <i class="fas fa-pen-nib"></i>
-// <i class="fas fa-pencil-alt"></i>
-// <i class="fas fa-book"></i>
 
 
 
-                            }
+                        // Check if thumbnail exists, otherwise use a Font Awesome icon
+
+                        let thumbnailHtml;
+                        if (post.post_type === 'url') {
+                            thumbnailHtml = post.thumbnail ? `<img src="${post.thumbnail}" alt="Post Thumbnail">` : `<i class="fas fa-link"></i>`;
+
+                            // more options
+                            // <i class="far fa-file-alt"></i>
+                            // <i class="fas fa-link"></i>
+                            // <i class="far fa-newspaper"></i>
+                            // <i class="fas fa-external-link-alt"></i>
+                            // <i class="fas fa-edit"></i>
+
+
+                        } else {
+                            thumbnailHtml = '<i class="fas fa-pencil-alt"></i>';
+                            //<i class="far fa-file-alt"></i>
+                            // <i class="far fa-file-word"></i>
+                            // <i class="fas fa-feather-alt"></i>
+                            // <i class="fas fa-pen-nib"></i>
+                            // <i class="fas fa-pencil-alt"></i>
+                            // <i class="fas fa-book"></i>
+
+
+
+                        }
 
 
                         const postHtml = `
@@ -184,7 +184,7 @@
         <p class="post-submitted">submitted ${timeAgo(post.timestamp)} by <a href="/u/${post.author}">${post.author}</a> to <a href="/c/${post.category}">${post.category}</a></p>
         <div class="post-links">
             <a href="${post.permalink}">${post.comment_count} comments</a>
-            <a href="#">save</a>
+            <a href="#" class="save_post">save</a>
         </div>
         ${contentDisplay}
     </div>
@@ -305,6 +305,44 @@
 
 
 
+        });
+
+
+
+        // Handler for "save" button click
+        $('.container').on('click', '.save_post', function (event) {
+            event.preventDefault(); // Prevent default action
+
+            // Retrieve the username from localStorage
+            const username = localStorage.getItem('username');
+            if (!username) {
+                console.error('User is not logged in.');
+                return; // Exit if no user is logged in
+            }
+
+            // Get the post ID from the closest .post element
+            const $post = $(this).closest('.post');
+            const postId = $post.data('postid');
+            const cat = $post.data('postcat'); 
+            const authToken = localStorage.getItem('authToken'); // Assuming the auth token is saved in localStorage
+            // Make an AJAX request to save the post
+            $.ajax({
+                url: '/api/savePost', // Endpoint for saving a post
+                type: 'POST',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': `Bearer ${authToken}` // Use the authToken for authorization
+                },
+                data: JSON.stringify({ postId: postId,category: cat }), // Send the postId in the request body
+                success: function (response) {
+                    console.log('Post saved successfully:', response);
+                    alert('Post saved successfully!');
+                },
+                error: function (xhr, status, error) {
+                    console.error('Failed to save post:', error);
+                    alert('Failed to save post. Please try again.');
+                }
+            });
         });
 
 

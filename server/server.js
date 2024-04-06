@@ -23,8 +23,8 @@ try {
 jwtSecret = secrets.JWT_SECRET;
 
 
-const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers,createPostIdCounterTable } = require('./db/db_create');
-const { insertPostData, populateTestData, insertVote,insertCommentData,generateCommentUUID,generateContentId,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink } = require('./db/db_insert');
+const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable } = require('./db/db_create');
+const { insertPostData, populateTestData, insertVote,insertCommentData,generateCommentUUID,generateContentId,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink,savePostForUser } = require('./db/db_insert');
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink,fetchURLAndParseForThumb,extractRelevantText } = require('./utils/util');
@@ -879,6 +879,32 @@ app.post('/api/deletePost', authenticateToken, async (req, res) => {
 });
 
 
+app.post('/api/savePost', authenticateToken, async (req, res) => {
+  const { postId, category } = req.body; // Now includes category
+  const username = req.user.username; // Username from JWT after authentication
+
+  if (!postId || !category) {
+    return res.status(400).json({ message: 'Both Post ID and category are required.' });
+  }
+
+  try {
+    // Verify that the post exists by including category in the query
+    const postQuery = 'SELECT * FROM my_keyspace.posts WHERE post_id = ? AND category = ?';
+    const postResult = await client.execute(postQuery, [postId, category], { prepare: true });
+
+    if (postResult.rowLength === 0) {
+      return res.status(404).json({ message: 'Post not found in the specified category.' });
+    }
+
+    // Assuming savePostForUser is adapted to handle category
+    await savePostForUser(client, username, postId, category);
+
+    res.json({ message: 'Post saved successfully.' });
+  } catch (error) {
+    console.error('Error saving post:', error);
+    res.status(500).json({ message: 'Error saving the post.' });
+  }
+});
 
 
 
@@ -928,6 +954,10 @@ async function main() {
     await createCommentsTable(client);
     await createPostsTable(client);
     await createPostIdCounterTable(client);
+
+    await createUserSavedPostsTable(client);
+
+
     await createVotesTable(client);
     await createCategoriesTable(client);
 

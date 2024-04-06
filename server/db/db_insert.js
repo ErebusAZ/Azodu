@@ -163,6 +163,27 @@ async function insertPostData(client, title, author, category, postType, content
 }
 
 
+async function savePostForUser(client, username, post_id) {
+  const query = `
+    INSERT INTO my_keyspace.user_saved_posts (
+      username, post_id, saved_timestamp
+    ) VALUES (?, ?, toTimestamp(now()));
+  `;
+
+  const params = [username, post_id];
+
+  try {
+    await client.execute(query, params, { prepare: true });
+    console.log('Saved post for user successfully');
+  } catch (error) {
+    console.error('Failed to save post for user', error);
+    throw error; // Rethrow the error to be caught by the calling function
+  }
+}
+
+
+
+
 
 
 
@@ -289,4 +310,4 @@ async function tallyVotesForComment(client, post_id, comment_id,) {
 
 
 
-module.exports = { insertPostData, insertUserData, populateTestData, insertVote, insertCommentData, generateCommentUUID, generateContentId,insertCategoryData, generatePermalink, updateCommentData, tallyVotesForComment, deleteCommentData };
+module.exports = { insertPostData, insertUserData, populateTestData, insertVote, insertCommentData, generateCommentUUID, generateContentId,insertCategoryData, generatePermalink, updateCommentData, tallyVotesForComment, deleteCommentData,savePostForUser };
