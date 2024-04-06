@@ -425,6 +425,14 @@ div#post_meta {
     margin-left: -10px;
 }
 
+#breadcrumbs {
+color: gray;
+margin-top: 20px;
+border-radius: 5px;
+padding: 10px 10px;
+padding-bottom: 0;
+}
+
 .container {
     width: calc(100% - 315px);
     /* Adjust container width to make space for sidebar */
