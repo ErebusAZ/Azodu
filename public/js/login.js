@@ -160,38 +160,30 @@ $(document).ready(function () {
 
 
     function updateUIBasedOnAuthStatus() {
-        
         const authToken = localStorage.getItem('authToken');
-        const loginRegisterButton = document.getElementById('loginRegisterButton');
-        const logoutButton = document.getElementById('logoutButton'); // Get the logout button
-        const userDisplayElement = document.getElementById('userDisplay');
-
-        if (!loginRegisterButton)
-            return; 
-
+        const $loginRegisterButton = $('#loginRegisterButton');
+        const $logoutButton = $('#logoutButton'); // Use jQuery to get the logout button
+        const $userDisplayElement = $('#userDisplay');
+    
         if (authToken && !isJwtExpired(authToken)) {
             // Token is present and not expired
             const username = localStorage.getItem('username');
-            if (username && userDisplayElement) {
-                userDisplayElement.innerHTML = `<i style="position:relative;top:1px" class="fa fa-user-circle" aria-hidden="true"></i> <a href="/u/${username}">${username}</a>`;
-                userDisplayElement.style.display = '';
-                loginRegisterButton.style.display = 'none';
-                logoutButton.style.display = ''; // Show the logout button
+            if (username) {
+                $userDisplayElement.html(`<i style="position:relative;top:1px" class="fa fa-user-circle" aria-hidden="true"></i> <a href="/u/${username}">${username}</a>`);
+                $userDisplayElement.show();
+                $loginRegisterButton.hide();
+                $logoutButton.show(); // Show the logout button using jQuery
             }
         } else {
             // No token, or it is expired
             localStorage.removeItem('authToken'); // Clean up
             localStorage.removeItem('username');
-            if (userDisplayElement) {
-                userDisplayElement.style.display = 'none';
-            }
-            if (loginRegisterButton)
-                loginRegisterButton.style.display = '';
-            if (logoutButton)
-                logoutButton.style.display = 'none'; // Hide the logout button
+            $userDisplayElement.hide();
+            $loginRegisterButton.show();
+            $logoutButton.hide(); // Hide the logout button using jQuery
         }
     }
-
+    
 
 
     function resetFormFields() {
