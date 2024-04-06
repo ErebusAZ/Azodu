@@ -1,7 +1,4 @@
 <div class="container">
-
-
-
     <div class="sort-container_new">
         <ul id="sort-by">
             <li><a href="#" data-sort="top">Top</a></li>
@@ -9,22 +6,113 @@
             <li><a href="#" data-sort="hot">Hot</a></li>
         </ul>
     </div>
-
-
-
 </div>
 
-
 <script>
-
-
     $(document).ready(function () {
-        const totalNumberOfPosts = 400; // max posts to generate
+        const totalNumberOfPosts = 400; // Max posts to generate
         const postsToShowInitially = 25; // Posts to show initially and on each scroll
+        let lastPostId = null; // Keeps track of the last post ID fetched
+        let isFetching = false;
+        var currentPage = 1; // Initialize current page
+        var postsShown = 0;
 
-        //   showSkeletonPosts(postsToShowInitially); // Or however many you expect to load initially
+        function generatePostHtml(post) {
+            const postTitleHref = post.post_type === 'url' ? post.content : post.permalink;
+            let contentDisplay = post.post_type === 'url' && post.ai_summary ?
+                `<div style="display:none;" class="post-text">${post.ai_summary}<span class="ai_summary_heading">AI-generated summary</span></div>` :
+                `<div style="display:none;" class="post-text">${post.content}</div>`;
 
-        let postsShown = 0; // Tracker for how many posts are currently shown
+            const link = post.post_type === 'url' ?
+                `<a href="${postTitleHref}" class="post-title single-line" target="_blank">${post.title}<i class="fas fa-external-link-alt"></i></a><i class="fas fa-plus open-content" style="float:left;"></i>` :
+                `<a href="${postTitleHref}" class="post-title single-line">${post.title}</a><i class="fas fa-plus open-content" style="float:left;"></i>`;
+
+            const thumbnailHtml = post.thumbnail ? `<img src="${post.thumbnail}" alt="Post Thumbnail">` : `<i class="fas fa-${post.post_type === 'url' ? 'link' : 'pencil-alt'}"></i>`;
+
+            return `
+<div class="post" data-postId="${post.post_id}" data-postcat="${post.category}">
+    <div class="post-left">
+        <div class="voting">
+            <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${post.post_id}">
+                <img src="/img/up-arrow.svg" alt="Upvote">
+            </a>
+            <span class="votes">${post.upvotes - post.downvotes}</span>
+            <a title="downvote" description="downvote" href="#" class="downvote" data-postid="${post.post_id}">
+                <img src="/img/down-arrow.svg" alt="Downvote">
+            </a>
+        </div>
+        <div class="thumbnail">${thumbnailHtml}</div>
+    </div>
+    <div class="post-content">
+        ${link}
+        <p class="post-submitted">submitted ${timeAgo(post.timestamp)} by <a href="/u/${post.author}">${post.author}</a> to <a href="/c/${post.category}">${post.category}</a></p>
+        <div class="post-links">
+            <a href="${post.permalink}">${post.comment_count} comments</a>
+            <a href="#" class="save_post">save</a>
+        </div>
+        ${contentDisplay}
+    </div>
+    <i class="fas fa-cog admin-actions-gear admin-ui" style="float:right; cursor:pointer;" data-postid="${post.post_id}"></i>
+</div>`;
+        }
+
+        function renderPosts(posts) {
+            const postsHtml = posts.map(generatePostHtml).join('');
+            $('.container').append(postsHtml);
+        }
+
+        function fetchAndDisplayPosts() {
+            if (isFetching) return;
+            isFetching = true;
+            const cat = getCategoryFromCurrentUrl();
+            const url = lastPostId ? `/api/posts?startPostId=${lastPostId}&category=${cat}` : `/api/posts?category=${cat}`;
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function (posts) {
+                    console.log(posts);
+                    isFetching = false;
+                    if (posts.length > 0) {
+                        lastPostId = posts[posts.length - 1].post_id;
+                        if (currentPage > 1) {
+                            const pageDividerHtml = `<div style="clear:both;"></div><div class="page-divider">Page ${currentPage}</div>`;
+                            $('.container').append(pageDividerHtml);
+                        }
+                        currentPage++;
+                        renderPosts(posts);
+                    }
+                },
+                error: function (error) {
+                    console.error('Failed to fetch posts:', error);
+                }
+            });
+        }
+
+        function getCategoryFromCurrentUrl() {
+            const pathSegments = window.location.pathname.split('/').filter(Boolean);
+            const cIndex = pathSegments.findIndex(segment => segment === 'c');
+            return cIndex !== -1 && cIndex + 1 < pathSegments.length ? pathSegments[cIndex + 1] : null;
+        }
+
+        $('.container').on('click', '.save_post', function (event) {
+            // Save post logic goes here...
+        });
+
+        // Initially load the default number of posts
+        fetchAndDisplayPosts();
+
+
+
+        // JavaScript for toggling the display of the content
+        $('.container').on('click', '.open-content', function () {
+            // Toggle the icon class between fa-plus and fa-minus
+            $(this).toggleClass('fa-plus fa-minus');
+            // Toggle the display of the content or iframe
+            $(this).closest('.post').find('.post-iframe, .post-text').slideToggle(0);
+        });
+
+
 
         function generateLoremIpsum(wordCount) {
             const words = ["lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua"];
@@ -56,165 +144,6 @@
             }
             $('.container').append(skeletonHTML);
         }
-
-
-        function getCategoryFromCurrentUrl() {
-            const pathSegments = window.location.pathname.split('/').filter(Boolean); // Split by '/', remove empty segments
-            const cIndex = pathSegments.findIndex(segment => segment === 'c'); // Find index of 'c'
-            if (cIndex !== -1 && cIndex + 1 < pathSegments.length) {
-                return pathSegments[cIndex + 1]; // Return the segment after 'c'
-            }
-            return null; // Return null if 'c' is not found or there is no segment after 'c'
-        }
-
-
-        var isFetching = false;
-
-        let lastPostId = null; // Keeps track of the last post ID fetched
-        var currentPage = 1; // Initialize current page
-
-        function fetchAndDisplayPosts() {
-            if (isFetching) return;
-            isFetching = true;
-            const cat = getCategoryFromCurrentUrl();
-            // Include the lastPostId in the request if available
-            const url = (lastPostId ? `/api/posts?startPostId=${lastPostId}&category=` + cat : '/api/posts?category=' + cat);
-
-
-
-            $.ajax({
-                url: url,
-                type: 'GET',
-                success: function (posts) {
-                    console.log(posts);
-                    isFetching = false;
-
-                    if (posts.length > 0) {
-                        // Update lastPostId with the ID of the last post in the fetched array
-                        lastPostId = posts[posts.length - 1].post_id;
-
-                        if (currentPage > 1) {
-                            const pageDividerHtml = `<div style="clear:both;"></div><div class="page-divider">Page ${currentPage}</div>`;
-                            $('.container').append(pageDividerHtml);
-                        }
-
-                        currentPage++;
-
-                    }
-
-                    $('.container .post.skeleton').each(function () {
-
-                        $(this).remove();
-
-                    }); // Clear the skeletons before appending real posts
-
-                    posts.forEach(post => {
-                        const postTitleHref = post.post_type === 'url' ? post.content : post.permalink;
-
-                        let contentDisplay = `<div style="display:none;" class="post-text">${post.content}</div>`;
-
-                        if (post.post_type === 'url' && post.ai_summary) {
-
-                            contentDisplay = `<div style="display:none;" class="post-text">${post.ai_summary}<span class="ai_summary_heading">AI-generated summary</span></div>`;
-
-
-                        }
-
-
-                        var link = `<a href="${postTitleHref}" class="post-title single-line">${post.title}</a><i class="fas fa-plus open-content" style="float:left;"></i>`;
-
-                        if (post.post_type === 'url') {
-
-                            link = `<a href="${postTitleHref}" class="post-title single-line" target="_blank">${post.title}<i class="fas fa-external-link-alt"></i></a><i class="fas fa-plus open-content" style="float:left;"></i>`;
-
-
-                        }
-
-
-
-
-
-
-                        // Check if thumbnail exists, otherwise use a Font Awesome icon
-
-                        let thumbnailHtml;
-                        if (post.post_type === 'url') {
-                            thumbnailHtml = post.thumbnail ? `<img src="${post.thumbnail}" alt="Post Thumbnail">` : `<i class="fas fa-link"></i>`;
-
-                            // more options
-                            // <i class="far fa-file-alt"></i>
-                            // <i class="fas fa-link"></i>
-                            // <i class="far fa-newspaper"></i>
-                            // <i class="fas fa-external-link-alt"></i>
-                            // <i class="fas fa-edit"></i>
-
-
-                        } else {
-                            thumbnailHtml = '<i class="fas fa-pencil-alt"></i>';
-                            //<i class="far fa-file-alt"></i>
-                            // <i class="far fa-file-word"></i>
-                            // <i class="fas fa-feather-alt"></i>
-                            // <i class="fas fa-pen-nib"></i>
-                            // <i class="fas fa-pencil-alt"></i>
-                            // <i class="fas fa-book"></i>
-
-
-
-                        }
-
-
-                        const postHtml = `
-<div class="post" data-postId="${post.post_id}" data-postcat="${post.category}">
-    <div class="post-left">
-        <div class="voting">
-            <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${post.post_id}">
-                <img src="/img/up-arrow.svg" alt="Upvote">
-            </a>
-            <span class="votes">${post.upvotes - post.downvotes}</span>
-            <a title="downvote" description="downvote" href="#" class="downvote" data-postid="${post.post_id}">
-                <img src="/img/down-arrow.svg" alt="Downvote">
-            </a>
-        </div>
-        <div class="thumbnail">
-            ${thumbnailHtml}
-        </div>
-    </div>
-    <div class="post-content">
-        ${link}
-        <p class="post-submitted">submitted ${timeAgo(post.timestamp)} by <a href="/u/${post.author}">${post.author}</a> to <a href="/c/${post.category}">${post.category}</a></p>
-        <div class="post-links">
-            <a href="${post.permalink}">${post.comment_count} comments</a>
-            <a href="#" class="save_post">save</a>
-        </div>
-        ${contentDisplay}
-    </div>
-    <i class="fas fa-cog admin-actions-gear admin-ui" style="float:right; cursor:pointer;" data-postid="${post.post_id}"></i>
-    </div>`;
-
-                        $('.container').append(postHtml);
-
-                    });
-
-                },
-                error: function (error) {
-                    console.error('Failed to fetch posts:', error);
-                }
-            });
-        }
-
-
-        // JavaScript for toggling the display of the content
-        $('.container').on('click', '.open-content', function () {
-            // Toggle the icon class between fa-plus and fa-minus
-            $(this).toggleClass('fa-plus fa-minus');
-            // Toggle the display of the content or iframe
-            $(this).closest('.post').find('.post-iframe, .post-text').slideToggle(0);
-        });
-
-
-
-        // Initially load the default number of posts
-        fetchAndDisplayPosts();
 
 
 
@@ -323,7 +252,7 @@
             // Get the post ID from the closest .post element
             const $post = $(this).closest('.post');
             const postId = $post.data('postid');
-            const cat = $post.data('postcat'); 
+            const cat = $post.data('postcat');
             const authToken = localStorage.getItem('authToken'); // Assuming the auth token is saved in localStorage
             // Make an AJAX request to save the post
             $.ajax({
@@ -333,7 +262,7 @@
                 headers: {
                     'Authorization': `Bearer ${authToken}` // Use the authToken for authorization
                 },
-                data: JSON.stringify({ postId: postId,category: cat }), // Send the postId in the request body
+                data: JSON.stringify({ postId: postId, category: cat }), // Send the postId in the request body
                 success: function (response) {
                     console.log('Post saved successfully:', response);
                     alert('Post saved successfully!');
