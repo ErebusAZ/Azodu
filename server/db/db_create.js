@@ -122,8 +122,8 @@ async function createCommentsByAuthorView(client) {
   SELECT *
   FROM my_keyspace.comments
   WHERE author IS NOT NULL AND comment_id IS NOT NULL AND post_id IS NOT NULL
-  PRIMARY KEY ((author), post_id, comment_id)
-  WITH CLUSTERING ORDER BY (post_id DESC, comment_id DESC);
+  PRIMARY KEY ((author), comment_id, post_id)
+  WITH CLUSTERING ORDER BY (comment_id DESC, post_id DESC);
   
   `;
   try {
