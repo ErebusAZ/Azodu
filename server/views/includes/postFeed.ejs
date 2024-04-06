@@ -197,11 +197,15 @@
                 return; // Exit if no user is logged in
             }
 
+            // Capture the button with a variable before the AJAX request
+            const $button = $(this);
+
             // Get the post ID from the closest .post element
-            const $post = $(this).closest('.post');
+            const $post = $button.closest('.post');
             const postId = $post.data('postid');
             const cat = $post.data('postcat');
             const authToken = localStorage.getItem('authToken'); // Assuming the auth token is saved in localStorage
+
             // Make an AJAX request to save the post
             $.ajax({
                 url: '/api/savePost', // Endpoint for saving a post
@@ -210,10 +214,11 @@
                 headers: {
                     'Authorization': `Bearer ${authToken}` // Use the authToken for authorization
                 },
-                data: JSON.stringify({ postId: postId, category: cat }), // Send the postId in the request body
+                data: JSON.stringify({ postId: postId, category: cat }), // Send the postId and category in the request body
                 success: function (response) {
                     console.log('Post saved successfully:', response);
                     alert('Post saved successfully!');
+                    $button.text('unsave'); // Use $button which refers to the clicked button
                 },
                 error: function (xhr, status, error) {
                     console.error('Failed to save post:', error);
@@ -221,6 +226,7 @@
                 }
             });
         });
+
 
 
 
