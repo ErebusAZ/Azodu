@@ -1675,6 +1675,8 @@ div#user_page {
     height: 100%;
     min-height: 680px;
     margin-top: 130px;
+    position: absolute;
+    z-index: -1;
 }
 
 
@@ -1689,13 +1691,13 @@ div#user_page_inner {
 }
 
 
-#user_page_inner h1 i {
+#user_page_inner h1#username_user_page i {
     padding-right: 10px;
 }
 
-div#user_page_inner h1:first-child {
+div#user_page_inner h1#username_user_page {
     position: absolute;
-    top: 100px;
+    top: -100px;
 }
 
 div#user-comments {
@@ -1980,7 +1982,7 @@ h4#ai_moderated {
 
 
 
-/* User page tabs */
+/* Tabs on user page */
 
 
 

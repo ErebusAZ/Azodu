@@ -160,10 +160,14 @@ $(document).ready(function () {
 
 
     function updateUIBasedOnAuthStatus() {
+        
         const authToken = localStorage.getItem('authToken');
         const loginRegisterButton = document.getElementById('loginRegisterButton');
         const logoutButton = document.getElementById('logoutButton'); // Get the logout button
         const userDisplayElement = document.getElementById('userDisplay');
+
+        if (!loginRegisterButton)
+            return; 
 
         if (authToken && !isJwtExpired(authToken)) {
             // Token is present and not expired
