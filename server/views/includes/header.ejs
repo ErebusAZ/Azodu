@@ -272,20 +272,20 @@
 </div>`;
     }
 
-    function generatePostHtml(post,isSaved) {
+    function generatePostHtml(post, isSaved) {
 
-            const postTitleHref = post.post_type === 'url' ? post.content : post.permalink;
-            let contentDisplay = post.post_type === 'url' && post.ai_summary ?
-                `<div style="display:none;" class="post-text">${post.ai_summary}<span class="ai_summary_heading">AI-generated summary</span></div>` :
-                `<div style="display:none;" class="post-text">${post.content}</div>`;
+        const postTitleHref = post.post_type === 'url' ? post.content : post.permalink;
+        let contentDisplay = post.post_type === 'url' && post.ai_summary ?
+            `<div style="display:none;" class="post-text">${post.ai_summary}<span class="ai_summary_heading">AI-generated summary</span></div>` :
+            `<div style="display:none;" class="post-text">${post.content}</div>`;
 
-            const link = post.post_type === 'url' ?
-                `<a href="${postTitleHref}" class="post-title single-line" target="_blank">${post.title}<i class="fas fa-external-link-alt"></i></a><i class="fas fa-plus open-content" style="float:left;"></i>` :
-                `<a href="${postTitleHref}" class="post-title single-line">${post.title}</a><i class="fas fa-plus open-content" style="float:left;"></i>`;
+        const link = post.post_type === 'url' ?
+            `<a href="${postTitleHref}" class="post-title single-line" target="_blank">${post.title}<i class="fas fa-external-link-alt"></i></a><i class="fas fa-plus open-content" style="float:left;"></i>` :
+            `<a href="${postTitleHref}" class="post-title single-line">${post.title}</a><i class="fas fa-plus open-content" style="float:left;"></i>`;
 
-            const thumbnailHtml = post.thumbnail ? `<img src="${post.thumbnail}" alt="Post Thumbnail">` : `<i class="fas fa-${post.post_type === 'url' ? 'link' : 'pencil-alt'}"></i>`;
+        const thumbnailHtml = post.thumbnail ? `<img src="${post.thumbnail}" alt="Post Thumbnail">` : `<i class="fas fa-${post.post_type === 'url' ? 'link' : 'pencil-alt'}"></i>`;
 
-            return `
+        return `
 <div class="post" data-postId="${post.post_id}" data-postcat="${post.category}">
     <div class="post-left">
         <div class="voting">
@@ -310,7 +310,7 @@
     </div>
     <i class="fas fa-cog admin-actions-gear admin-ui" style="float:right; cursor:pointer;" data-postid="${post.post_id}"></i>
 </div>`;
-        }
+    }
 
 
     $(document).on('click', '.delete', function (e) {
@@ -354,7 +354,7 @@
                 console.error('Error deleting comment', error);
                 var commentDiv = $('div[data-commentid="' + commentId + '"]');
 
-                showNotification('Error deleting comment: ' +  error, 'error', 5000);
+                showNotification('Error deleting comment: ' + error, 'error', 5000);
 
                 // Handle the error (show a message to the user, log the error, etc.)
             }
@@ -496,6 +496,79 @@
         });
 
 
+        $('.container').on('click', '.upvote, .downvote', function (event) {
+            event.preventDefault();
+
+            const $this = $(this);
+            const $post = $this.closest('.post');
+            const isUpvote = $this.hasClass('upvote');
+            let voteState = $post.data('voteState') || 'none'; // Get current vote state: 'up', 'down', or 'none'
+
+            // Determine new vote state based on current state and action
+            let newVoteState = 'none';
+            if (isUpvote && voteState !== 'up') {
+                newVoteState = 'up';
+            } else if (!isUpvote && voteState !== 'down') {
+                newVoteState = 'down';
+            }
+            // Update the post's vote state data attribute
+            $post.data('voteState', newVoteState);
+
+            // Find the current vote count
+            const $voteCountSpan = $this.siblings('.votes');
+            let currentCount = parseInt($voteCountSpan.text(), 10);
+
+            // Adjust the vote count based on the new vote state
+            if (newVoteState === 'up') {
+                if (voteState === 'down') currentCount += 2; // Switching from downvote to upvote
+                else currentCount += 1; // Was 'none', now 'up'
+            } else if (newVoteState === 'down') {
+                if (voteState === 'up') currentCount -= 2; // Switching from upvote to downvote
+                else currentCount -= 1; // Was 'none', now 'down'
+            } else {
+                // User is "unvoting", adjust count back to neutral
+                currentCount += voteState === 'up' ? -1 : 1;
+            }
+
+            // Update the .votes span with the new count
+            $voteCountSpan.text(currentCount);
+
+            // Adjust visual state for buttons
+            $post.find('.upvote, .downvote').removeClass('upvote-active downvote-active');
+            if (newVoteState === 'up') {
+                $this.addClass('upvote-active');
+            } else if (newVoteState === 'down') {
+                $this.addClass('downvote-active');
+            }
+            // Continue with your AJAX request to update the server
+            $.ajax({
+                url: `/api/vote/`,
+                type: 'POST',
+                data: {
+                    upvote: isUpvote,
+                    post_id: $this.data('postid')
+                },
+                success: function (response) {
+                    console.log('Vote recorded successfully.');
+                    // You might still want to log the success or handle any sync issues here
+                },
+                error: function (error) {
+                    console.error('Failed to record vote:', error);
+                    // Since we're optimistically updating the UI, consider how to handle errors
+                }
+            });
+
+
+
+
+
+
+
+        });
+
+
+
+
 
         // Handler for "unsave" button click
         $('.container').on('click', '.unsave_post', function (event) {
@@ -541,7 +614,7 @@
                 }
             });
         });
-        
+
 
 
 
@@ -568,7 +641,7 @@
         <div id="userDisplay" style="display: none;"></div>
         <a id="logoutButton" href="#" id="logoutButton" style="display: none;">[logout]</a>
     </div>
-    
+
 
     <div id="logo_cont">
         <a href="/"><img style="display: none; width: 34px;padding-right: 10px;" src="/branding/azodu-icon.png" /><img
