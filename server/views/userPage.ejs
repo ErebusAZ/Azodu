@@ -3,60 +3,176 @@
 
 <head>
 
-  <title>asozdu - User Page - <%= user.username %></title>
+  <title>asozdu - User Page - <%= user.username %>
+  </title>
   <%- include('includes/header') %>
 
 
-  <div class="container" id="user_page">
-    <div id="user_page_inner">
-        <h1><i class="fa fa-user"></i><%= user.username %></h1>
+    <div class="container" id="user_page">
+      <div id="user_page_inner">
+        <h1><i class="fa fa-user"></i>
+          <%= user.username %>
+        </h1>
+
+        <!-- Tabs -->
+        <ul class="tabs">
+          <li class="tab-link current" data-tab="tab-comments">Comments</li>
+          <li class="tab-link" data-tab="tab-posts">Saved Posts</li>
+        </ul>
+
+        <div id="tab-comments" class="tab-content current">
+          <div id="user-comments"></div>
+        </div>
+        <div id="tab-posts" class="tab-content">
+          <div id="user-posts"></div>
+        </div>
+
+
+
         <p id="date-registered"></p>
         <% if (user.roles) { %>
-            <p>Roles: <%= user.roles.join(", ") %></p>
-        <% } else { %>
-            <p>Roles: None</p>
-        <% } %>
+          <p>Roles: <%= user.roles.join(", ") %></p>
+      <% } else { %>
+          <p>Roles: None</p>
+      <% } %>
       
-        <div id="user-comments"></div>
-    </div>
+  </div>
+  
 </div>
+<%- include('includes/sidebar', { category: category }) %>
+
 
 <script>
+
+var pageUsername = "<%= user.username %>"; // Username of the user page being viewed
+  var currentUser = localStorage.getItem('username'); // Assuming you store the username in localStorage upon login
+
+  
   var comments = <%- JSON.stringify(comments) %>;
+
   $(document).ready(function () {
-    // Use the timeAgo function for the "Date Registered"
-    document.getElementById('date-registered').innerText = 'Registered ' + timeAgo(new Date('<%= user.date_registered %>'));
-   
-    if(comments.length < 1) {
-      $('#user-comments').append(`<p style="color: gray;"><%= user.username %> hasn't written any comments.</p>`);
+    // Use the timeAgo function for the " Date Registered"
+    document.getElementById('date-registered').innerText = 'Registered ' + timeAgo(new
+      Date('<%=user.date_registered %>'));
+
+    if (comments.length < 1) {
+      $('#user-comments').append(`<p style="color: gray;">
+                <%= user.username %> hasn't written any comments.</p>`);
 
 
     } else {
-    
-    // Iterate over the comments and append them to the page
-    comments.forEach(function (comment) {
-      const commentHtml = getCommentHtml(
-        comment.comment_id,
-        comment.author,
-        comment.content,
-        0,
-        comment.upvotes - comment.downvotes,
-        new Date(comment.timestamp).toLocaleString(),
-        comment.parent_id,
-        ['reply'],
-        comment.permalink
-      );
 
-      $('#user-comments').append(commentHtml);
-    });
+      // Iterate over the comments and append them to the page
+      comments.forEach(function (comment) {
+        const commentHtml = getCommentHtml(
+          comment.comment_id,
+          comment.author,
+          comment.content,
+          0,
+          comment.upvotes - comment.downvotes,
+          new Date(comment.timestamp).toLocaleString(),
+          comment.parent_id,
+          ['reply'],
+          comment.permalink
+        );
 
-  }
+        $('#user-comments').append(commentHtml);
+      });
 
-    
+    }
+
+
   });
 </script>
 
 
-</body>
+
+          <script>
+            $(document).ready(function () {
+              document.getElementById('date-registered').innerText = 'Registered ' + timeAgo(new Date('<%= user.date_registered %>'));
+
+
+              // Hide "Saved Posts" tab if the user page being viewed is not the logged-in user
+              if (pageUsername !== currentUser) {
+                $('li[data-tab="tab-posts"]').hide(); // Hide the tab
+              } else {
+                $('li[data-tab="tab-posts"]').show(); // Show the tab if it's the current user
+              }
+
+
+
+
+
+              // Comments rendering
+              if (comments.length < 1) {
+                $('#user-comments').append(`<p style="color: gray;"><%= user.username %> hasn't written any comments yet.</p>`);
+              } else {
+                comments.forEach(function (comment) {
+                  const commentHtml = getCommentHtml(
+                    comment.comment_id,
+                    comment.author,
+                    comment.content,
+                    0,
+                    comment.upvotes - comment.downvotes,
+                    new Date(comment.timestamp).toLocaleString(),
+                    comment.parent_id,
+                    ['reply'],
+                    comment.permalink
+                  );
+                  $('#user-comments').append(commentHtml);
+                });
+              }
+
+              // Tab switching
+              $('ul.tabs li').click(function () {
+                var tabId = $(this).attr('data-tab');
+
+                $('ul.tabs li').removeClass('current');
+                $('.tab-content').removeClass('current');
+
+                $(this).addClass('current');
+                $("#" + tabId).addClass('current');
+
+                // Fetch posts when the "Posts" tab is clicked and it's the current user
+                if (tabId === "tab-posts" && $('#user-posts').is(':empty') && pageUsername === currentUser) {
+                  fetchAndRenderSavedPosts();
+                }
+              });
+
+              // Function to fetch and render user's saved posts
+              function fetchAndRenderSavedPosts() {
+                const authToken = localStorage.getItem('authToken'); // Retrieve the authToken from localStorage
+                if (!authToken) {
+                  console.error('User is not logged in or authToken is missing.');
+                  return;
+                }
+
+                $.ajax({
+                  url: '/api/mySavedPosts',
+                  type: 'GET',
+                  headers: { 'Authorization': `Bearer ${authToken}` },
+                  success: function (posts) {
+                    if (posts.length > 0) {
+                      const postsHtml = posts.map(post => generatePostHtml(post)).join('');
+                      $('#user-posts').html(postsHtml);
+                    } else {
+                      $('#user-posts').html(`<p style="color: gray;">No saved posts found.</p>`);
+                    }
+
+                    $('#user-posts').append('<div style="clear: both;"></div>');
+                  },
+                  error: function (xhr, status, error) {
+                    console.error('Failed to fetch saved posts:', error);
+                    $('#user-posts').html(`<p style="color: red;">Failed to fetch saved posts. Please try again later.</p>`);
+                  }
+                });
+              }
+            });
+          </script>
+
+
+
+
+          </body>
 
 </html>

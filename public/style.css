@@ -1685,20 +1685,21 @@ div#user_page_inner {
     margin-left: auto;
     margin-right: auto;
     padding-top: 20px;
+    margin-top: -56px;
 }
 
 
-#user_page_inner i {
+#user_page_inner h1 i {
     padding-right: 10px;
 }
 
 div#user_page_inner h1:first-child {
     position: absolute;
-    top: 130px;
+    top: 100px;
 }
 
 div#user-comments {
-    margin-top: 30px;
+    margin-top: 20px;
 }
 
 
@@ -1977,3 +1978,43 @@ h4#ai_moderated {
     all: revert;
 }
 
+
+
+/* User page tabs */
+
+
+
+ul.tabs {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+ul.tabs li {
+    background: none;
+    color: #fff;
+    display: inline-block;
+    padding: 10px 15px;
+    cursor: pointer;
+    background-color: #2e2e2e;
+}
+
+ul.tabs li.current {
+    background: #212121;
+    color: #fff;
+}
+
+.tab-content {
+    display: none;
+    background: #212121;
+    /* padding: 15px; */
+}
+
+.tab-content.current {
+    display: inherit;
+}
+
+
+div#user-posts {
+    margin-top: 20px;
+}

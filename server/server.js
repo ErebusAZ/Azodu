@@ -225,7 +225,7 @@ setInterval(async () => {
     const randomIndex = Math.floor(Math.random() * usernames.length);
     const author = usernames[randomIndex]; // Randomly picked author from the array
 
-
+    console.log('created a new comment on ' + post.title);
     await insertCommentData(client, generatedCommentId, postId, author, postId, "text", comment, 0, 0, `${post.permalink}`, timestamp);
   }
 }, COMMENT_GENERATION_INTERVAL_MS);
@@ -936,6 +936,45 @@ app.get('/api/posts', async (req, res) => {
     res.status(500).send('Failed to fetch posts');
   }
 });
+
+
+
+
+app.get('/api/mySavedPosts', authenticateToken, async (req, res) => {
+  const username = req.user.username; // Username from JWT after authentication
+
+  try {
+    // Query to fetch saved posts for the authenticated user
+    const savedPostsQuery = `
+      SELECT post_id, saved_timestamp 
+      FROM my_keyspace.user_saved_posts 
+      WHERE username = ?
+      ORDER BY saved_timestamp DESC;
+    `;
+    const savedPostsResult = await client.execute(savedPostsQuery, [username], { prepare: true });
+
+    // If the user has saved posts, fetch details of those posts
+    if (savedPostsResult.rowLength > 0) {
+      const savedPostsIds = savedPostsResult.rows.map(row => row.post_id);
+
+      // Fetch each post's details. Note: For efficiency, consider batching these queries or adjusting your data model.
+      const postsDetailsPromises = savedPostsIds.map(postId =>
+        client.execute('SELECT * FROM my_keyspace.posts WHERE post_id = ? AND category = ?', [postId,'everything'], { prepare: true })
+      );
+      const postsDetailsResults = await Promise.all(postsDetailsPromises);
+      const posts = postsDetailsResults.map(result => result.rows[0]); // Assuming each query returns exactly one post
+
+      res.json(posts);
+    } else {
+      // If the user has no saved posts, return an empty array
+      res.json([]);
+    }
+  } catch (error) {
+    console.error('Error fetching saved posts:', error);
+    res.status(500).json({ message: 'Error fetching saved posts.' });
+  }
+});
+
 
 
 
