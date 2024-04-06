@@ -32,38 +32,15 @@
 </div>
 
 
+
 <script>
 
 var pageUsername = "<%= user.username %>"; 
 var currentUser = localStorage.getItem('username'); 
 var comments = <%- JSON.stringify(comments) %>;
 
-  $(document).ready(function () {
 
-      // Iterate over the comments and append them to the page
-      comments.forEach(function (comment) {
-        const commentHtml = getCommentHtml(
-          comment.comment_id,
-          comment.author,
-          comment.content,
-          0,
-          comment.upvotes - comment.downvotes,
-          new Date(comment.timestamp).toLocaleString(),
-          comment.parent_id,
-          ['reply'],
-          comment.permalink
-        );
-
-        $('#user-comments').append(commentHtml);
-      });
-
-
-
-  });
-</script>
-
-<script>
-  $(document).ready(function () {
+$(document).ready(function () {
 
     // Use the timeAgo function for the " Date Registered"
     document.getElementById('date-registered').innerText = 'Registered ' + timeAgo(new
