@@ -272,6 +272,9 @@ async function fetchFromExternalAndCreatePosts() {
         continue;
       }
 
+      if (title.toLowerCase().includes('trump'))
+        continue; 
+
       if (postsDone > 0) break; // Process only one post for demonstration
       postsDone++;
 
