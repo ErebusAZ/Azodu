@@ -35,47 +35,6 @@
             return result.trim();
         }
 
-        // test data
-        function generateAndShowPosts(numberOfPosts) {
-            // Check if we are adding posts beyond the first set
-            if (postsShown > 0) {
-                // Add a divider before appending new posts
-                const dividerHtml = `<div class="page-divider">Page ${postsShown / postsToShowInitially + 1}</div>`;
-                $('.container').append(dividerHtml);
-            }
-
-            for (let i = postsShown; i < postsShown + numberOfPosts; i++) {
-                const wordCount = Math.floor(Math.random() * 10) + 5; // Random word count between 5 and 15
-                // Generate random user and category data for the example
-                const username = `user${Math.floor(Math.random() * 100)}`;
-                const category = `Category${Math.floor(Math.random() * 10)}`;
-                const timeAgo = `${Math.floor(Math.random() * 59) + 1} minutes ago`;
-
-                // Update postHtml with the new "submitted by" line
-                const postHtml = `
-    <div class="post">
-        <div class="voting">
-    
-            <a title="upvote" description="upvote" href="#" class="upvote" data-postid="123"><img src="/img/up-arrow.svg" alt="Upvote"></a>
-    <span class="votes">123</span>
-<a title="downvote" description="downvote" href="#" class="downvote" data-postid="123"><img src="/img/down-arrow.svg" alt="Downvote"></a>
-
-        </div>
-        <div class="thumbnail"></div>
-        <div class="content">
-            <a href="internal.html" class="post-title">${generateLoremIpsum(wordCount)}</a>
-            <p class="post-description">This is a brief description of post ${i + 1}.</p>
-            <p class="post-submitted">submitted ${timeAgo} by <a href="/u/${username}">${username}</a> to <a href="#">${category}</a></p>
-            <div class="post-links">
-                <a href="#">100 comments</a>
-                <a href="#">save</a>
-            </div>
-        </div>
-    </div>`;
-                $('.container').append(postHtml);
-            }
-            postsShown += numberOfPosts; // Update the tracker
-        }
 
         function showSkeletonPosts(numberOfSkeletons) {
             let skeletonHTML = '';
@@ -267,7 +226,6 @@
         // Lazy load more posts as the user scrolls down
         $(window).scroll(function () {
             if (nearBottomOfPage() && postsShown < totalNumberOfPosts) {
-                //    generateAndShowPosts(postsToShowInitially);
                 fetchAndDisplayPosts();
             }
         });
