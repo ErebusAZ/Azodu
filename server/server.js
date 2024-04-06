@@ -948,8 +948,7 @@ app.get('/api/mySavedPosts', authenticateToken, async (req, res) => {
     const savedPostsQuery = `
       SELECT post_id, saved_timestamp 
       FROM my_keyspace.user_saved_posts 
-      WHERE username = ?
-      ORDER BY saved_timestamp DESC;
+      WHERE username = ?;
     `;
     const savedPostsResult = await client.execute(savedPostsQuery, [username], { prepare: true });
 
@@ -982,7 +981,7 @@ async function main() {
   try {
 
     //   await flushAllTables(client,'my_keyspace','comments'); 
- //   await dropAllTables(client, 'my_keyspace'); 
+  //  await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);

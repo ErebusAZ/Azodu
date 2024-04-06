@@ -44,8 +44,8 @@ async function createUserSavedPostsTable(client) {
       username text,
       post_id text,
       saved_timestamp timestamp,
-      PRIMARY KEY (username, saved_timestamp)
-    ) WITH CLUSTERING ORDER BY (saved_timestamp DESC);
+      PRIMARY KEY ((username), post_id)
+    ) WITH CLUSTERING ORDER BY (post_id DESC);
   `;
 
   try {
