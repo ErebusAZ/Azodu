@@ -105,7 +105,7 @@ $(document).ready(function () {
         headers: { 'Authorization': `Bearer ${authToken}` },
         success: function (posts) {
           if (posts.length > 0) {
-            const postsHtml = posts.map(post => generatePostHtml(post)).join('');
+            const postsHtml = posts.map(post => generatePostHtml(post,true)).join('');
             $('#user-posts').html(postsHtml);
           } else {
             $('#user-posts').html(`<p style="color: gray;">No saved posts found.</p>`);

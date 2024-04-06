@@ -18,8 +18,11 @@
         var postsShown = 0;
 
 
-        function renderPosts(posts) {
-            const postsHtml = posts.map(generatePostHtml).join('');
+        function renderPosts(posts, isSaved) {
+            let postsHtml = '';
+            for (let i = 0; i < posts.length; i++) {
+                postsHtml += generatePostHtml(posts[i], isSaved);
+            }
             $('.container').append(postsHtml);
         }
 
@@ -42,7 +45,7 @@
                             $('.container').append(pageDividerHtml);
                         }
                         currentPage++;
-                        renderPosts(posts);
+                        renderPosts(posts,false);
                     }
                 },
                 error: function (error) {

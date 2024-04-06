@@ -910,6 +910,35 @@ app.post('/api/savePost', authenticateToken, async (req, res) => {
 });
 
 
+app.post('/api/unsavePost', authenticateToken, async (req, res) => {
+  const { postId } = req.body; // category not needed for unsave action
+  const username = req.user.username; // Username from JWT after authentication
+
+  if (!postId) {
+    return res.status(400).json({ message: 'Post ID is required.' });
+  }
+
+  try {
+    // Verify that the post is actually saved by the user
+    const savedPostQuery = 'SELECT * FROM my_keyspace.user_saved_posts WHERE username = ? AND post_id = ?';
+    const savedPostResult = await client.execute(savedPostQuery, [username, postId], { prepare: true });
+
+    if (savedPostResult.rowLength === 0) {
+      return res.status(404).json({ message: 'Post not found in your saved posts.' });
+    }
+
+    // Remove the post from the user's saved posts
+    const unsavePostQuery = 'DELETE FROM my_keyspace.user_saved_posts WHERE username = ? AND post_id = ?';
+    await client.execute(unsavePostQuery, [username, postId], { prepare: true });
+
+    res.json({ message: 'Post unsaved successfully.' });
+  } catch (error) {
+    console.error('Error unsaving post:', error);
+    res.status(500).json({ message: 'Error unsaving the post.' });
+  }
+});
+
+
 
 
 // Start the server

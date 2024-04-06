@@ -272,7 +272,8 @@
 </div>`;
     }
 
-    function generatePostHtml(post) {
+    function generatePostHtml(post,isSaved) {
+
             const postTitleHref = post.post_type === 'url' ? post.content : post.permalink;
             let contentDisplay = post.post_type === 'url' && post.ai_summary ?
                 `<div style="display:none;" class="post-text">${post.ai_summary}<span class="ai_summary_heading">AI-generated summary</span></div>` :
@@ -303,7 +304,7 @@
         <p class="post-submitted">submitted ${timeAgo(post.timestamp)} by <a href="/u/${post.author}">${post.author}</a> to <a href="/c/${post.category}">${post.category}</a></p>
         <div class="post-links">
             <a href="${post.permalink}">${post.comment_count} comments</a>
-            <a href="#" class="save_post">save</a>
+            ` + (isSaved ? '<a href="#" class="unsave_post">unsave</a>' : '<a href="#" class="save_post">save</a>') + `
         </div>
         ${contentDisplay}
     </div>
@@ -495,6 +496,52 @@
         });
 
 
+
+        // Handler for "unsave" button click
+        $('.container').on('click', '.unsave_post', function (event) {
+            event.preventDefault(); // Prevent default action
+
+            // Retrieve the username from localStorage
+            const username = localStorage.getItem('username');
+            if (!username) {
+                console.error('User is not logged in.');
+                return; // Exit if no user is logged in
+            }
+
+            // Capture the button before the AJAX request
+            const $button = $(this);
+
+            // Get the post ID from the closest .post element
+            const $post = $button.closest('.post');
+            const postId = $post.data('postid');
+            const authToken = localStorage.getItem('authToken'); // Assuming the auth token is saved in localStorage
+
+            // Make an AJAX request to unsave the post
+            $.ajax({
+                url: '/api/unsavePost', // Endpoint for unsaving a post
+                type: 'POST',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': `Bearer ${authToken}` // Use the authToken for authorization
+                },
+                data: JSON.stringify({ postId: postId }), // Send the postId in the request body
+                success: function (response) {
+                    // Remove the post from the DOM
+                    $(`div.post[data-postid="${postId}"]`).fadeOut("slow", function () {
+                        $(this).remove();
+                    });
+                    console.log('Post unsaved successfully:', response);
+                    alert('Post unsaved successfully!');
+                    $button.text('Save'); // Change the button text back to "Save"
+                    $button.removeClass('unsave_post').addClass('save_post'); // Change the class to reflect the new action
+                },
+                error: function (xhr, status, error) {
+                    console.error('Failed to unsave post:', error);
+                    alert('Failed to unsave post. Please try again.');
+                }
+            });
+        });
+        
 
 
 
