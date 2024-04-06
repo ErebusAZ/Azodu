@@ -57,10 +57,6 @@
             return cIndex !== -1 && cIndex + 1 < pathSegments.length ? pathSegments[cIndex + 1] : null;
         }
 
-        $('.container').on('click', '.save_post', function (event) {
-            // Save post logic goes here...
-        });
-
         // Initially load the default number of posts
         fetchAndDisplayPosts();
 
