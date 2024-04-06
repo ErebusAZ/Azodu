@@ -66,16 +66,6 @@
 
 
 
-        // JavaScript for toggling the display of the content
-        $('.container').on('click', '.open-content', function () {
-            // Toggle the icon class between fa-plus and fa-minus
-            $(this).toggleClass('fa-plus fa-minus');
-            // Toggle the display of the content or iframe
-            $(this).closest('.post').find('.post-iframe, .post-text').slideToggle(0);
-        });
-
-
-
         function generateLoremIpsum(wordCount) {
             const words = ["lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua"];
             let result = "";
