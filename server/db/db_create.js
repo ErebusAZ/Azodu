@@ -59,13 +59,13 @@ async function createUserSavedPostsTable(client) {
 
 async function createUserSavedCommentsTable(client) {
   const query = `
-    CREATE TABLE IF NOT EXISTS my_keyspace.user_saved_comments (
-      username text,
-      comment_id text,
-      saved_timestamp timestamp,
-      post_id text,
-      PRIMARY KEY ((username), saved_timestamp, comment_id)
-    ) WITH CLUSTERING ORDER BY (saved_timestamp DESC, comment_id DESC);
+  CREATE TABLE IF NOT EXISTS my_keyspace.user_saved_comments (
+    username text,
+    comment_id text,
+    post_id text,
+    saved_timestamp timestamp,
+    PRIMARY KEY (username, comment_id)
+  ) WITH CLUSTERING ORDER BY (comment_id DESC);  
   `;
 
   try {

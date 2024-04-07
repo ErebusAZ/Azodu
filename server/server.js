@@ -1026,31 +1026,37 @@ app.get('/api/mySavedPosts', authenticateToken, async (req, res) => {
 
 
 app.get('/api/mySavedComments', authenticateToken, async (req, res) => {
-  const username = req.user.username; // Username from JWT after authentication
+  const username = req.user.username; // Extracted from JWT after authentication
 
   try {
     // Query to fetch saved comments for the authenticated user
     const savedCommentsQuery = `
-      SELECT comment_id, post_id, saved_timestamp 
+      SELECT comment_id, post_id 
       FROM my_keyspace.user_saved_comments 
-      WHERE username = ?;
+      WHERE username = ?
+      ORDER BY comment_id DESC;
     `;
     const savedCommentsResult = await client.execute(savedCommentsQuery, [username], { prepare: true });
 
-    // If the user has saved comments, fetch details of those comments including the post_id
+    // Check if there are saved comments to process
     if (savedCommentsResult.rowLength > 0) {
-      const fetchDetailsPromises = savedCommentsResult.rows.map(row => {
+      // Fetch each comment's detailed information from the comments table
+      const commentsDetailsPromises = savedCommentsResult.rows.map(row => {
+        // Assuming your comments table is keyed by (post_id, comment_id)
         return client.execute('SELECT * FROM my_keyspace.comments WHERE post_id = ? AND comment_id = ?', [row.post_id, row.comment_id], { prepare: true });
       });
 
-      const commentsDetailsResults = await Promise.all(fetchDetailsPromises);
-      // Flatten the results as Promise.all returns an array of results for each promise
-      const comments = commentsDetailsResults.map(result => result.rows[0]).filter(comment => comment !== undefined);
+      // Await all promises and collect results
+      const commentsDetailsResults = await Promise.all(commentsDetailsPromises);
 
-      res.json(comments);
+      // Prepare the comments data, ensuring only valid data is included
+      const comments = commentsDetailsResults
+        .map(result => result.rows[0]) // Get the first (should be only) row from each result
+        .filter(comment => comment !== undefined); // Filter out any undefined results
+
+      res.json(comments); // Send the detailed comments data
     } else {
-      // If the user has no saved comments, return an empty array
-      res.json([]);
+      res.json([]); // No saved comments found, return an empty array
     }
   } catch (error) {
     console.error('Error fetching saved comments:', error);
@@ -1059,6 +1065,26 @@ app.get('/api/mySavedComments', authenticateToken, async (req, res) => {
 });
 
 
+app.get('/api/mySavedComments', authenticateToken, async (req, res) => {
+  const username = req.user.username; // Username from JWT after authentication
+
+  try {
+    // Query to fetch saved comments for the authenticated user
+    const savedCommentsQuery = `
+      SELECT comment_id, post_id, saved_timestamp 
+      FROM my_keyspace.user_saved_comments 
+      WHERE username = ?
+      ORDER BY comment_id DESC;
+    `;
+    const savedCommentsResult = await client.execute(savedCommentsQuery, [username], { prepare: true });
+
+    // Directly return the fetched saved comments
+    res.json(savedCommentsResult.rows);
+  } catch (error) {
+    console.error('Error fetching saved comments:', error);
+    res.status(500).json({ message: 'Error fetching saved comments.' });
+  }
+});
 
 
 
@@ -1093,7 +1119,7 @@ async function main() {
    //  await emptyCommentsTable(client);
     await createMaterializedViews(client);
 
-  //  await populateTestData(client, 50);
+    await populateTestData(client, 10);
 
 
   } catch (error) {
