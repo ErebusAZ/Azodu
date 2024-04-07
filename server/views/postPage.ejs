@@ -127,6 +127,8 @@
                 scrollToComment();
 
                 $(document).on('click', '.save_comment', function (e) {
+                    const $button = $(this);
+
                     e.preventDefault();
                     const commentId = $(this).closest('.comment').data('commentid');
                     const postId = getThirdPathSegment($(this).closest('.comment').data('postpermalink'));
@@ -140,6 +142,8 @@
                         data: JSON.stringify({ commentId,postId }),
                         success: function (response) {
                             console.log(response.message);
+                            $button.text('saved')
+                $button.css({'color':'white'});
                             // Update UI to reflect the saved status
                         },
                         error: function (xhr, status, error) {
