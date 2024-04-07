@@ -395,6 +395,10 @@ div#post_meta {
     margin-bottom: 0;
 }
 
+.category-metadata-box p {
+line-height: 18px; 
+}
+
 #cat_createdby, #cat_createdtime {
     color: gray;
     padding-bottom: 0;
