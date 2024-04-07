@@ -24,7 +24,7 @@ jwtSecret = secrets.JWT_SECRET;
 
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable,createUserSavedCommentsTable } = require('./db/db_create');
-const { insertPostData, populateTestData, insertVote,insertCommentData,generateCommentUUID,generateContentId,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink,savePostForUser,saveCommentForUser } = require('./db/db_insert');
+const { insertPostData, populateTestData, insertVote,insertCommentData,generateCommentUUID,generateContentId,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink,savePostForUser,saveCommentForUser,unsaveCommentForUser } = require('./db/db_insert');
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink,fetchURLAndParseForThumb,extractRelevantText } = require('./utils/util');
@@ -978,6 +978,25 @@ app.post('/api/saveComment', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error saving comment:', error);
     res.status(500).json({ message: 'Error saving the comment.' });
+  }
+});
+
+
+app.post('/api/unsaveComment', authenticateToken, async (req, res) => {
+  const { commentId, postId } = req.body; // Include postId in the request body for consistency
+  const username = req.user.username; // Username obtained from the authenticated token
+
+  if (!commentId || !postId) {
+    return res.status(400).json({ message: 'Comment ID and Post ID are required.' });
+  }
+
+  try {
+    // Assuming the existence of a function that removes the comment from saved comments
+    await unsaveCommentForUser(client, username, commentId);
+    res.json({ message: 'Comment unsaved successfully.' });
+  } catch (error) {
+    console.error('Error unsaving comment:', error);
+    res.status(500).json({ message: 'Error unsaving the comment.' });
   }
 });
 

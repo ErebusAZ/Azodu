@@ -192,6 +192,19 @@ async function saveCommentForUser(client, username, commentId, postId) {
 }
 
 
+async function unsaveCommentForUser(client, username, commentId) {
+  const query = `
+    DELETE FROM my_keyspace.user_saved_comments
+    WHERE username = ? AND comment_id = ?;
+  `;
+  try {
+    await client.execute(query, [username, commentId], { prepare: true });
+    console.log('Comment unsaved successfully.');
+  } catch (error) {
+    console.error('Error unsaving comment:', error);
+    throw error; // Rethrow or handle as needed
+  }
+}
 
 
 async function insertCategoryData(client, name, creator, description, permalink, dateCreated, moderators) {
@@ -317,4 +330,4 @@ async function tallyVotesForComment(client, post_id, comment_id,) {
 
 
 
-module.exports = { insertPostData, insertUserData, populateTestData, insertVote, insertCommentData, generateCommentUUID, generateContentId,insertCategoryData, generatePermalink, updateCommentData, tallyVotesForComment, deleteCommentData,savePostForUser,saveCommentForUser };
+module.exports = { insertPostData, insertUserData, populateTestData, insertVote, insertCommentData, generateCommentUUID, generateContentId,insertCategoryData, generatePermalink, updateCommentData, tallyVotesForComment, deleteCommentData,savePostForUser,saveCommentForUser,unsaveCommentForUser };

@@ -156,7 +156,8 @@ $(document).ready(function () {
               new Date(comment.timestamp), // Convert timestamp to Date object
               comment.parent_id,
               ['reply'], // Example link blacklist, adjust as needed
-              comment.permalink // Assuming the comment object has a permalink property
+              comment.permalink, // Assuming the comment object has a permalink property
+              true
             )
           ).join('');
           $('#user-saved-comments').html(commentsHtml);

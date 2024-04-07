@@ -227,7 +227,7 @@
     }
 
 
-    function getCommentHtml(commentId, author, content, depth = 0, votes, timestamp, parent_id, linkBlacklist, postPermalink) {
+    function getCommentHtml(commentId, author, content, depth = 0, votes, timestamp, parent_id, linkBlacklist, postPermalink,isSaved) {
         const currentUser = localStorage.getItem('username');
         const backgroundColor = depth % 2 === 0 ? '#2d2d2d' : '#2d2d2d';
 
@@ -255,8 +255,8 @@
         <div class="comment-text">${content}</div>
 
         <div class="comment-links">
-            <a target="_blank" href="${postPermalink}#comment-${commentId}">link</a>
-            <a class="save_comment" href="#">save</a>
+            <a target="_blank" href="${postPermalink}#comment-${commentId}">link</a>` + 
+            (isSaved ? '<a href="#" class="unsave_comment">unsave</a>' : '<a href="#" class="save_post">save</a>') + `
             ${isAuthor && shouldDisplayLink('edit') ? `<a href="#edit" class="edit">edit</a>` : ''}
             ${isAuthor && shouldDisplayLink('delete') ? `<a href="#delete" class="delete">delete</a>` : ''}
             ${shouldDisplayLink('reply') ? `<a href="#reply" class="reply">reply</a>` : ''}
@@ -611,6 +611,51 @@
                 error: function (xhr, status, error) {
                     console.error('Failed to unsave post:', error);
                     alert('Failed to unsave post. Please try again.');
+                }
+            });
+        });
+
+
+        // Handler for "unsave comment" button click
+        $('.container').on('click', '.unsave_comment', function (event) {
+            event.preventDefault(); // Prevent default action
+
+            // Retrieve the username from localStorage (assuming user management is in place)
+            const username = localStorage.getItem('username');
+            if (!username) {
+                console.error('User is not logged in.');
+                return; // Exit if no user is logged in
+            }
+
+            // Capture the button before the AJAX request
+            const $button = $(this);
+
+            // Get the comment ID and post ID from the closest .comment element
+            const $comment = $button.closest('.comment');
+            const commentId = $comment.data('commentid');
+            const postId = getThirdPathSegment($(this).closest('.comment').data('postpermalink'));
+            const authToken = localStorage.getItem('authToken'); // Assuming the auth token is saved in localStorage
+console.log(commentId,postId); 
+            // Make an AJAX request to unsave the comment
+            $.ajax({
+                url: '/api/unsaveComment', // Endpoint for unsaving a comment
+                type: 'POST',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': `Bearer ${authToken}` // Use the authToken for authorization
+                },
+                data: JSON.stringify({ commentId: commentId, postId: postId }), // Send both commentId and postId in the request body
+                success: function (response) {
+                    // Remove the comment from the DOM or perform any other UI update
+                    $(`div.comment[data-commentid="${commentId}"]`).fadeOut("slow", function () {
+                        $(this).remove();
+                    });
+                    console.log('Comment unsaved successfully:', response);
+
+                },
+                error: function (xhr, status, error) {
+                    console.error('Failed to unsave comment:', error);
+                    alert('Failed to unsave comment. Please try again.');
                 }
             });
         });
