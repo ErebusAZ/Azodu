@@ -131,7 +131,6 @@ async function generateSummary(text) {
 
 
     let summary = '<p>' + generatedContent + '</p>';
-    console.log(summary); 
 
     return summary;
   } catch (error) {
