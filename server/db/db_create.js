@@ -63,6 +63,7 @@ async function createUserSavedCommentsTable(client) {
       username text,
       comment_id text,
       saved_timestamp timestamp,
+      post_id text,
       PRIMARY KEY ((username), saved_timestamp, comment_id)
     ) WITH CLUSTERING ORDER BY (saved_timestamp DESC, comment_id DESC);
   `;

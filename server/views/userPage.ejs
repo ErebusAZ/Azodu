@@ -12,6 +12,8 @@
       <li class="tab-link current" data-tab="tab-info">Info</li>
       <li class="tab-link" data-tab="tab-comments">Comments</li>
       <li class="tab-link" data-tab="tab-posts">Saved Posts</li>
+      <li class="tab-link" data-tab="tab-saved-comments">Saved Comments</li>
+
     </ul>
     <h1 id="username_user_page"><i class="fa fa-user-circle"></i>
       <%= user.username %>
@@ -28,6 +30,10 @@
     <div id="tab-posts" class="tab-content">
       <div id="user-posts"></div>
     </div>
+    <div id="tab-saved-comments" class="tab-content">
+      <div id="user-saved-comments"></div>
+    </div>
+    
   </div>
 </div>
 
@@ -65,6 +71,12 @@ $(document).ready(function () {
       if (tabId === "tab-posts" && $('#user-posts').is(':empty') && pageUsername === currentUser) {
         fetchAndRenderSavedPosts();
       }
+
+      if (tabId === "tab-saved-comments" && $('#user-saved-comments').is(':empty') && pageUsername === currentUser) {
+  fetchAndRenderSavedComments();
+}
+
+      
 
     });
 
@@ -119,7 +131,56 @@ $(document).ready(function () {
         }
       });
     }
+
+
+  function fetchAndRenderSavedComments() {
+    const authToken = localStorage.getItem('authToken'); // Retrieve the authToken from localStorage
+    if (!authToken) {
+      console.error('User is not logged in or authToken is missing.');
+      return;
+    }
+
+    $.ajax({
+      url: '/api/mySavedComments',
+      type: 'GET',
+      headers: { 'Authorization': `Bearer ${authToken}` },
+      success: function (comments) {
+        if (comments.length > 0) {
+          // Use the getCommentHtml function to generate the HTML for each comment
+          const commentsHtml = comments.map(comment =>
+            getCommentHtml(
+              comment.comment_id,
+              comment.author,
+              comment.content,
+              0, // Assuming depth is 0 for saved comments
+              comment.upvotes - comment.downvotes, // Calculate the vote difference
+              new Date(comment.timestamp), // Convert timestamp to Date object
+              comment.parent_id,
+              ['reply'], // Example link blacklist, adjust as needed
+              comment.permalink // Assuming the comment object has a permalink property
+            )
+          ).join('');
+          $('#user-saved-comments').html(commentsHtml);
+        } else {
+          $('#user-saved-comments').html(`<p style="color: gray;">No saved comments found.</p>`);
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error('Failed to fetch saved comments:', error);
+        $('#user-saved-comments').html(`<p style="color: red;">Failed to fetch saved comments. Please try again later.</p>`);
+      }
+    });
+  }
+
+
+
+
+
+
   });
+
+
+  
 </script>
 
 

@@ -940,23 +940,21 @@ app.post('/api/unsavePost', authenticateToken, async (req, res) => {
 
 
 app.post('/api/saveComment', authenticateToken, async (req, res) => {
-  const { commentId } = req.body;
-  const username = req.user.username; // Extracted from JWT after authentication
+  const { commentId, postId } = req.body; // Include postId in the request body
+  const username = req.user.username;
 
-  if (!commentId) {
-    return res.status(400).json({ message: 'Comment ID is required.' });
+  if (!commentId || !postId) {
+    return res.status(400).json({ message: 'Comment ID and Post ID are required.' });
   }
 
   try {
-    // Assume saveCommentForUser is a function you'll define to handle the database interaction
-    await saveCommentForUser(client, username, commentId);
+    await saveCommentForUser(client, username, commentId, postId);
     res.json({ message: 'Comment saved successfully.' });
   } catch (error) {
     console.error('Error saving comment:', error);
     res.status(500).json({ message: 'Error saving the comment.' });
   }
 });
-
 
 
 
@@ -1027,13 +1025,50 @@ app.get('/api/mySavedPosts', authenticateToken, async (req, res) => {
 });
 
 
+app.get('/api/mySavedComments', authenticateToken, async (req, res) => {
+  const username = req.user.username; // Username from JWT after authentication
+
+  try {
+    // Query to fetch saved comments for the authenticated user
+    const savedCommentsQuery = `
+      SELECT comment_id, post_id, saved_timestamp 
+      FROM my_keyspace.user_saved_comments 
+      WHERE username = ?;
+    `;
+    const savedCommentsResult = await client.execute(savedCommentsQuery, [username], { prepare: true });
+
+    // If the user has saved comments, fetch details of those comments including the post_id
+    if (savedCommentsResult.rowLength > 0) {
+      const fetchDetailsPromises = savedCommentsResult.rows.map(row => {
+        return client.execute('SELECT * FROM my_keyspace.comments WHERE post_id = ? AND comment_id = ?', [row.post_id, row.comment_id], { prepare: true });
+      });
+
+      const commentsDetailsResults = await Promise.all(fetchDetailsPromises);
+      // Flatten the results as Promise.all returns an array of results for each promise
+      const comments = commentsDetailsResults.map(result => result.rows[0]).filter(comment => comment !== undefined);
+
+      res.json(comments);
+    } else {
+      // If the user has no saved comments, return an empty array
+      res.json([]);
+    }
+  } catch (error) {
+    console.error('Error fetching saved comments:', error);
+    res.status(500).json({ message: 'Error fetching saved comments.' });
+  }
+});
+
+
+
+
+
 
 
 async function main() {
   try {
 
     //   await flushAllTables(client,'my_keyspace','comments'); 
-  //  await dropAllTables(client, 'my_keyspace'); 
+    await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);

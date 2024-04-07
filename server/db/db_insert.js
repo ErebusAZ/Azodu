@@ -183,12 +183,12 @@ async function savePostForUser(client, username, post_id) {
 
 
 
-async function saveCommentForUser(client, username, commentId) {
+async function saveCommentForUser(client, username, commentId, postId) {
   const query = `
-    INSERT INTO my_keyspace.user_saved_comments (username, comment_id, saved_timestamp)
-    VALUES (?, ?, toTimestamp(now()));
+    INSERT INTO my_keyspace.user_saved_comments (username, comment_id, post_id, saved_timestamp)
+    VALUES (?, ?, ?, toTimestamp(now()));
   `;
-  await client.execute(query, [username, commentId], { prepare: true });
+  await client.execute(query, [username, commentId, postId], { prepare: true });
 }
 
 
