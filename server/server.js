@@ -718,23 +718,23 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
         return res.status(404).send('Comment not found');
       }
 
-      // Verify if the requestor is the author of the comment or has admin rights
       const hasPermission = commentDetails.author === author || roles.includes('admin') || roles.includes('super_admin');
       if (!hasPermission) {
         return res.status(403).send('Forbidden: You are not authorized to delete this comment.');
       }
-
+      
       // Construct the deletion message
       const deletedByMessage = commentDetails.author === author ? '<p>[deleted by author]</p>' : '<p>[deleted by admin]</p>';
-
-      // Update the comment content instead of deleting
+      const deletedAuthor = 'deleted';
+      
+      // Update the comment content and set author as 'deleted'
       const updateQuery = `
         UPDATE my_keyspace.comments
-        SET content = ?
+        SET content = ?, author = ?
         WHERE post_id = ? AND comment_id = ?`;
-
-      await client.execute(updateQuery, [deletedByMessage, post_id, commentId], { prepare: true });
-
+      
+      await client.execute(updateQuery, [deletedByMessage, deletedAuthor, post_id, commentId], { prepare: true });
+      
       res.json({ message: 'Comment deleted successfully.', commentId: commentId });
     } catch (error) {
       console.error('Error in delete operation:', error);
