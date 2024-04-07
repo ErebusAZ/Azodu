@@ -150,12 +150,14 @@
                 data: JSON.stringify({ postId: postId, category: cat }), // Send the postId and category in the request body
                 success: function (response) {
                     console.log('Post saved successfully:', response);
-                    alert('Post saved successfully!');
-                    $button.remove(); // this should change to save
+                $button.text('saved')
+                $button.css({'color':'gray'});
                 },
                 error: function (xhr, status, error) {
                     console.error('Failed to save post:', error);
-                    alert('Failed to save post. Please try again.');
+                    showNotification('Failed to save post: ' + error,'error', 3000);
+
+
                 }
             });
         });
