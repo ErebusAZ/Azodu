@@ -23,8 +23,8 @@ try {
 jwtSecret = secrets.JWT_SECRET;
 
 
-const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable } = require('./db/db_create');
-const { insertPostData, populateTestData, insertVote,insertCommentData,generateCommentUUID,generateContentId,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink,savePostForUser } = require('./db/db_insert');
+const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable,createUserSavedCommentsTable } = require('./db/db_create');
+const { insertPostData, populateTestData, insertVote,insertCommentData,generateCommentUUID,generateContentId,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink,savePostForUser,saveCommentForUser } = require('./db/db_insert');
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink,fetchURLAndParseForThumb,extractRelevantText } = require('./utils/util');
@@ -939,6 +939,26 @@ app.post('/api/unsavePost', authenticateToken, async (req, res) => {
 });
 
 
+app.post('/api/saveComment', authenticateToken, async (req, res) => {
+  const { commentId } = req.body;
+  const username = req.user.username; // Extracted from JWT after authentication
+
+  if (!commentId) {
+    return res.status(400).json({ message: 'Comment ID is required.' });
+  }
+
+  try {
+    // Assume saveCommentForUser is a function you'll define to handle the database interaction
+    await saveCommentForUser(client, username, commentId);
+    res.json({ message: 'Comment saved successfully.' });
+  } catch (error) {
+    console.error('Error saving comment:', error);
+    res.status(500).json({ message: 'Error saving the comment.' });
+  }
+});
+
+
+
 
 
 // Start the server
@@ -1026,7 +1046,7 @@ async function main() {
     await createPostIdCounterTable(client);
 
     await createUserSavedPostsTable(client);
-
+    await createUserSavedCommentsTable(client);
 
     await createVotesTable(client);
     await createCategoriesTable(client);

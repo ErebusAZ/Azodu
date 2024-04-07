@@ -122,8 +122,34 @@
                 const organizedComments = organizeComments(post.comments);
                 const commentsHTML = renderComments(organizedComments,0,post.permalink);
                 $('.comments').append(commentsHTML);
+                var authToken = localStorage.getItem('authToken');
 
                 scrollToComment();
+
+                $('.save_comment').click(function (e) {
+                    e.preventDefault();
+                    const commentId = $(this).closest('.comment').data('commentid');
+                    console.log(commentId); 
+                    $.ajax({
+                        url: '/api/saveComment',
+                        type: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + authToken, // Assume userToken is acquired at login
+                            'Content-Type': 'application/json'
+                        },
+                        data: JSON.stringify({ commentId }),
+                        success: function (response) {
+                            console.log(response.message);
+                            // Update UI to reflect the saved status
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error saving comment:', error);
+                        }
+                    });
+                });
+
+
+
 
                 // Assuming this code is placed inside a document ready function and the reply link click handler
                 $(document).on('click', '.reply', function (e) {

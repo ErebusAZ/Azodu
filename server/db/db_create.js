@@ -57,6 +57,25 @@ async function createUserSavedPostsTable(client) {
   }
 }
 
+async function createUserSavedCommentsTable(client) {
+  const query = `
+    CREATE TABLE IF NOT EXISTS my_keyspace.user_saved_comments (
+      username text,
+      comment_id text,
+      saved_timestamp timestamp,
+      PRIMARY KEY ((username), saved_timestamp, comment_id)
+    ) WITH CLUSTERING ORDER BY (saved_timestamp DESC, comment_id DESC);
+  `;
+
+  try {
+    await client.execute(query);
+    console.log('Table `user_saved_comments` created or already exists in `my_keyspace`');
+  } catch (error) {
+    console.error('Error creating table `user_saved_comments`:', error);
+    throw error; // Rethrow the error to be caught by the calling function
+  }
+}
+
 
 
 async function insertFakeUsers(client, usernames) {
@@ -364,4 +383,4 @@ async function emptyCommentsTable(client) {
 }
 
 
-module.exports = { createKeyspace, createUsersTable, createCommentsTable, createPostsTable, flushAllTables, dropAllTables, createVotesTable, createCategoriesTable, createDefaultCategories, createLinksTable, emptyCommentsTable, createMaterializedViews, insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable };
+module.exports = { createKeyspace, createUsersTable, createCommentsTable, createPostsTable, flushAllTables, dropAllTables, createVotesTable, createCategoriesTable, createDefaultCategories, createLinksTable, emptyCommentsTable, createMaterializedViews, insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable,createUserSavedCommentsTable };

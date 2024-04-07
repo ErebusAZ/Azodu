@@ -183,6 +183,13 @@ async function savePostForUser(client, username, post_id) {
 
 
 
+async function saveCommentForUser(client, username, commentId) {
+  const query = `
+    INSERT INTO my_keyspace.user_saved_comments (username, comment_id, saved_timestamp)
+    VALUES (?, ?, toTimestamp(now()));
+  `;
+  await client.execute(query, [username, commentId], { prepare: true });
+}
 
 
 
@@ -310,4 +317,4 @@ async function tallyVotesForComment(client, post_id, comment_id,) {
 
 
 
-module.exports = { insertPostData, insertUserData, populateTestData, insertVote, insertCommentData, generateCommentUUID, generateContentId,insertCategoryData, generatePermalink, updateCommentData, tallyVotesForComment, deleteCommentData,savePostForUser };
+module.exports = { insertPostData, insertUserData, populateTestData, insertVote, insertCommentData, generateCommentUUID, generateContentId,insertCategoryData, generatePermalink, updateCommentData, tallyVotesForComment, deleteCommentData,savePostForUser,saveCommentForUser };
