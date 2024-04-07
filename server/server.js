@@ -888,7 +888,7 @@ app.post('/api/deletePost', authenticateToken, async (req, res) => {
     }
 
     // Construct the deletion messages
-    const deletedByMessage = post.author === username ? '<p>[deleted by author]</p>' : '<p>[deleted by admin]</p>';
+    const deletedByMessage = post.author === username ? '[deleted by author]' : '[deleted by admin]';
     const deletedAuthor = 'deleted';
 
     // Update post with deletion messages and set author as 'deleted'
@@ -897,7 +897,7 @@ app.post('/api/deletePost', authenticateToken, async (req, res) => {
   SET title = ?, content = ?, ai_summary = '', thumbnail = '', author = ?
   WHERE post_id = ? AND category = ?`;
 
-    await client.execute(updateQuery, [deletedByMessage, deletedByMessage, deletedAuthor, postId, category], { prepare: true });
+    await client.execute(updateQuery, [deletedByMessage, '<p>' + deletedByMessage + '</p>', deletedAuthor, postId, category], { prepare: true });
 
     res.json({ message: 'Post deleted successfully.' });
   } catch (error) {
