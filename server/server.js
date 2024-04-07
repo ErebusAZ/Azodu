@@ -853,15 +853,14 @@ function deletePostFromSummary(postId) {
 
 
 app.post('/api/deletePost', authenticateToken, async (req, res) => {
-  const { postId, category } = req.body; // Destructure both postId and category from the request body
-  const username = req.user.username; // Username from JWT after authentication
+  const { postId, category } = req.body;
+  const username = req.user.username;
 
   if (!postId || !category) {
     return res.status(400).json({ message: 'Post ID and category are required.' });
   }
 
   try {
-    // First, fetch the post to check the author and compare with the authenticated user
     const postQuery = 'SELECT author FROM my_keyspace.posts WHERE post_id = ? AND category = ?';
     const postResult = await client.execute(postQuery, [postId, category], { prepare: true });
 
@@ -872,21 +871,25 @@ app.post('/api/deletePost', authenticateToken, async (req, res) => {
     const post = postResult.first();
     const roles = req.user.roles || [];
 
-    // Check if the user is the author or has an admin/super_admin role
     if (post.author !== username && !roles.includes('admin') && !roles.includes('super_admin')) {
       return res.status(403).json({ message: 'Access denied. Insufficient permissions.' });
     }
 
+    // Construct the deletion message
+    const deletedByMessage = post.author === username ? '[deleted by author]' : '[deleted by admin]';
 
-    deletePostFromSummary(postId);
+    // Update post instead of deleting
+    const updateQuery = `
+      UPDATE my_keyspace.posts
+      SET title = ?, content = ?, ai_summary = '', thumbnail = ''
+      WHERE post_id = ? AND category = ?`;
 
-    // Proceed to delete the post using both post_id and category to target the specific post
-    const deleteQuery = 'DELETE FROM my_keyspace.posts WHERE post_id = ? AND category = ?';
-    await client.execute(deleteQuery, [postId, category], { prepare: true });
+    await client.execute(updateQuery, [deletedByMessage, deletedByMessage, postId, category], { prepare: true });
+
     res.json({ message: 'Post deleted successfully.' });
   } catch (error) {
-    console.error('Error deleting post:', error);
-    res.status(500).json({ message: 'Error deleting the post.' });
+    console.error('Error updating post as deleted:', error);
+    res.status(500).json({ message: 'Error updating the post as deleted.' });
   }
 });
 
