@@ -28,7 +28,7 @@ const { insertPostData, populateTestData, insertVote,insertCommentData,generateC
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink,fetchURLAndParseForThumb,extractRelevantText } = require('./utils/util');
-const { generateAIComment,generateSummary } = require('./utils/ai');
+const { generateAIComment,generateSummary,moderateContent } = require('./utils/ai');
 
 const app = express();
 const port = 3000; // Use any port that suits your setup
@@ -225,7 +225,7 @@ setInterval(async () => {
     const randomIndex = Math.floor(Math.random() * usernames.length);
     const author = usernames[randomIndex]; // Randomly picked author from the array
 
-    console.log('created a new comment on ' + post.title);
+  //  console.log('created a new comment on ' + post.title);
     await insertCommentData(client, generatedCommentId, postId, author, postId, "text", comment, 0, 0, `${post.permalink}`, timestamp);
   }
 }, COMMENT_GENERATION_INTERVAL_MS);
@@ -709,6 +709,17 @@ app.post('/api/vote', async (req, res) => {
 app.post('/api/comment', authenticateToken, async (req, res) => {
   let { post_id, content, parent_id, isEdit, commentId, isDelete,postPermalink } = req.body;
   const author = req.user.username; // Ideally, this comes from the session or authentication mechanism
+
+  try {
+    const isContentSafe = await moderateContent(content);
+    console.log("Is content safe?", isContentSafe);
+    if (!isContentSafe) {
+      return res.status(400).json({ message: 'Your comment was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
+    }
+  } catch (error) {
+    console.error(error.message);
+    return; 
+  }
 
 
   // Check if the action is to delete an existing comment

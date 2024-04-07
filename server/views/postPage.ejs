@@ -244,12 +244,12 @@
                         headers: {
                             'Authorization': `Bearer ${authToken}` // Include the auth token in the request headers
                         },
-                        data: JSON.stringify({ post_id: originalPostID, content: commentContent, parent_id: postReplyingToPostID,postPermalink:postPermalink }),
+                        data: JSON.stringify({ post_id: originalPostID, content: commentContent, parent_id: postReplyingToPostID, postPermalink: postPermalink }),
                         success: function (response) {
 
                             const newCommentID = response.commentId;
 
-                            var commentHTML = getCommentHtml(newCommentID, author, commentContent, depth, 1,undefined,postReplyingToPostID,undefined,'<%= post.permalink %>'); // Assuming your getCommentHtml can handle these parameters
+                            var commentHTML = getCommentHtml(newCommentID, author, commentContent, depth, 1, undefined, postReplyingToPostID, undefined, '<%= post.permalink %>'); // Assuming your getCommentHtml can handle these parameters
                             // Inserting the comment in the correct position
                             if (postReplyingToPostID == originalPostID) {
                                 $('.comments').prepend(commentHTML); // Add to the start for top-level comments
@@ -264,8 +264,12 @@
                             $statusMessage.text('').hide();
                             $thisButton.closest('.reply-form').hide();
                         },
-                        error: function (xhr, status, error) {
-                            $statusMessage.text(error.includes('error') ? error: 'Error submitting comment: ' + error).css('color', 'red').show().delay(3000).fadeOut();
+                        error: function (xhr, status, errorMessage) {
+
+                            const responseJson = xhr.responseJSON;
+                            const message = responseJson && responseJson.message ? responseJson.message : `Error submitting comment: ${errorMessage}`;
+                            $statusMessage.text(message).css('color', 'red').show().delay(10000).fadeOut();
+                            // $statusMessage.text(error.includes('error') ? error: 'Error submitting comment: ' + error).css('color', 'red').show().delay(3000).fadeOut();
                         }
                     });
                 });

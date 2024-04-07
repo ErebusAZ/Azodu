@@ -79,7 +79,7 @@ async function generateAIComment(title, summary, model, post_id) {
 
     // Check if we've just served the last comment
     if (commentsCache[post_id].length === 0) {
-      console.log('No more cached comments for this title.');
+   //   console.log('No more cached comments for this title.');
     }
 
     return comment;
@@ -139,11 +139,35 @@ async function generateSummary(text) {
   }
 }
 
+async function moderateContent(content) {
+  try {
+    // Directly call the Moderation API with the input text
+    const moderation = await openai.moderations.create({
+      input: content
+    });
+
+    // Log the full moderation response
+    console.log("OpenAI Moderation API Response:", JSON.stringify(moderation, null, 2));
+
+    // For simplicity, assume content is safe if no categories of concern are detected
+    // Adjust according to your specific moderation policies and the structure of the moderation response
+    const isContentSafe = !moderation.results[0].flagged;
+
+    return isContentSafe;
+  } catch (error) {
+    // Enhanced error logging
+    console.error("Error calling Moderation API:", error);
+    throw new Error("Moderation check failed");
+  }
+}
+
+
 
 
 
 
 module.exports = {
   generateAIComment,
-  generateSummary, // Exporting the new function
+  generateSummary,
+  moderateContent 
 };
