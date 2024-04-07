@@ -1685,6 +1685,8 @@ div#user_page {
     margin-top: 130px;
     position: absolute;
     z-index: -1;
+    height: max-content;
+    padding-bottom: 100px;
 }
 
 
@@ -2018,6 +2020,7 @@ ul.tabs li.current {
     display: none;
     background: #212121;
     /* padding: 15px; */
+    margin-top: 20px;
 }
 
 .tab-content.current {
