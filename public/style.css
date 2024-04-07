@@ -395,9 +395,7 @@ div#post_meta {
     margin-bottom: 0;
 }
 
-.category-metadata-box p {
-line-height: 18px; 
-}
+.category-metadata-box p {line-height: 18px;margin-top: 3px;}
 
 #cat_createdby, #cat_createdtime {
     color: gray;
