@@ -53,12 +53,14 @@ $(document).ready(function () {
       Date('<%=user.date_registered %>'));
 
 
-    // Hide "Saved Posts" tab if the user page being viewed is not the logged-in user
+    // Initially hide the "Saved Posts" and "Saved Comments" tabs if the user page being viewed is not the logged-in user
     if (pageUsername !== currentUser) {
-      $('li[data-tab="tab-posts"]').hide(); // Hide the tab
+      $('li[data-tab="tab-posts"], li[data-tab="tab-saved-comments"]').hide();
     } else {
-      $('li[data-tab="tab-posts"]').show(); // Show the tab if it's the current user
+      // Show the tabs if it's the current user
+      $('li[data-tab="tab-posts"], li[data-tab="tab-saved-comments"]').show();
     }
+
 
     // Tab switching logic
     $('ul.tabs li').click(function () {
@@ -73,11 +75,8 @@ $(document).ready(function () {
       }
 
       if (tabId === "tab-saved-comments" && $('#user-saved-comments').is(':empty') && pageUsername === currentUser) {
-  fetchAndRenderSavedComments();
-}
-
-      
-
+        fetchAndRenderSavedComments();
+      }
     });
 
 
