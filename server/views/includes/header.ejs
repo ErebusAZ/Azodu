@@ -635,7 +635,6 @@
             const commentId = $comment.data('commentid');
             const postId = getThirdPathSegment($(this).closest('.comment').data('postpermalink'));
             const authToken = localStorage.getItem('authToken'); // Assuming the auth token is saved in localStorage
-console.log(commentId,postId); 
             // Make an AJAX request to unsave the comment
             $.ajax({
                 url: '/api/unsaveComment', // Endpoint for unsaving a comment
