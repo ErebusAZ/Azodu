@@ -707,19 +707,8 @@ app.post('/api/vote', async (req, res) => {
 
 
 app.post('/api/comment', authenticateToken, async (req, res) => {
-  let { post_id, content, parent_id, isEdit, commentId, isDelete,postPermalink } = req.body;
+  let { post_id, content, parent_id, isEdit, commentId, isDelete, postPermalink } = req.body;
   const author = req.user.username; // Ideally, this comes from the session or authentication mechanism
-
-  try {
-    const isContentSafe = await moderateContent(content);
-    console.log("Is content safe?", isContentSafe);
-    if (!isContentSafe) {
-      return res.status(400).json({ message: 'Your comment was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
-    }
-  } catch (error) {
-    console.error(error.message);
-    return; 
-  }
 
 
   // Check if the action is to delete an existing comment
@@ -740,17 +729,26 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
       console.error('Error in delete operation:', error);
       res.status(500).send('Failed to delete comment');
     }
-    return; 
+    return;
   }
 
   if (!validateComment(content).isValid)
     return;
 
+  try {
+    const isContentSafe = await moderateContent(content);
+    console.log("Is content safe?", isContentSafe);
+    if (!isContentSafe) {
+      return res.status(400).json({ message: 'Your comment was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
+    }
+  } catch (error) {
+    console.error(error.message);
+    return;
+  }
+
   // Check if the action is to edit an existing comment
-  else if (isEdit) {
+  if (isEdit) {
     try {
-
-
       // Fetch the current details of the comment from the database
       const commentDetails = await getCommentDetails(client, post_id, commentId);
       // Verify if the author of the request is the same as the author of the comment
