@@ -1119,7 +1119,7 @@ async function main() {
    //  await emptyCommentsTable(client);
     await createMaterializedViews(client);
 
-    await populateTestData(client, 10);
+   // await populateTestData(client, 10);
 
 
   } catch (error) {
