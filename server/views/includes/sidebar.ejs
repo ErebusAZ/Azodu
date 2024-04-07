@@ -15,6 +15,13 @@
                          
                 </p>
                 <button id="subscribe_button">Subscribe</button>
+                <div id="r_prompt" class="tooltip">
+                    <span class="help-icon">
+                        Relevancy prompt<i class="fas fa-question-circle"></i>
+                    </span>
+                    <span class="tooltiptext">AI allows submissions to this category if they fit the following description</span>
+                  </div>
+
                 <% if (category.description) { %>
                     <p><%- category.description %></p>
                     <% } %>

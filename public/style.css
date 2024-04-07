@@ -309,6 +309,53 @@ div#post_meta {
 
 /* Sidebar */
 
+
+
+
+#r_prompt {
+    color: gray;
+    display: block;
+    margin-top: 10px;
+}
+
+#r_prompt i {
+    font-size: 14px;
+    position: relative;
+    left: 5px;
+
+}
+
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: rgb(22, 22, 22);
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 10px;
+
+    /* Position the tooltip text - adjust as needed */
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
+
+
+
+
 #subscribe_button {
     border: none;
     color: #fff;
@@ -426,11 +473,11 @@ div#post_meta {
 }
 
 #breadcrumbs {
-color: gray;
-margin-top: 20px;
-border-radius: 5px;
-padding: 10px 10px;
-padding-bottom: 0;
+    color: gray;
+    margin-top: 20px;
+    border-radius: 5px;
+    padding: 10px 10px;
+    padding-bottom: 0;
 }
 
 .container {
