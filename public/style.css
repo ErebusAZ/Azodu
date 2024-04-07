@@ -423,6 +423,7 @@ div#post_meta {
 #sidebar_container {
     width: 270px;
     float: right;
+    padding-bottom: 160px;
 }
 
 .sidebar_button {
