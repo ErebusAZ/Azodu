@@ -887,16 +887,17 @@ app.post('/api/deletePost', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Access denied. Insufficient permissions.' });
     }
 
-    // Construct the deletion message
-    const deletedByMessage = post.author === username ? '[deleted by author]' : '[deleted by admin]';
+    // Construct the deletion messages
+    const deletedByMessage = post.author === username ? '<p>[deleted by author]</p>' : '<p>[deleted by admin]</p>';
+    const deletedAuthor = 'deleted';
 
-    // Update post instead of deleting
+    // Update post with deletion messages and set author as 'deleted'
     const updateQuery = `
-      UPDATE my_keyspace.posts
-      SET title = ?, content = ?, ai_summary = '', thumbnail = ''
-      WHERE post_id = ? AND category = ?`;
+  UPDATE my_keyspace.posts
+  SET title = ?, content = ?, ai_summary = '', thumbnail = '', author = ?
+  WHERE post_id = ? AND category = ?`;
 
-    await client.execute(updateQuery, [deletedByMessage, deletedByMessage, postId, category], { prepare: true });
+    await client.execute(updateQuery, [deletedByMessage, deletedByMessage, deletedAuthor, postId, category], { prepare: true });
 
     res.json({ message: 'Post deleted successfully.' });
   } catch (error) {
