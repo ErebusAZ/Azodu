@@ -2070,6 +2070,7 @@ ul.tabs {
     margin: 0;
     padding: 0;
     list-style: none;
+    line-height: 16px;
 }
 
 ul.tabs li {
