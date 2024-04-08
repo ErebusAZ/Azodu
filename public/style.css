@@ -997,12 +997,12 @@ button#submit-comment {
 
 }
 
-.username.cat_creator,a.cat_creator  {
+.username.cat_creator  {
     color: #fdc560; 
 
 }
 
-.username.post_creator,a.post_creator {
+.username.post_creator {
     color: #6cfd6c; 
 
 }
