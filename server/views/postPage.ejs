@@ -90,7 +90,7 @@
                 let html = ''; // Start with an empty string
                 comments.forEach(comment => {
                     // Use getCommentHtml with individual parameters
-                    html += getCommentHtml(comment.comment_id, comment.author, comment.content, depth, comment.upvotes - comment.downvotes, comment.timestamp,comment.parent_id,undefined,postPermalink,false,category.creator);
+                    html += getCommentHtml(comment.comment_id, comment.author, comment.content, depth, comment.upvotes - comment.downvotes, comment.timestamp,comment.parent_id,undefined,postPermalink,false,category.creator,post.author);
 
                     // Check for replies and recursively render them
                     if (comment.replies && comment.replies.length > 0) {
@@ -403,7 +403,7 @@
                           
                     </h2>
 
-                    <div id="post_meta">submitted by <a href="/u/<%= post.author %>"><%= post.author %></a> <span class="timeago"
+                    <div id="post_meta">submitted by <a class="post_creator" href="/u/<%= post.author %>"><%= post.author %></a> <span class="timeago"
                                 data-timestamp="<%= post.timestamp %>">Loading...</span></div>
 
                 </div>

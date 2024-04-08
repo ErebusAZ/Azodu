@@ -9,7 +9,7 @@
             </h2>
             <p id="cat_permalink"><a href="/c/<%= category.permalink %>">/c/<%= category.permalink %></a></p>
             <% if (category.creator) { %>
-                <p id="cat_createdby">Created by <a href="/u/<%= category.creator %>"><%= category.creator %></a>
+                <p id="cat_createdby">Created by <a class="cat_creator" href="/u/<%= category.creator %>"><%= category.creator %></a>
                         <% } %>
 
                          
