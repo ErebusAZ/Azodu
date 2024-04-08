@@ -153,7 +153,6 @@
         $('form#submit_post_form').on('submit', function (e) {
           e.preventDefault(); // Prevent the form from submitting through the browser
 
-          $('button[type="submit"]').prop('disabled', true).text('Submitting...');
 
           var postType = $('#postType').val();
           var title = $('#postTitle').val();
@@ -162,6 +161,23 @@
           var contentUrl = postType === 'url' ? $('#postContentUrl').val() : null;
 
           contentText = processHTMLFromUsers(contentText); 
+
+          if(postType === 'text') {
+
+            console.log(postType); 
+            var result = validateComment(contentText);
+
+            if(!result.isValid) {
+
+              showNotification('Comment is too short or unsubstantive.', 'error', 5000);
+              return; 
+
+            }
+
+          }
+
+          $('button[type="submit"]').prop('disabled', true).text('Submitting...');
+
 
           // Prepare the formData object
           var formData = {
@@ -172,7 +188,6 @@
             contentUrl: contentUrl
           };
 
-          console.log(contentUrl);
           // Get the authToken from local storage
           var authToken = localStorage.getItem('authToken');
 
