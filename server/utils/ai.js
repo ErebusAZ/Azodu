@@ -100,9 +100,8 @@ async function generateAIComment(title, summary, model, post_id) {
       commentsCache[post_id] = []; // Mark this title as having no more comments available
       return null;
     }
-
     // Wrap each comment in <p> tags
-    const wrappedListItems = listItems.map(comment => `<p>${removeQuotesFromString(comment)}</p>`);
+    const wrappedListItems = listItems.map(comment => `<p>${ makeTextMoreHuman(removeQuotesFromString(comment))}</p>`);
     commentsCache[post_id] = wrappedListItems.slice(1); // Cache the remaining comments
     
     return wrappedListItems.length > 0 ? wrappedListItems[0] : null;
@@ -163,8 +162,32 @@ async function moderateContent(content) {
 
 
 
+function makeTextMoreHuman(text, noCapitalizeChance = 20, removePeriodChance = 20) {
+  // Split the text into sentences
+  const sentences = text.split('. ');
+  
+  // Process each sentence for capitalization
+  let processedSentences = sentences.map(sentence => {
+    // Randomly decide not to capitalize the first letter of a sentence
+    if (Math.random() * 100 < noCapitalizeChance) {
+      // Ensure there's a sentence to process
+      if (sentence.length > 0) {
+        return sentence.charAt(0).toLowerCase() + sentence.slice(1);
+      }
+    }
+    return sentence;
+  });
 
+  // Join the processed sentences back into text
+  let processedText = processedSentences.join('. ');
 
+  // Regardless of the number of sentences, randomly decide to remove the last period
+  if (processedText.endsWith('.') && Math.random() * 100 < removePeriodChance) {
+    processedText = processedText.slice(0, -1);
+  }
+
+  return processedText;
+}
 
 module.exports = {
   generateAIComment,
