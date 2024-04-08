@@ -482,8 +482,16 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
   if (postType === 'text') {
       const result = validateComment(content);
       if (!result.isValid) {
-          return res.status(400).json({ message: 'Failed to submit post. Reason: ' + result.message, error: true });
+        return res.status(400).json({ status: 'error',message: 'Failed to submit post. Reason: ' + result.message, error: true });
       }
+
+      const isContentSafe = await moderateContent(content,title);
+      console.log("Is content safe?", isContentSafe);
+      if (!isContentSafe) {
+        return res.status(400).json({ status: 'error',message: 'Your comment was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
+      }
+    
+    
   } else if (postType === 'url' && contentUrl) {
 
 
