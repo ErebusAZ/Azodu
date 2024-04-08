@@ -677,7 +677,7 @@
                 let tweetUrl = twitterPlaceholder.data('twitter-url');
 
                 if (tweetUrl) {
-                    let embedCode = `<blockquote class="twitter-tweet"><a href="${tweetUrl}"></a></blockquote>`;
+                    let embedCode = `<blockquote class="twitter-tweet" data-theme="dark"><a href="${tweetUrl}"></a></blockquote>`;
                     twitterPlaceholder.html(embedCode).addClass('twitter-loaded');
 
                     // Check if the Twitter widgets script has already been loaded
