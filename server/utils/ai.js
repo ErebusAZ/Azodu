@@ -69,23 +69,23 @@ function removeQuotesFromString(inputString) {
 // Simulated cache for storing and retrieving generated comments by title
 const commentsCache = {};
 
+function removeUnwantedPatterns(inputString) {
+  // Remove occurrences of "..." or ".."
+  return inputString.replace(/\.\.+/g, '');
+}
+
 async function generateAIComment(title, summary, model, post_id) {
-  const maxNum = getRandomNumberBetween(3, 7); 
+  const maxNum = getRandomNumberBetween(3, 7);
 
   if (commentsCache[post_id] && commentsCache[post_id].length === 0) {
-    // All comments for this title have been used. Post id: + post_id + ' title: ' + title
     return null; // No more comments to serve for this title
   }
 
   if (commentsCache[post_id] && commentsCache[post_id].length > 0) {
-    // Responding with cached comment
     const comment = commentsCache[post_id].shift();
-
-    // Check if we've just served the last comment
     if (commentsCache[post_id].length === 0) {
       // No more cached comments for this title.
     }
-
     return comment;
   }
 
@@ -105,25 +105,25 @@ async function generateAIComment(title, summary, model, post_id) {
       return null;
     }
 
-    // Filter out comments with these words
-    listItems = listItems.filter(comment => !comment.toLowerCase().includes('interesting'));
-    listItems = listItems.filter(comment => !comment.toLowerCase().includes('unfortunate'));
-    listItems = listItems.filter(comment => !comment.toLowerCase().includes('excited'));
-    listItems = listItems.filter(comment => !comment.toLowerCase().includes('We need to'));
-    listItems = listItems.filter(comment => !comment.toLowerCase().includes('important'));
+    // Filter out specific phrases and remove unwanted patterns
+    listItems = listItems.filter(comment => !comment.toLowerCase().includes('interesting'))
+      .filter(comment => !comment.toLowerCase().includes('unfortunate'))
+      .filter(comment => !comment.toLowerCase().includes('excited'))
+      .filter(comment => !comment.toLowerCase().includes('we need to'))
+      .filter(comment => !comment.toLowerCase().includes('important'))
+      .map(comment => removeUnwantedPatterns(comment)); // New line to remove "..." and ".."
 
-    
-
-    // Wrap each comment in <p> tags and process them
+    // Process comments
     const wrappedListItems = listItems.map(comment => `<p>${makeTextMoreHuman(removeQuotesFromString(comment))}</p>`);
     commentsCache[post_id] = wrappedListItems.slice(1); // Cache the remaining comments
-    
+
     return wrappedListItems.length > 0 ? wrappedListItems[0] : null;
   } catch (error) {
     console.error('Error generating comment from OpenAI:', error);
     return null;
   }
 }
+
 
 
 
@@ -180,7 +180,7 @@ async function moderateContent(content) {
 function makeTextMoreHuman(text, noCapitalizeChance = 20, removePeriodChance = 20) {
   // Split the text into sentences
   const sentences = text.split('. ');
-  
+
   // Process each sentence for capitalization
   let processedSentences = sentences.map(sentence => {
     // Randomly decide not to capitalize the first letter of a sentence
@@ -207,5 +207,5 @@ function makeTextMoreHuman(text, noCapitalizeChance = 20, removePeriodChance = 2
 module.exports = {
   generateAIComment,
   generateSummary,
-  moderateContent 
+  moderateContent
 };
