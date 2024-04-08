@@ -21,7 +21,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 <script src="/js/login.js"></script>
 <script src="/js/admin.js"></script>
-<script async src="/js/libs/twidgets.js" charset="utf-8"></script>
 
 <script>
     function showNotification(message, type = 'info', duration = 3000, callback = null) {
@@ -228,7 +227,7 @@
     }
 
 
-    function getCommentHtml(commentId, author, content, depth = 0, votes, timestamp, parent_id, linkBlacklist, postPermalink,isSaved,categoryCreator,postAuthor) {
+    function getCommentHtml(commentId, author, content, depth = 0, votes, timestamp, parent_id, linkBlacklist, postPermalink, isSaved, categoryCreator, postAuthor) {
         const currentUser = localStorage.getItem('username');
         const backgroundColor = depth % 2 === 0 ? '#2d2d2d' : '#2d2d2d';
 
@@ -250,13 +249,13 @@
     </div>
     <div class="comment-content">
         <div class="comment-header">
-            <a href="/u/${author}" class="username` + (categoryCreator == author ? ' cat_creator' : '') + (postAuthor == author ? ' post_creator': '') + `">${author}</a>
+            <a href="/u/${author}" class="username` + (categoryCreator == author ? ' cat_creator' : '') + (postAuthor == author ? ' post_creator' : '') + `">${author}</a>
             <span class="time">${timestamp ? timeAgo(timestamp) : 'just now'}</span>
         </div>
         <div class="comment-text">${content}</div>
 
         <div class="comment-links">
-            <a target="_blank" href="${postPermalink}#comment-${commentId}">link</a>` + 
+            <a target="_blank" href="${postPermalink}#comment-${commentId}">link</a>` +
             (isSaved ? '<a href="#" class="unsave_comment">unsave</a>' : '<a href="#" class="save_comment">save</a>') + `
             ${isAuthor && shouldDisplayLink('edit') ? `<a href="#edit" class="edit">edit</a>` : ''}
             ${isAuthor && shouldDisplayLink('delete') ? `<a href="#delete" class="delete">delete</a>` : ''}
@@ -274,11 +273,17 @@
     }
 
     function generatePostHtml(post, isSaved) {
+        let isTwitterUrl = post.content && post.content.includes("twitter.com");
 
         const postTitleHref = post.post_type === 'url' ? post.content : post.permalink;
         let contentDisplay = post.post_type === 'url' && post.ai_summary ?
             `<div style="display:none;" class="post-text">${post.ai_summary}<span class="ai_summary_heading">AI-generated summary</span></div>` :
             `<div style="display:none;" class="post-text">${post.content}</div>`;
+
+        contentDisplay = isTwitterUrl ?
+            `<div style="display:none;" class="post-text"><div class="twitter-placeholder" data-twitter-url="${post.content}" style="display:none;">Loading tweet...</div></div>` :
+            contentDisplay;
+
 
         const link = post.post_type === 'url' ?
             `<a href="${postTitleHref}" class="post-title single-line" target="_blank">${post.title}<i class="fas fa-external-link-alt"></i></a><i class="fas fa-plus open-content" style="float:left;"></i>` :
@@ -605,7 +610,7 @@
                         $(this).remove();
                     });
                     console.log('Post unsaved successfully:', response);
-                  //  alert('Post unsaved successfully!');
+                    //  alert('Post unsaved successfully!');
                     $button.text('Save'); // Change the button text back to "Save"
                     $button.removeClass('unsave_post').addClass('save_post'); // Change the class to reflect the new action
                 },
@@ -662,14 +667,36 @@
 
 
 
-
-        // JavaScript for toggling the display of the content
         $('.container').on('click', '.open-content', function () {
-            // Toggle the icon class between fa-plus and fa-minus
-            $(this).toggleClass('fa-plus fa-minus');
-            // Toggle the display of the content or iframe
-            $(this).closest('.post').find('.post-iframe, .post-text').slideToggle(0);
-        });
+    $(this).toggleClass('fa-plus fa-minus');
+    $(this).closest('.post').find('.post-text, .twitter-placeholder').slideToggle(0);
+
+    let twitterPlaceholder = $(this).closest('.post').find('.twitter-placeholder');
+
+    if (twitterPlaceholder.length > 0 && !twitterPlaceholder.hasClass('twitter-loaded')) {
+        let tweetUrl = twitterPlaceholder.data('twitter-url');
+        
+        if (tweetUrl) {
+            let embedCode = `<blockquote class="twitter-tweet"><a href="${tweetUrl}"></a></blockquote>`;
+            twitterPlaceholder.html(embedCode).addClass('twitter-loaded');
+
+            // Check if the Twitter widgets script has already been loaded
+            if (!window.twttr) {
+                let script = document.createElement('script');
+                script.setAttribute('src', 'https://platform.twitter.com/widgets.js');
+                script.onload = function() {
+                    // Once the script is loaded, initialize the widget
+                    twttr.widgets.load();
+                };
+                document.body.appendChild(script);
+            } else {
+                // If the script is already loaded, just reload the widgets
+                twttr.widgets.load();
+            }
+        }
+    }
+});
+
 
 
 
