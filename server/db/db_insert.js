@@ -238,7 +238,7 @@ async function populateTestData(client, numberOfPosts = 100) {
     const title = faker.lorem.sentence();
     const author = faker.internet.userName();
     const categoryOptions = ['category1', 'category2', 'category3'];
-    const category = 'everything';
+    const category = 'anything';
     const postTypeOptions = ['text', 'url'];
     const postType = postTypeOptions[Math.floor(Math.random() * postTypeOptions.length)];
     const content = postType === 'text' ? faker.lorem.paragraph() : faker.internet.url();

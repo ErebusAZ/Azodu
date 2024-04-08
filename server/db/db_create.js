@@ -286,7 +286,7 @@ async function createDefaultCategories(client, defaultCategories) {
 
     // Using Lorem Ipsum text for default values where needed
     const creator = "azodu";
-    const description = "The category for everything and anything! Post anything you'd like here.";
+    const description = "The category for anything and everything! Post anything you'd like here.";
     const moderators = "azodu"; // Adjust based on how moderators are stored. If it's a list, you might need to serialize it accordingly.
     const isDefault = true;
 

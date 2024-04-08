@@ -109,7 +109,7 @@ let postsVoteSummary = {};
 const loginExpires = 86400 * 30; // how long till login expires
 const updateInterval = 10 * 1000; // how quickly to fetch all posts and update votes
 
-const defaultCategories = ["everything","Books"];
+const defaultCategories = ["anything","Books"];
 
 
 const COMMENT_GENERATION_INTERVAL_MS = 60000; // 1 min
@@ -284,7 +284,7 @@ async function fetchFromExternalAndCreatePosts() {
 
 
       const checkQuery = 'SELECT link FROM my_keyspace.links WHERE link = ? AND category = ?';
-      const checkResult = await client.execute(checkQuery, [url, 'everything'], { prepare: true });
+      const checkResult = await client.execute(checkQuery, [url, 'anything'], { prepare: true });
 
       if (checkResult.rowLength === 0) {
         // Process new post
@@ -300,7 +300,7 @@ async function fetchFromExternalAndCreatePosts() {
           console.error('Error fetching URL content or generating summary from: ' + url);
         }
 
-        await insertPostData(client, title, author, 'everything', 'url', url, thumbnail, summary, true);
+        await insertPostData(client, title, author, 'anything', 'url', url, thumbnail, summary, true);
         processedTitles.add(title); // Prevent future reposts of the same title
       } else {
         processedTitles.add(url); // Skip posts already in the database
@@ -324,7 +324,7 @@ setInterval(fetchFromExternalAndCreatePosts, FREQUENCY_TO_CREATE_POSTS_FROM_EXTE
 
 
 setInterval(() => {
-  fetchPostsAndCalculateVotes(client,'everything',postsVoteSummary).then(result => {
+  fetchPostsAndCalculateVotes(client,'anything',postsVoteSummary).then(result => {
     postsVoteSummary = result;
   }).catch(error => {
     console.error('Failed to fetch posts and calculate votes:', error);
@@ -1010,7 +1010,7 @@ app.listen(port, () => {
 
 app.get('/api/posts', async (req, res) => {
   let { startPostId, category } = req.query;
-  category = (category && category != 'null' && category != undefined ? category : category = 'everything');
+  category = (category && category != 'null' && category != undefined ? category : category = 'anything');
   let params = [category];
   let query = 'SELECT * FROM my_keyspace.posts WHERE category = ?';
 
@@ -1052,7 +1052,7 @@ app.get('/api/mySavedPosts', authenticateToken, async (req, res) => {
 
       // Fetch each post's details. Note: For efficiency, consider batching these queries or adjusting your data model.
       const postsDetailsPromises = savedPostsIds.map(postId =>
-        client.execute('SELECT * FROM my_keyspace.posts WHERE post_id = ? AND category = ?', [postId,'everything'], { prepare: true })
+        client.execute('SELECT * FROM my_keyspace.posts WHERE post_id = ? AND category = ?', [postId,'anything'], { prepare: true })
       );
       const postsDetailsResults = await Promise.all(postsDetailsPromises);
       const posts = postsDetailsResults.map(result => result.rows[0]); // Assuming each query returns exactly one post
@@ -1138,7 +1138,7 @@ async function main() {
   try {
 
     //   await flushAllTables(client,'my_keyspace','comments'); 
-  //  await dropAllTables(client, 'my_keyspace'); 
+ //   await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
