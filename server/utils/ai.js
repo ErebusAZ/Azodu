@@ -63,23 +63,20 @@ function removeQuotesFromString(inputString) {
 const commentsCache = {};
 
 async function generateAIComment(title, summary, model, post_id) {
-  
-
   const maxNum = getRandomNumberBetween(3, 7); 
 
-  // Check if this title's cache indicates all comments have been used
   if (commentsCache[post_id] && commentsCache[post_id].length === 0) {
- //   console.log('All comments for this title have been used. Post id: ' + post_id + ' title: ' + title);
+    // All comments for this title have been used. Post id: + post_id + ' title: ' + title
     return null; // No more comments to serve for this title
   }
 
   if (commentsCache[post_id] && commentsCache[post_id].length > 0) {
-  //  console.log('Responding with cached comment');
+    // Responding with cached comment
     const comment = commentsCache[post_id].shift();
 
     // Check if we've just served the last comment
     if (commentsCache[post_id].length === 0) {
-   //   console.log('No more cached comments for this title.');
+      // No more cached comments for this title.
     }
 
     return comment;
@@ -95,13 +92,17 @@ async function generateAIComment(title, summary, model, post_id) {
     });
 
     let generatedContent = completion.choices[0].message.content.trim();
-    const listItems = htmlListToArray(generatedContent);
+    let listItems = htmlListToArray(generatedContent);
     if (listItems.length < 1) {
       commentsCache[post_id] = []; // Mark this title as having no more comments available
       return null;
     }
-    // Wrap each comment in <p> tags
-    const wrappedListItems = listItems.map(comment => `<p>${ makeTextMoreHuman(removeQuotesFromString(comment))}</p>`);
+
+    // Filter out comments containing the word "interesting"
+    listItems = listItems.filter(comment => !comment.toLowerCase().includes('interesting'));
+
+    // Wrap each comment in <p> tags and process them
+    const wrappedListItems = listItems.map(comment => `<p>${makeTextMoreHuman(removeQuotesFromString(comment))}</p>`);
     commentsCache[post_id] = wrappedListItems.slice(1); // Cache the remaining comments
     
     return wrappedListItems.length > 0 ? wrappedListItems[0] : null;
@@ -110,6 +111,7 @@ async function generateAIComment(title, summary, model, post_id) {
     return null;
   }
 }
+
 
 
 
