@@ -51,12 +51,19 @@ function getRandomNumberBetween(min, max) {
 }
 
 function removeQuotesFromString(inputString) {
-  // Replace all occurrences of double quotes in the string
-  const withoutDoubleQuotes = inputString.replace(/"/g, '');
-  // Replace all occurrences of single quotes in the string
-  const result = withoutDoubleQuotes.replace(/'/g, '');
-  return result;
+  // Check if the first character is a quote (double or single) and remove it
+  if (inputString.startsWith('"') || inputString.startsWith("'")) {
+    inputString = inputString.substring(1);
+  }
+
+  // Check if the last character is a quote (double or single) and remove it
+  if (inputString.endsWith('"') || inputString.endsWith("'")) {
+    inputString = inputString.substring(0, inputString.length - 1);
+  }
+
+  return inputString;
 }
+
 
 
 // Simulated cache for storing and retrieving generated comments by title
