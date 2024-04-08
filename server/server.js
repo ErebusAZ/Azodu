@@ -467,8 +467,13 @@ app.post('/api/unsubscribe', authenticateToken, async (req, res) => {
 });
 
 
+async function getTwitterEmbedCode(url) {
+  return `<blockquote class="twitter-tweet" data-theme="dark"><a href="${url}"></a></blockquote>`;
+}
 
 
+
+// Your existing route with modifications to handle embedding
 app.post('/submitPost', authenticateToken, async (req, res) => {
   const creator = req.user.username;
   let { title, category, postType, contentText, contentUrl } = req.body;
@@ -476,52 +481,51 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
   let thumbnail = null;
   let summary = ""; // Initialize summary variable
 
-  contentText = processHTMLFromUsers(contentText); 
-
+  contentText = processHTMLFromUsers(contentText);
 
   if (postType === 'text') {
-      const result = validateComment(content);
-      if (!result.isValid) {
-        return res.status(400).json({ status: 'error',message: 'Failed to submit post. Reason: ' + result.message, error: true });
-      }
+    const result = validateComment(content);
+    if (!result.isValid) {
+      return res.status(400).json({ status: 'error', message: 'Failed to submit post. Reason: ' + result.message, error: true });
+    }
 
-      const isContentSafe = await moderateContent(content,title);
-      console.log("Is content safe?", isContentSafe);
-      if (!isContentSafe) {
-        return res.status(400).json({ status: 'error',message: 'Your comment was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
-      }
-    
-    
+    const isContentSafe = await moderateContent(content, title);
+    console.log("Is content safe?", isContentSafe);
+    if (!isContentSafe) {
+      return res.status(400).json({ status: 'error', message: 'Your comment was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
+    }
+
+
   } else if (postType === 'url' && contentUrl) {
+    thumbnail = await fetchURLAndParseForThumb(contentUrl);
 
+    if (contentUrl.includes('x.com') || contentUrl.includes('twitter.com')) {
 
-      thumbnail = await fetchURLAndParseForThumb(contentUrl);
+      summary = await getTwitterEmbedCode(contentUrl);
+      title += ' [twitter]';
 
+    } else {
       try {
-          // Fetch content from the URL
-          const { data } = await axios.get(contentUrl);
-          // Extract relevant text to summarize (this step may vary based on content)
-          const extractedText = extractRelevantText(data); // Implement this function based on your needs
-          // Generate a summary of the extracted text
+        // Fetch content from the URL
+        const { data } = await axios.get(contentUrl);
+        // Extract relevant text to summarize (this step may vary based on content)
+        const extractedText = extractRelevantText(data); // Implement this function based on your needs
+        // Generate a summary of the extracted text
         summary = await generateSummary(extractedText);
- 
-               
-
       } catch (fetchError) {
-          console.error('Error fetching URL content for: ' + contentUrl);
+        console.error('Error fetching URL content for: ' + contentUrl);
         //  return res.status(500).json({ message: 'Failed to fetch URL content' });
       }
+    }
   }
 
   try {
-      await insertPostData(client, title, creator, category, postType, content, thumbnail,summary);
-      res.status(200).json({ message: 'Post submitted successfully. Redirecting ...', summary: summary });
+    await insertPostData(client, title, creator, category, postType, content, thumbnail, summary);
+    res.status(200).json({ message: 'Post submitted successfully. Redirecting ...', summary: summary });
   } catch (error) {
-      res.status(500).json({ message: '' + error,error: true });
+    res.status(500).json({ message: '' + error, error: true });
   }
 });
-
-
 
 
 app.post('/submitCategory', authenticateToken, async (req, res) => {
@@ -1146,7 +1150,7 @@ async function main() {
   try {
 
     //   await flushAllTables(client,'my_keyspace','comments'); 
- //   await dropAllTables(client, 'my_keyspace'); 
+  //  await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
