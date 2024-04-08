@@ -98,8 +98,12 @@ async function generateAIComment(title, summary, model, post_id) {
       return null;
     }
 
-    // Filter out comments containing the word "interesting"
+    // Filter out comments with these words
     listItems = listItems.filter(comment => !comment.toLowerCase().includes('interesting'));
+    listItems = listItems.filter(comment => !comment.toLowerCase().includes('unfortunate'));
+    listItems = listItems.filter(comment => !comment.toLowerCase().includes('excited'));
+
+    
 
     // Wrap each comment in <p> tags and process them
     const wrappedListItems = listItems.map(comment => `<p>${makeTextMoreHuman(removeQuotesFromString(comment))}</p>`);
