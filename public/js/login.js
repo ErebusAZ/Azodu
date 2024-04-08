@@ -46,6 +46,7 @@ $(document).ready(function () {
             localStorage.removeItem('authToken');
             localStorage.removeItem('username'); // If you're also storing the username
             localStorage.removeItem('userSubscriptions');
+            localStorage.setItem('userRoles', JSON.stringify([]));
 
             window.location.href = '/'; // Redirect to login page or home page
         });
@@ -182,6 +183,9 @@ $(document).ready(function () {
             $loginRegisterButton.show();
             $logoutButton.hide(); // Hide the logout button using jQuery
         }
+
+        showHideAdminUI();
+
     }
     
 

@@ -49,6 +49,12 @@ $(document).on('click', function () {
 });
 
 $(document).ready(function () {
+
+    showHideAdminUI();
+});
+
+function showHideAdminUI() {
+
     var rolesString = localStorage.getItem('userRoles');
     var roles = rolesString ? JSON.parse(rolesString) : [];
     var isAdmin = false;
@@ -62,9 +68,13 @@ $(document).ready(function () {
 
     if (isAdmin) {
         $('body').addClass('is_admin');
-    }
-});
+    } else {
+        $('body').removeClass('is_admin');
 
+
+    }
+
+}
 
 function deletePost(postId) {
     // Confirm with the user before proceeding to delete
