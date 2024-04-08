@@ -300,7 +300,7 @@ async function fetchFromExternalAndCreatePosts() {
           console.error('Error fetching URL content or generating summary from: ' + url);
         }
 
-        await insertPostData(client, title, author, 'anything', 'url', url, thumbnail, summary, true);
+        await insertPostData(client, title, author, 'anything', 'url', url, thumbnail, summary, false);
         processedTitles.add(title); // Prevent future reposts of the same title
       } else {
         processedTitles.add(url); // Skip posts already in the database
