@@ -11,18 +11,38 @@
     <script>
       function togglePostContentField() {
         var postType = document.getElementById('postType').value;
-        if (postType === 'text') {
+        var postTitle = document.getElementById('postTitle');
+        var postContentText = document.getElementById('postContentText');
+        var postContentUrl = document.getElementById('postContentUrl');
+        var urlContent = document.getElementById('urlContent');
 
+        // Clear all fields when switching post types
+        if (postTitle) postTitle.value = '';
+        if (postContentText) postContentText.value = '';
+        if (postContentUrl) postContentUrl.value = '';
+
+        if (postType === 'text') {
           $('#submit_post_form .ql-toolbar,#submit_post_text').show();
-          document.getElementById('urlContent').style.display = 'none';
-        } else {
+          if (urlContent) urlContent.style.display = 'none';
+          // Set required attributes for text post
+          if (postTitle) postTitle.setAttribute('required', '');
+          if (postContentText) postContentText.setAttribute('required', '');
+          // Remove required attribute for URL post, if present
+          if (postContentUrl) postContentUrl.removeAttribute('required');
+        } else if (postType === 'url') {
           $('#submit_post_form .ql-toolbar,#submit_post_text').hide();
-          document.getElementById('urlContent').style.display = '';
+          if (urlContent) urlContent.style.display = '';
+          // Remove required attributes for text post
+          if (postTitle) postTitle.setAttribute('required', '');
+          if (postContentText) postContentText.removeAttribute('required');
+          // Set required attribute for URL post
+          if (postContentUrl) postContentUrl.setAttribute('required', '');
         }
       }
-
-
       $(document).ready(function () {
+
+        $('#postType').change(togglePostContentField);
+
         // Function to get query parameter by name
         function getQueryParamByName(name) {
           var url = window.location.href;
@@ -100,13 +120,13 @@
 
 
           <div id="submit_post_text" class="contentField">
-            <textarea id="postContentText" name="contentText" placeholder="Enter text (optional)"></textarea>
+            <textarea id="postContentText" name="contentText" placeholder="Enter text"></textarea>
 
           </div>
 
           <div id="urlContent" class="contentField" style="display: none;">
             <label for="postContentUrl">URL:</label>
-            <input type="url" id="postContentUrl" name="contentUrl" placeholder="Enter URL (optional)">
+            <input type="url" id="postContentUrl" name="contentUrl" placeholder="Enter URL">
           </div>
 
           <input type="hidden" id="quillContentText" name="contentText">
@@ -136,7 +156,7 @@
             ]
           },
           theme: 'snow',
-          placeholder: 'Enter text (optional)',
+          placeholder: 'Enter text',
         });
 
 
@@ -160,17 +180,17 @@
           var contentText = postType === 'text' ? quill.root.innerHTML : null;
           var contentUrl = postType === 'url' ? $('#postContentUrl').val() : null;
 
-          contentText = processHTMLFromUsers(contentText); 
+          contentText = processHTMLFromUsers(contentText);
 
-          if(postType === 'text') {
+          if (postType === 'text') {
 
-            console.log(postType); 
+            console.log(postType);
             var result = validateComment(contentText);
 
-            if(!result.isValid) {
+            if (!result.isValid) {
 
               showNotification('Comment is too short or unsubstantive.', 'error', 5000);
-              return; 
+              return;
 
             }
 
@@ -202,7 +222,7 @@
           })
             .then(response => response.json()) // Always parse JSON, regardless of the response status
             .then(data => {
-              if (data.status =="error") {
+              if (data.status == "error") {
                 throw new Error(data.message); // Use the server-provided error message
                 console.log('data error');
               } else {
