@@ -88,6 +88,7 @@ p {
 
 ul {
     font-size: 14px;
+    line-height: 20px; 
 }
 
 /*
@@ -997,12 +998,12 @@ button#submit-comment {
 
 }
 
-.username.cat_creator  {
+.username.cat_creator,span.cat_creator  {
     color: #fdc560; 
 
 }
 
-.username.post_creator {
+.username.post_creator,span.post_creator {
     color: #6cfd6c; 
 
 }
@@ -1187,9 +1188,18 @@ button#submit-comment {
 }
 
 
-form#submit_post_form, form#submit_category_form {
+form#submit_post_form, form#submit_category_form,#category_submit_info {
     padding: 33px 50px;
 }
+
+
+#category_submit_info {
+
+    background-color: #252525;
+    margin-top: 20px;
+    border-radius: 5px; 
+}
+    
 
 
 .submission-form {
@@ -2091,3 +2101,9 @@ ul.tabs li.current {
 div#user-posts {
     margin-top: 3px;
 }
+
+
+
+
+
+
