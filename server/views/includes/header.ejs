@@ -668,34 +668,34 @@
 
 
         $('.container').on('click', '.open-content', function () {
-    $(this).toggleClass('fa-plus fa-minus');
-    $(this).closest('.post').find('.post-text, .twitter-placeholder').slideToggle(0);
+            $(this).toggleClass('fa-plus fa-minus');
+            $(this).closest('.post').find('.post-text, .twitter-placeholder').slideToggle(0);
 
-    let twitterPlaceholder = $(this).closest('.post').find('.twitter-placeholder');
+            let twitterPlaceholder = $(this).closest('.post').find('.twitter-placeholder');
 
-    if (twitterPlaceholder.length > 0 && !twitterPlaceholder.hasClass('twitter-loaded')) {
-        let tweetUrl = twitterPlaceholder.data('twitter-url');
-        
-        if (tweetUrl) {
-            let embedCode = `<blockquote class="twitter-tweet"><a href="${tweetUrl}"></a></blockquote>`;
-            twitterPlaceholder.html(embedCode).addClass('twitter-loaded');
+            if (twitterPlaceholder.length > 0 && !twitterPlaceholder.hasClass('twitter-loaded')) {
+                let tweetUrl = twitterPlaceholder.data('twitter-url');
 
-            // Check if the Twitter widgets script has already been loaded
-            if (!window.twttr) {
-                let script = document.createElement('script');
-                script.setAttribute('src', 'https://platform.twitter.com/widgets.js');
-                script.onload = function() {
-                    // Once the script is loaded, initialize the widget
-                    twttr.widgets.load();
-                };
-                document.body.appendChild(script);
-            } else {
-                // If the script is already loaded, just reload the widgets
-                twttr.widgets.load();
+                if (tweetUrl) {
+                    let embedCode = `<blockquote class="twitter-tweet"><a href="${tweetUrl}"></a></blockquote>`;
+                    twitterPlaceholder.html(embedCode).addClass('twitter-loaded');
+
+                    // Check if the Twitter widgets script has already been loaded
+                    if (!window.twttr) {
+                        let script = document.createElement('script');
+                        script.setAttribute('src', 'https://platform.twitter.com/widgets.js');
+                        script.onload = function () {
+                            // Once the script is loaded, initialize the widget
+                            twttr.widgets.load();
+                        };
+                        document.body.appendChild(script);
+                    } else {
+                        // If the script is already loaded, just reload the widgets
+                        twttr.widgets.load();
+                    }
+                }
             }
-        }
-    }
-});
+        });
 
 
 
