@@ -227,7 +227,7 @@
     }
 
 
-    function getCommentHtml(commentId, author, content, depth = 0, votes, timestamp, parent_id, linkBlacklist, postPermalink,isSaved) {
+    function getCommentHtml(commentId, author, content, depth = 0, votes, timestamp, parent_id, linkBlacklist, postPermalink,isSaved,categoryCreator) {
         const currentUser = localStorage.getItem('username');
         const backgroundColor = depth % 2 === 0 ? '#2d2d2d' : '#2d2d2d';
 
@@ -249,7 +249,7 @@
     </div>
     <div class="comment-content">
         <div class="comment-header">
-            <a href="/u/${author}" class="username">${author}</a>
+            <a href="/u/${author}" class="username` + (categoryCreator == author ? ' cat_creator' : '') + `">${author}</a>
             <span class="time">${timestamp ? timeAgo(timestamp) : 'just now'}</span>
         </div>
         <div class="comment-text">${content}</div>

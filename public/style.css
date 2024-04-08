@@ -997,6 +997,11 @@ button#submit-comment {
 
 }
 
+.username.cat_creator {
+color: #2fe22f; 
+
+}
+
 .points, .time {
     color: #828282;
     /* Gray color for points and timestamp */

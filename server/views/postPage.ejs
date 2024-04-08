@@ -15,6 +15,7 @@
 
             var post = <%- JSON.stringify(post) %>;
 
+            var category = <%- JSON.stringify(category) %>;
 
 
             function scrollToComment() {
@@ -87,10 +88,9 @@
 
             function renderComments(comments, depth = 0,postPermalink) {
                 let html = ''; // Start with an empty string
-
                 comments.forEach(comment => {
                     // Use getCommentHtml with individual parameters
-                    html += getCommentHtml(comment.comment_id, comment.author, comment.content, depth, comment.upvotes - comment.downvotes, comment.timestamp,comment.parent_id,undefined,postPermalink);
+                    html += getCommentHtml(comment.comment_id, comment.author, comment.content, depth, comment.upvotes - comment.downvotes, comment.timestamp,comment.parent_id,undefined,postPermalink,false,category.creator);
 
                     // Check for replies and recursively render them
                     if (comment.replies && comment.replies.length > 0) {
