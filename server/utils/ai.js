@@ -109,6 +109,7 @@ async function generateAIComment(title, summary, model, post_id) {
     listItems = listItems.filter(comment => !comment.toLowerCase().includes('interesting'));
     listItems = listItems.filter(comment => !comment.toLowerCase().includes('unfortunate'));
     listItems = listItems.filter(comment => !comment.toLowerCase().includes('excited'));
+    listItems = listItems.filter(comment => !comment.toLowerCase().includes('We need to'));
 
     
 
