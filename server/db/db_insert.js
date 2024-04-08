@@ -1,5 +1,8 @@
 const uuid = require('uuid');
 const os = require('os');
+const { v1: uuidv1 } = require('uuid');
+const { types } = require('cassandra-driver');
+
 
 const { faker } = require('@faker-js/faker');
 
@@ -22,31 +25,9 @@ function getServerIpAddress() {
 
 
 function generateContentId() {
-  const toBase62 = (num) => {
-    const characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let result = '';
-    while (num > 0) {
-      result = characters[num % 62] + result;
-      num = Math.floor(num / 62);
-    }
-    return result || '0';
-  };
+  return types.TimeUuid.fromDate(new Date(), uuidv1()).toString();
 
-  // Use the full timestamp, but remove the first few characters to shorten it
-  // Ensure it remains a fixed length for consistent sorting
-  const timestampPart = Date.now();
-  const baseTimestamp = timestampPart.toString().substring(3); // Example adjustment
-
-  // Convert the adjusted timestamp to base62
-  const encodedTimestamp = toBase62(parseInt(baseTimestamp, 10));
-
-  // Concatenate this with any other components you wish to include for uniqueness
-  // Other components might be minimized or hashed to manage length
-  const uniqueComponent = toBase62(Math.floor(Math.random() * 1e6));
-
-  return `${encodedTimestamp}${uniqueComponent}`;
 }
-
 
 
 

@@ -42,7 +42,7 @@ async function createUserSavedPostsTable(client) {
   const query = `
     CREATE TABLE IF NOT EXISTS my_keyspace.user_saved_posts (
       username text,
-      post_id text,
+      post_id timeuuid,
       saved_timestamp timestamp,
       PRIMARY KEY ((username), post_id)
     ) WITH CLUSTERING ORDER BY (post_id DESC);
@@ -62,7 +62,7 @@ async function createUserSavedCommentsTable(client) {
   CREATE TABLE IF NOT EXISTS my_keyspace.user_saved_comments (
     username text,
     comment_id text,
-    post_id text,
+    post_id timeuuid,
     saved_timestamp timestamp,
     PRIMARY KEY (username, comment_id)
   ) WITH CLUSTERING ORDER BY (comment_id DESC);  
@@ -113,7 +113,7 @@ async function createCommentsTable(client) {
   const query = `
   CREATE TABLE IF NOT EXISTS my_keyspace.comments (
     comment_id text,
-    post_id text,
+    post_id timeuuid,
     author text,
     parent_id text,
     post_type text,
@@ -179,7 +179,7 @@ async function createPostsTable(client) {
   const query = `
   CREATE TABLE IF NOT EXISTS my_keyspace.posts (
     category text,
-    post_id text,
+    post_id timeuuid,
     title text,
     author text,
     post_type text,
@@ -220,7 +220,7 @@ async function createLinksTable(client) {
     CREATE TABLE IF NOT EXISTS my_keyspace.links (
       link text,
       category text,
-      post_id text,
+      post_id timeuuid,
       timestamp timestamp,
       PRIMARY KEY ((link, category))
     );
@@ -250,7 +250,7 @@ async function createCategoriesTable(client) {
 async function createVotesTable(client) {
   const query = `
     CREATE TABLE IF NOT EXISTS my_keyspace.votes (
-      post_id text,
+      post_id timeuuid,
       ip text,
       is_upvote boolean,
       PRIMARY KEY ((post_id), ip)
