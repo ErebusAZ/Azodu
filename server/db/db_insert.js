@@ -22,36 +22,31 @@ function getServerIpAddress() {
 
 
 function generateContentId() {
-
-  function ipToNumber(ip) {
-    return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0);
-  }
-
-  function toBase62(num) {
+  const toBase62 = (num) => {
     const characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     let result = '';
     while (num > 0) {
       result = characters[num % 62] + result;
       num = Math.floor(num / 62);
     }
-    return result;
-  }
+    return result || '0';
+  };
 
-  const timestampPart = Date.now(); // Millisecond precision timestamp
-  const highResTimePart = process.hrtime.bigint() % BigInt(1e9); // Corrected: Use BigInt for the modulo operation
-  const ipAddressPart = ipToNumber(getServerIpAddress()); // IP address as a number
-  const processId = process.pid; // Process identifier
-  const randomPart = Math.floor(Math.random() * 1e6); // 6 digit random number for added entropy
+  // Use the full timestamp, but remove the first few characters to shorten it
+  // Ensure it remains a fixed length for consistent sorting
+  const timestampPart = Date.now();
+  const baseTimestamp = timestampPart.toString().substring(3); // Example adjustment
 
-  // Convert all parts to base62 and concatenate
-  const encodedTimestamp = toBase62(timestampPart);
-  const encodedHighResTime = toBase62(Number(highResTimePart)); // Ensure conversion to Number before encoding
-  const encodedIpAddress = toBase62(ipAddressPart);
-  const encodedProcessId = toBase62(processId);
-  const encodedRandom = toBase62(randomPart);
+  // Convert the adjusted timestamp to base62
+  const encodedTimestamp = toBase62(parseInt(baseTimestamp, 10));
 
-  return `${encodedTimestamp}${encodedHighResTime}${encodedIpAddress}${encodedProcessId}${encodedRandom}`;
+  // Concatenate this with any other components you wish to include for uniqueness
+  // Other components might be minimized or hashed to manage length
+  const uniqueComponent = toBase62(Math.floor(Math.random() * 1e6));
+
+  return `${encodedTimestamp}${uniqueComponent}`;
 }
+
 
 
 
