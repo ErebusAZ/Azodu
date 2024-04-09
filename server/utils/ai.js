@@ -117,6 +117,12 @@ async function generateAIComment(title, summary, model, post_id) {
       .filter(comment => !comment.toLowerCase().includes('hope'))
       .filter(comment => !comment.toLowerCase().includes('disappointing'))
       .filter(comment => !comment.toLowerCase().includes('disappointed'))
+      .filter(comment => !comment.toLowerCase().includes('worth considering'))
+      .filter(comment => !comment.toLowerCase().includes('good point'))
+      .filter(comment => !comment.toLowerCase().includes('complex issue'))
+      .filter(comment => !comment.toLowerCase().includes('sobering'))
+      .filter(comment => !comment.toLowerCase().includes('heart goes out'))
+      .filter(comment => !comment.toLowerCase().includes('heartbreaking'))
 
       
 
