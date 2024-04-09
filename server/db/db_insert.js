@@ -252,20 +252,6 @@ async function populateTestData(client, numberOfPosts = 100) {
   console.log(`${numberOfPosts} test posts inserted successfully.`);
 }
 
-async function insertUserData() {
-  // Ensure you connect to the 'my_keyspace' keyspace
-  const query = `INSERT INTO my_keyspace.users (user_id, first_name, last_name, email) VALUES (uuid(), ?, ?, ?)`;
-
-  // Example user data
-  const params = ['John', 'Doe', 'john.doe@example.com'];
-
-  try {
-    await client.execute(query, params, { prepare: true });
-    console.log('User data inserted successfully');
-  } catch (error) {
-    console.error('Failed to insert user data', error);
-  }
-}
 
 
 async function insertVote(client, post_id, isUpvote, ip) {
@@ -308,4 +294,4 @@ async function tallyVotesForComment(client, post_id, comment_id,) {
 
 
 
-module.exports = { insertPostData, insertUserData, populateTestData, insertVote, insertCommentData, generateCommentUUID, generateContentId,insertCategoryData, generatePermalink, updateCommentData, tallyVotesForComment, deleteCommentData,savePostForUser,saveCommentForUser,unsaveCommentForUser };
+module.exports = { insertPostData, populateTestData, insertVote, insertCommentData, generateCommentUUID, generateContentId,insertCategoryData, generatePermalink, updateCommentData, tallyVotesForComment, deleteCommentData,savePostForUser,saveCommentForUser,unsaveCommentForUser };
