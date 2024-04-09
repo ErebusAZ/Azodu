@@ -542,6 +542,13 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
       // Permalink already exists
       return res.status(409).json({ error: true, message: 'A category with this permalink already exists.' });
     } else {
+
+      const isContentSafe = await moderateContent(description, name + ' ' + permalinkFromClient);
+      console.log("Is content safe?", isContentSafe);
+      if (!isContentSafe) {
+        return res.status(400).json({ error: true,status: 'error', message: 'Your category was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
+      }
+
       // Insert new category
       const insertQuery = `
             INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created)
