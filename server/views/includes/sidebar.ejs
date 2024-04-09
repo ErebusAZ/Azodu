@@ -15,12 +15,12 @@
                         <%= category.creator %>
                     <% } else { %>
                         <a class="cat_creator" href="/u/<%= category.creator %>"><%= category.creator %></a>
-                    <% } %>
+                    <% } %> <span style="display: none;" id="cat_date_created"><%= category.date_created %></span>
                 </p>
             <% } %>
                          
                 </p>
-                <button id="subscribe_button">Subscribe</button>
+                <button id="subscribe_button">Subscribe</button><span><%= category.subscribers %> subscribers</span>
                 <div id="r_prompt" class="tooltip">
                     <span class="help-icon">
                         Relevancy prompt<i class="fas fa-question-circle"></i>
@@ -101,6 +101,11 @@
 <script>
 
     $(document).ready(function () {
+
+        const dateString = document.getElementById('cat_date_created').textContent;
+        const timeAgoText = timeAgo(dateString);
+        document.getElementById('cat_date_created').textContent = timeAgoText;
+        $('#cat_date_created').css({ 'display': 'inline' });
 
         function fetchAndDisplayCategories() {
             $.ajax({
