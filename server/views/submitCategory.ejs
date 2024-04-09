@@ -21,7 +21,7 @@
                 const truncatedTitle = cleanedTitle.substring(0, 147); // Truncate to 147 characters to leave room for "/c/"
                 const permalink = basePath + truncatedTitle;
 
-                document.getElementById('displayPermalink').textContent = `/c/${permalink}`;
+                document.getElementById('displayPermalink').textContent = `azodu.com/c/${permalink}`;
                 // Update hidden input to send to server
                 document.getElementById('finalPermalink').value = permalink;
             }
@@ -37,7 +37,7 @@
                     <input type="text" id="suggestedPermalink" name="suggestedPermalink" placeholder="Enter a link"
                         oninput="generateCategoryPermalink()" required>
 
-                    <p id="displayPermalink">/c/</p>
+                    <p id="displayPermalink">azodu.com/c/</p>
                     <input type="hidden" id="finalPermalink" name="permalink">
 
                     <div id="categoryDescription" class="contentField">
