@@ -123,6 +123,8 @@ async function generateAIComment(title, summary, model, post_id) {
       .filter(comment => !comment.toLowerCase().includes('sobering'))
       .filter(comment => !comment.toLowerCase().includes('heart goes out'))
       .filter(comment => !comment.toLowerCase().includes('heartbreaking'))
+      .filter(comment => !comment.toLowerCase().includes('thought-provoking'))
+      .filter(comment => !comment.toLowerCase().includes('thought provoking'))
 
       
 
