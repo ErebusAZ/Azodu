@@ -90,7 +90,7 @@ async function generateAIComment(title, summary, model, post_id) {
   }
 
   try {
-    const prompt = 'Respond with ' + maxNum + ' different perspective comments in an HTML list format. Keep the comments short and do not be preachy. Try to mimic a random internet user as best as possible. The content is as follows ... Title: ' + title + ' Summary: ' + summary;
+    const prompt = 'Respond with ' + maxNum + ' different perspective comments in an HTML list format. Try to mimic a random internet user as best as possible. The content is as follows ... Title: ' + title + ' Summary: ' + summary;
     const completion = await openai.chat.completions.create({
       model: model,
       messages: [{ role: "user", content: prompt }],
