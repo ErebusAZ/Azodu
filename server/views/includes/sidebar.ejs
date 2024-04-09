@@ -22,9 +22,9 @@
                 <% } %>
 
                     </p>
-                    <button id="subscribe_button">Subscribe</button><span>
-                        <%= category.subscribers %> subscribers
-                    </span>
+                    <button id="subscribe_button">Subscribe</button>
+                    <span id="cat_subscribers_count"><%= category.subscribers %> subscribers</span>
+                    
                     <div id="r_prompt" class="tooltip">
                         <span class="help-icon">
                             Relevancy prompt<i class="fas fa-question-circle"></i>
@@ -148,10 +148,10 @@
 
             if (subscriptions.includes(permalink)) {
                 // User is subscribed to this category
-                $('#subscribe_button').text('Unsubscribe').addClass('unsubscribe');
+                $('#subscribe_button').text('Leave').addClass('unsubscribe');
             } else {
                 // User is not subscribed to this category
-                $('#subscribe_button').text('Subscribe').removeClass('unsubscribe');
+                $('#subscribe_button').text('Join').removeClass('unsubscribe');
             }
 
             // Show the button after setting the correct status
@@ -167,7 +167,7 @@
             const authToken = localStorage.getItem('authToken');
             const isSubscribed = $(this).hasClass('unsubscribe');
             const url = isSubscribed ? '/api/unsubscribe' : '/api/subscribe';
-            const actionText = isSubscribed ? 'Subscribe' : 'Unsubscribe';
+            const actionText = isSubscribed ? 'Join' : 'Leave';
 
             $.ajax({
                 url: url,

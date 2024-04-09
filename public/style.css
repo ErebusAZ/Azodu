@@ -355,7 +355,9 @@ div#post_meta {
 
 
 
-
+#cat_subscribers_count {
+padding-left: 5px; 
+}
 
 #subscribe_button {
     border: none;
