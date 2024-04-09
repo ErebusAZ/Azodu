@@ -683,7 +683,7 @@
                     // Check if the Twitter widgets script has already been loaded
                     if (!window.twttr) {
                         let script = document.createElement('script');
-                        script.setAttribute('src', 'https://platform.twitter.com/widgets.js');
+                        script.setAttribute('src', '/js/libs/twitter-widgets.js');
                         script.onload = function () {
                             // Once the script is loaded, initialize the widget
                             twttr.widgets.load();
