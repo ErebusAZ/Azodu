@@ -10,7 +10,7 @@
     height: auto;
     margin-left: 0px;
     margin-bottom: 0px;
-    margin-top: 10px;
+    /* margin-top: 10px; */
     display: block;
 }
 
@@ -18,6 +18,8 @@
     display: inline-block;
     margin: 20px;
     margin-bottom: 0;
+    margin-top: 7px;
+    margin-left: 10px;
 }
 
 
@@ -385,12 +387,12 @@ padding-left: 5px;
     background-color: #2d2d2d;
     font-size: 12px;
     border-radius: 5px;
-    width: 200px;
+    width: 215px;
     padding: 20px;
     margin-right: 20px;
-    margin-top: 20px;
+    margin-top: 5px;
     float: right;
-
+    margin-bottom: 22px;
 }
 
 .category-metadata-box h2 {
@@ -480,7 +482,7 @@ padding-left: 5px;
 
 #breadcrumbs {
     color: gray;
-    margin-top: 20px;
+    margin-top: 0;
     border-radius: 5px;
     padding: 10px 10px;
     padding-bottom: 0;
@@ -497,7 +499,7 @@ padding-left: 5px;
 }
 
 .sidebar {
-    width: 200px;
+    width: 215px;
     /* Or keep it at 300px if you prefer */
     background-color: #2d2d2d;
     /* Slightly lighter than the body for contrast */
@@ -581,7 +583,7 @@ padding-left: 5px;
 }
 
 .post-content {
-    padding-right: 20px;
+    /* padding-right: 20px; */
 }
 
 .post-content.post-container {
@@ -601,11 +603,13 @@ padding-left: 5px;
     /* Rounded corners for the dropdown */
     font-size: 14px;
     margin-bottom: 5px;
-    margin-top: 22px;
+    margin-top: 5px;
     width: 100%;
     padding: 8px;
     padding-right: 0;
     padding-left: 0;
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
 
 
@@ -701,7 +705,7 @@ padding-left: 5px;
 
 #explore_sidebar {
     float: right;
-    margin-right: 70px;
+    margin-right: 80px;
 }
 
 #explore_sidebar h3 {
@@ -1209,7 +1213,7 @@ form#submit_post_form, form#submit_category_form,#category_submit_info {
     color: #d7dadc;
     border-radius: 5px;
     width: 100%;
-    margin-top: 22px;
+    margin-top: 5px;
 }
 
 .submission-form h2 {
@@ -1809,16 +1813,15 @@ h4#ai_moderated {
 #info_bar_1 {
     display: block;
     clear: both;
-    width: 200px;
+    width: 215px;
     background-color: #2d2d2d;
     padding: 20px;
-    margin-top: 22px;
     float: right;
     border-radius: 5px;
     margin-right: 20px;
     font-size: 14px;
-    /* padding-top: 10px; */
     padding-bottom: 30px;
+    margin-top: 5px;
 }
 
 #info_bar_1 p {
