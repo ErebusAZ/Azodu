@@ -99,7 +99,7 @@ async function insertFakeUsers(client, usernames) {
 
     try {
       await client.execute(query, [username, password, `${username}@${baseEmail}`, randomDate], { prepare: true });
-   //   console.log(`Inserted fake user: ${username}`);
+      //   console.log(`Inserted fake user: ${username}`);
     } catch (error) {
       console.error(`Error inserting fake user ${username}:`, error);
     }
@@ -232,16 +232,17 @@ async function createLinksTable(client) {
 
 async function createCategoriesTable(client) {
   const query = `
-  CREATE TABLE IF NOT EXISTS my_keyspace.categories (
-    permalink text,
-    name text,
-    creator text,
-    description text,
-    date_created timestamp,
-    moderators text,
-    isDefault boolean,
-    PRIMARY KEY (permalink, date_created)
-  ) WITH CLUSTERING ORDER BY (date_created DESC);  
+CREATE TABLE IF NOT EXISTS my_keyspace.categories (
+  permalink text PRIMARY KEY,
+  name text,
+  creator text,
+  description text,
+  date_created timestamp,
+  moderators text,
+  isDefault boolean,
+  subscribers int
+);
+
   `;
   await client.execute(query);
   console.log('Table `posts` created or already exists in `my_keyspace`');
@@ -267,10 +268,10 @@ async function createDefaultCategories(client, defaultCategories) {
     SELECT permalink FROM my_keyspace.categories WHERE permalink = ? LIMIT 1;
   `;
 
-  // Your existing INSERT query remains unchanged
+  // Adjusted INSERT query to include the 'subscribers' field
   const queryInsertCategory = `
-    INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created, moderators, isDefault)
-    VALUES (?, ?, ?, ?, toTimestamp(now()), ?, ?) IF NOT EXISTS;
+    INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created, moderators, isDefault, subscribers)
+    VALUES (?, ?, ?, ?, toTimestamp(now()), ?, ?, ?) IF NOT EXISTS;
   `;
 
   // Loop through the defaultCategories array
@@ -287,17 +288,19 @@ async function createDefaultCategories(client, defaultCategories) {
     // Using Lorem Ipsum text for default values where needed
     const creator = "azodu";
     const description = "The category for anything and everything! Post anything you'd like here.";
-    const moderators = "azodu"; // Adjust based on how moderators are stored. If it's a list, you might need to serialize it accordingly.
+    const moderators = "azodu"; // Adjust based on your application's moderator representation
     const isDefault = true;
+    const subscribers = 0; // Initializing subscribers count to 0
 
     try {
-      await client.execute(queryInsertCategory, [permalink, categoryName, creator, description, moderators, isDefault], { prepare: true });
+      await client.execute(queryInsertCategory, [permalink, categoryName, creator, description, moderators, isDefault, subscribers], { prepare: true });
       console.log(`Default category '${categoryName}' ensured.`);
     } catch (error) {
       console.error(`Error ensuring default category '${categoryName}':`, error);
     }
   }
 }
+
 
 
 
@@ -384,4 +387,4 @@ async function emptyCommentsTable(client) {
 }
 
 
-module.exports = { createKeyspace, createUsersTable, createCommentsTable, createPostsTable, flushAllTables, dropAllTables, createVotesTable, createCategoriesTable, createDefaultCategories, createLinksTable, emptyCommentsTable, createMaterializedViews, insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable,createUserSavedCommentsTable };
+module.exports = { createKeyspace, createUsersTable, createCommentsTable, createPostsTable, flushAllTables, dropAllTables, createVotesTable, createCategoriesTable, createDefaultCategories, createLinksTable, emptyCommentsTable, createMaterializedViews, insertFakeUsers, createPostIdCounterTable, createUserSavedPostsTable, createUserSavedCommentsTable };

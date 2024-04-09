@@ -439,6 +439,22 @@ app.post('/api/subscribe', authenticateToken, async (req, res) => {
       WHERE username = ?;
     `;
     await client.execute(updateQuery, [[permalink], username], { prepare: true });
+
+    // Fetch the current number of subscribers
+    const selectQuery = 'SELECT subscribers FROM my_keyspace.categories WHERE permalink = ?';
+    const { rows } = await client.execute(selectQuery, [permalink], { prepare: true });
+   // console.log(rows[0]); 
+    // Assuming 'subscribers' can be undefined, default to 0
+    const currentSubscribers = rows[0] ? rows[0].subscribers || 0 : 0;
+
+
+    // Increment the subscribers
+    const newSubscribers = currentSubscribers + 1;
+    const updateQueryB = 'UPDATE my_keyspace.categories SET subscribers = ? WHERE permalink = ?';
+    await client.execute(updateQueryB, [newSubscribers, permalink], { prepare: true });
+
+
+
     res.json({ message: 'Subscribed successfully.' });
   } catch (error) {
     console.error('Subscription error:', error);
@@ -459,6 +475,21 @@ app.post('/api/unsubscribe', authenticateToken, async (req, res) => {
       WHERE username = ?;
     `;
     await client.execute(updateQuery, [[permalink], username], { prepare: true });
+
+
+    // Fetch the current number of subscribers
+    const selectQuery = 'SELECT subscribers FROM my_keyspace.categories WHERE permalink = ?';
+    const { rows } = await client.execute(selectQuery, [permalink], { prepare: true });
+
+    // Assuming 'subscribers' can be undefined, default to 0
+    const currentSubscribers = rows[0] ? rows[0].subscribers || 0 : 0;
+
+    // Decrement the subscribers, ensuring it doesn't go below 0
+    const newSubscribers = Math.max(currentSubscribers - 1, 0);
+    const updateQueryB = 'UPDATE my_keyspace.categories SET subscribers = ? WHERE permalink = ?';
+    await client.execute(updateQueryB, [newSubscribers, permalink], { prepare: true });
+
+
     res.json({ message: 'Unsubscribed successfully.' });
   } catch (error) {
     console.error('Unsubscription error:', error);
@@ -578,7 +609,6 @@ app.get('/c/:permalink', async (req, res) => {
 
   try {
       const category = await fetchCategoryByName(client, permalink);
-
       if (category) {
           res.render('category', { category: category });
       } else {

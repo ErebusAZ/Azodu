@@ -1,5 +1,3 @@
-
-
 <div id="sidebar_container">
 
     <% if (category && category.name) { %>
@@ -10,65 +8,75 @@
             <p id="cat_permalink"><a href="/c/<%= category.permalink %>">/c/<%= category.permalink %></a></p>
             <% if (category.creator) { %>
                 <p id="cat_createdby">
-                    Created by 
-                    <% if (category.creator === "azodu") { %>
+                    Created by
+                    <% if (category.creator==="azodu" ) { %>
                         <%= category.creator %>
-                    <% } else { %>
-                        <a class="cat_creator" href="/u/<%= category.creator %>"><%= category.creator %></a>
-                    <% } %> <span style="display: none;" id="cat_date_created"><%= category.date_created %></span>
-                </p>
-            <% } %>
-                         
-                </p>
-                <button id="subscribe_button">Subscribe</button><span><%= category.subscribers %> subscribers</span>
-                <div id="r_prompt" class="tooltip">
-                    <span class="help-icon">
-                        Relevancy prompt<i class="fas fa-question-circle"></i>
-                    </span>
-                    <span class="tooltiptext">The AI moderator allows submissions to this category if they fit the following description</span>
-                  </div>
-
-                <% if (category.description) { %>
-                    <p><%- category.description %></p>
-                    <% } %>
-                        <% if (category.moderators) { %>
-                           <!-- <p>Moderators: <%= category.moderators %>
-                            </p> -->
                             <% } else { %>
-                                <p>No moderators</p>
-                                <% } %>
+                                <a class="cat_creator" href="/u/<%= category.creator %>">
+                                    <%= category.creator %>
+                                </a>
+                                <% } %> <span style="display: none;" id="cat_date_created">
+                                        <%= category.date_created %>
+                                    </span>
+                </p>
+                <% } %>
+
+                    </p>
+                    <button id="subscribe_button">Subscribe</button><span>
+                        <%= category.subscribers %> subscribers
+                    </span>
+                    <div id="r_prompt" class="tooltip">
+                        <span class="help-icon">
+                            Relevancy prompt<i class="fas fa-question-circle"></i>
+                        </span>
+                        <span class="tooltiptext">The AI moderator allows submissions to this category if they fit the
+                            following description</span>
+                    </div>
+
+                    <% if (category.description) { %>
+                        <p><%- category.description %></p>
+                        <% } %>
+                            <% if (category.moderators) { %>
+                                <!-- <p>Moderators: <%= category.moderators %>
+                            </p> -->
+                                <% } else { %>
+                                    <p>No moderators</p>
+                                    <% } %>
         </div>
         <% } %>
 
 
 
-        <div id="info_bar_1">
-            <h4 id="ai_moderated"><!--<i class="fas fa-user-shield"></i>--><i class="fas fa-robot"></i>
+            <div id="info_bar_1">
+                <h4 id="ai_moderated"><!--<i class="fas fa-user-shield"></i>--><i class="fas fa-robot"></i>
 
-                AI-moderated</h4>
-     <!--   <p>Azodu AI modes are 100% impartial and more effective than human mods.</p> -->
-     <p>Azodu AI mods are unbiased and more effective than human mods.</p>
+                    AI-moderated</h4>
+                <!--   <p>Azodu AI modes are 100% impartial and more effective than human mods.</p> -->
+                <p>Azodu AI mods are unbiased and more effective than human mods.</p>
 
-        <div id="rights"><i class="fas fa-scroll"></i><span id="rights_span"><a href="#">Our
-            philosophy</a></span>
-</div>
-<div id="rules"><i class="fas fa-gavel"></i><span id="rules_span"><a href="#">Content policy</a></span>
-</div>
-    </div>
+                <div id="rights"><i class="fas fa-scroll"></i><span id="rights_span"><a href="#">Our
+                            philosophy</a></span>
+                </div>
+                <div id="rules"><i class="fas fa-gavel"></i><span id="rules_span"><a href="#">Content policy</a></span>
+                </div>
+            </div>
 
-        <div class="sidebar">
-
-
-
-                <button id="loginRegisterButton" class="sidebar_button"><i class="fas fa-sign-in-alt"></i>Login/Register</button>
+            <div class="sidebar">
 
 
 
+                <button id="loginRegisterButton" class="sidebar_button"><i
+                        class="fas fa-sign-in-alt"></i>Login/Register</button>
 
-                <a href="/submit-post?cat=<%= category.permalink %>" style="margin-bottom: 20px; display: block;"><button class="sidebar_button"
-                        type="button"><i class="fas fa-pencil-alt"></i>Create a post</button></a>
 
-                <a href="/submit-category"><button class="sidebar_button" type="button"><i class="fas fa-plus-square"></i>Create a category</button></a>
+
+
+                <a href="/submit-post?cat=<%= category.permalink %>"
+                    style="margin-bottom: 20px; display: block;"><button class="sidebar_button" type="button"><i
+                            class="fas fa-pencil-alt"></i>Create a post</button></a>
+
+                <a href="/submit-category"><button class="sidebar_button" type="button"><i
+                            class="fas fa-plus-square"></i>Create a category</button></a>
 
 
             </div>
@@ -76,7 +84,7 @@
 
             <div id="explore_sidebar">
 
-    
+
 
                 <div id="subscribed_spaces_container" style="display: none;">
                     <h3 id="subscribed_heading">Subscriptions</h3>
@@ -103,9 +111,8 @@
     $(document).ready(function () {
 
         const dateString = $('#cat_date_created').text();
-        if ($('#cat_date_created').length > 0) {
-            const timeAgoText = timeAgo(dateString);
-            // Update the text content with jQuery
+        if (dateString) {
+            const timeAgoText = timeAgo(new Date(dateString));
             $('#cat_date_created').text(timeAgoText).css('display', 'inline');
         }
 
@@ -154,14 +161,13 @@
         checkSubscriptionStatus(); // Check and set subscription status on page load
 
 
+        // Subscribe/Unsubscribe button click handler
         $('#subscribe_button').click(function () {
             const permalink = $('#cat_permalink a').attr('href').split('/c/')[1];
             const authToken = localStorage.getItem('authToken');
-
-            // Determine the action based on the button's class
             const isSubscribed = $(this).hasClass('unsubscribe');
-            const url = isSubscribed ? '/api/unsubscribe' : '/api/subscribe'; // Toggle between subscribe and unsubscribe URLs
-            const actionText = isSubscribed ? 'Subscribe' : 'Unsubscribe'; // The action to perform
+            const url = isSubscribed ? '/api/unsubscribe' : '/api/subscribe';
+            const actionText = isSubscribed ? 'Subscribe' : 'Unsubscribe';
 
             $.ajax({
                 url: url,
@@ -170,24 +176,19 @@
                 headers: {
                     'Authorization': `Bearer ${authToken}`
                 },
-                data: JSON.stringify({ permalink: permalink }),
+                data: JSON.stringify({
+                    permalink: permalink,
+                }),
                 success: function (response) {
                     console.log(response.message);
                     updateLocalSubscriptions(permalink, !isSubscribed);
-                    // Toggle the button text and class based on the current state
-                    if (isSubscribed) {
-                        $('#subscribe_button').text('Subscribe');
-                        $('#subscribe_button').removeClass('unsubscribe');
-                    } else {
-                        $('#subscribe_button').text('Unsubscribe');
-                        $('#subscribe_button').addClass('unsubscribe');
-                    }
+                    $('#subscribe_button')
+                        .text(actionText)
+                        .toggleClass('unsubscribe', !isSubscribed);
                     refreshSubscriptions();
-
                 },
                 error: function (xhr, status, error) {
                     console.error('Action failed:', xhr.responseText);
-                    // Handle errors
                 }
             });
         });
@@ -226,7 +227,6 @@
 
                 // Loop through the subscriptions and append each to the list
                 subscriptions.forEach(function (sub) {
-                    console.log(sub); 
                     $('#subscribed_links').append(`<li><a href="/c/${sub}">/c/${sub}</a></li>`);
                 });
             } else {

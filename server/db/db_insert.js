@@ -184,17 +184,19 @@ async function unsaveCommentForUser(client, username, commentId) {
 
 
 async function insertCategoryData(client, name, creator, description, permalink, dateCreated, moderators) {
+  // Include the `subscribers` field in your INSERT query and set it to 0 initially
   const query = `
     INSERT INTO my_keyspace.categories (
-      name, creator, description, permalink, date_created, moderators
-    ) VALUES (?, ?, ?, ?, ?, ?);
+      name, creator, description, permalink, date_created, moderators, subscribers
+    ) VALUES (?, ?, ?, ?, ?, ?, ?); // Include the subscribers placeholder
   `;
 
-  const params = [name, creator, description, permalink, dateCreated, moderators];
+  // Include 0 for the `subscribers` field in your params array
+  const params = [name, creator, description, permalink, dateCreated, moderators, 0];
 
   try {
     await client.execute(query, params, { prepare: true });
-    console.log('Category data inserted successfully');
+    console.log('Category data inserted successfully with 0 subscribers.');
   } catch (error) {
     console.error('Failed to insert category data', error);
     throw error; // Rethrow the error to be caught by the calling function
