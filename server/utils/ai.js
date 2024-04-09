@@ -115,6 +115,9 @@ async function generateAIComment(title, summary, model, post_id) {
       .filter(comment => !comment.toLowerCase().includes('wow'))
       .filter(comment => !comment.toLowerCase().includes('wonder'))
       .filter(comment => !comment.toLowerCase().includes('hope'))
+      .filter(comment => !comment.toLowerCase().includes('disappointing'))
+
+      
 
       .map(comment => removeUnwantedPatterns(comment)); // New line to remove "..." and ".."
 
