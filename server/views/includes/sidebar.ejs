@@ -102,10 +102,12 @@
 
     $(document).ready(function () {
 
-        const dateString = document.getElementById('cat_date_created').textContent;
-        const timeAgoText = timeAgo(dateString);
-        document.getElementById('cat_date_created').textContent = timeAgoText;
-        $('#cat_date_created').css({ 'display': 'inline' });
+        const dateString = $('#cat_date_created').text();
+        if ($('#cat_date_created').length > 0) {
+            const timeAgoText = timeAgo(dateString);
+            // Update the text content with jQuery
+            $('#cat_date_created').text(timeAgoText).css('display', 'inline');
+        }
 
         function fetchAndDisplayCategories() {
             $.ajax({
