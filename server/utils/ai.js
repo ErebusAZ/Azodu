@@ -116,6 +116,7 @@ async function generateAIComment(title, summary, model, post_id) {
       .filter(comment => !comment.toLowerCase().includes('wonder'))
       .filter(comment => !comment.toLowerCase().includes('hope'))
       .filter(comment => !comment.toLowerCase().includes('disappointing'))
+      .filter(comment => !comment.toLowerCase().includes('disappointed'))
 
       
 
