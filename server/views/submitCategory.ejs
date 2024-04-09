@@ -39,10 +39,30 @@
 
                     <p id="displayPermalink">azodu.com/c/</p>
                     <input type="hidden" id="finalPermalink" name="permalink">
+                    <br />
+                    <div class="tooltip cat_tooltip">
+                        <span class="help-icon">
+                            Relevancy prompt<i class="fas fa-question-circle"></i>
+                        </span>
+                        <span class="tooltiptext">The AI moderator allows submissions to this category if they fit the
+                            following description.</span>
+                    </div>
+
 
                     <div id="categoryDescription" class="contentField">
                         <textarea id="categoryDescText" name="description"
-                            placeholder="Describe the category (will appear in the sidebar)"></textarea>
+                            placeholder="Describe the category as accurately as possible"></textarea>
+                    </div>
+                    <br />
+                    <div class="tooltip cat_tooltip">
+                        <span class="help-icon">
+                            Additional info<i class="fas fa-question-circle"></i>
+                        </span>
+                        <span class="tooltiptext">This info appears in the sidebar for users and is not used by AI to determine relevancy on submissions.</span>
+                    </div>
+                    <div id="categoryAdditionalInfo" class="contentField">
+                        <textarea id="categoryAdditionalInfoText" name="description"
+                            placeholder="Additional info (will appear in the sidebar)"></textarea>
                     </div>
 
                     <!--
@@ -70,7 +90,7 @@
 
         <%- include('includes/sidebar', { category: category || null }) %>
         <script>
-            new Quill('#categoryDescription', {
+            new Quill('#categoryAdditionalInfo', {
                 modules: {
                     toolbar: [
                         ['bold', 'italic', 'underline', 'strike'],        // formatting options
