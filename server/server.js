@@ -533,7 +533,7 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
       return res.status(400).json({ status: 'error', message: 'Failed to submit post. Reason: ' + result.message, error: true });
     }
 
-    const isContentSafe = await moderateContent(content, title);
+    const isContentSafe = await moderateContent(content, title,creator);
     console.log("Is content safe?", isContentSafe);
     if (!isContentSafe) {
       return res.status(400).json({ status: 'error', message: 'Your comment was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
@@ -587,7 +587,7 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
       return res.status(409).json({ error: true, message: 'A category with this permalink already exists.' });
     } else {
 
-      const isContentSafe = await moderateContent(description, name + ' ' + permalinkFromClient);
+      const isContentSafe = await moderateContent(description, name + ' ' + permalinkFromClient,creator);
       console.log("Is content safe?", isContentSafe);
       if (!isContentSafe) {
         return res.status(400).json({ error: true,status: 'error', message: 'Your category was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
@@ -810,7 +810,7 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
     return;
 
   try {
-    const isContentSafe = await moderateContent(content);
+    const isContentSafe = await moderateContent(content,undefined,author);
     console.log("Is content safe?", isContentSafe);
     if (!isContentSafe) {
       return res.status(400).json({ message: 'Your comment was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });

@@ -170,11 +170,11 @@ async function generateSummary(text) {
   }
 }
 
-async function moderateContent(content,title) {
+async function moderateContent(content,title,author) {
   try {
     // Directly call the Moderation API with the input text
     const moderation = await openai.moderations.create({
-      input: title ? (title + '. ' + content) : content
+      input: author + ': ' + (title ? (title + '. ' + content) : content)
     });
 
     // Log the full moderation response
