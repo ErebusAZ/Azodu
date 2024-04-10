@@ -328,6 +328,10 @@ div#post_meta {
 
 }
 
+div#additional_info_sidebar {
+    margin-top: 30px;
+}
+
 
 .tooltip {
     position: relative;
@@ -1205,6 +1209,8 @@ div#categoryAdditionalInfo {
 form#submit_post_form, form#submit_category_form, #category_submit_info {
     padding: 33px 50px;
 }
+
+
 
 .cat_tooltip {
     color: gray;

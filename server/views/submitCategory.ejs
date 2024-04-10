@@ -61,9 +61,10 @@
                         <span class="tooltiptext">This info appears in the sidebar for users and is not used by AI to determine relevancy on submissions.</span>
                     </div>
                     <div id="categoryAdditionalInfo" class="contentField">
-                        <textarea id="categoryAdditionalInfoText" name="description"
-                            placeholder="Additional info (will appear in the sidebar)"></textarea>
-                    </div>
+                        <textarea id="categoryAdditionalInfoText" name="additional_info"
+                                  placeholder="Additional info (will appear in the sidebar)"></textarea>
+                      </div>
+                      
 
                     <!--
             <label for="categoryModerators">Moderators:</label>
@@ -112,13 +113,15 @@
                     // Retrieve values from form elements using jQuery
                     const name = $('#categoryName').val();
                     const permalinkFromClient = $('#finalPermalink').val();
-                    const description = $('.ql-editor').html(); // Assuming you're using Quill for the description
+                    const description = $('#categoryDescText').val(); 
+                    const additionalInfo = $('#categoryAdditionalInfo .ql-editor').html();
 
                     // Prepare data to be sent
                     const formData = {
                         name,
                         permalinkFromClient,
-                        description
+                        description,
+                        additional_info: additionalInfo
                     };
 
                     // Retrieve the authToken from local storage

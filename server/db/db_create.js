@@ -258,7 +258,8 @@ CREATE TABLE IF NOT EXISTS my_keyspace.categories (
   date_created timestamp,
   moderators text,
   isDefault boolean,
-  subscribers int
+  subscribers int,
+  additional_info text,
 );
 
   `;
@@ -286,10 +287,10 @@ async function createDefaultCategories(client, defaultCategories) {
     SELECT permalink FROM my_keyspace.categories WHERE permalink = ? LIMIT 1;
   `;
 
-  // Adjusted INSERT query to include the 'subscribers' field
+  // Updated INSERT query to include the 'additional_info' field
   const queryInsertCategory = `
-    INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created, moderators, isDefault, subscribers)
-    VALUES (?, ?, ?, ?, toTimestamp(now()), ?, ?, ?) IF NOT EXISTS;
+    INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created, moderators, isDefault, subscribers, additional_info)
+    VALUES (?, ?, ?, ?, toTimestamp(now()), ?, ?, ?, ?) IF NOT EXISTS;
   `;
 
   // Loop through the defaultCategories array
@@ -309,9 +310,10 @@ async function createDefaultCategories(client, defaultCategories) {
     const moderators = "azodu"; // Adjust based on your application's moderator representation
     const isDefault = true;
     const subscribers = 0; // Initializing subscribers count to 0
+    const additional_info = ""; // Initialize additional_info with an empty string
 
     try {
-      await client.execute(queryInsertCategory, [permalink, categoryName, creator, description, moderators, isDefault, subscribers], { prepare: true });
+      await client.execute(queryInsertCategory, [permalink, categoryName, creator, description, moderators, isDefault, subscribers, additional_info], { prepare: true });
       console.log(`Default category '${categoryName}' ensured.`);
     } catch (error) {
       console.error(`Error ensuring default category '${categoryName}':`, error);

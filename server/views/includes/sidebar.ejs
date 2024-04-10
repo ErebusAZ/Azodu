@@ -36,12 +36,10 @@
                     <% if (category.description) { %>
                         <p><%- category.description %></p>
                         <% } %>
-                            <% if (category.moderators) { %>
-                                <!-- <p>Moderators: <%= category.moderators %>
-                            </p> -->
-                                <% } else { %>
-                                    <p>No moderators</p>
-                                    <% } %>
+                        <% if (category.additional_info) { %>
+                            <div id="additional_info_sidebar"><%- category.additional_info %></div>
+                            <% } %>
+                          
         </div>
         <% } %>
 

@@ -573,9 +573,10 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
 
 
 app.post('/submitCategory', authenticateToken, async (req, res) => {
-  const creator = req.user.username; 
-  const { name, permalinkFromClient, description } = req.body;
+  const creator = req.user.username;
+  const { name, permalinkFromClient, description, additional_info } = req.body;
   const permalink = generateCategoryPermalink(permalinkFromClient);
+  
 
   try {
     // Check if permalink already exists
@@ -587,27 +588,26 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
       return res.status(409).json({ error: true, message: 'A category with this permalink already exists.' });
     } else {
 
-      const isContentSafe = await moderateContent(description, name + ' ' + permalinkFromClient,creator);
-      console.log("Is content safe?", isContentSafe);
+      const isContentSafe = await moderateContent(description + additional_info, name + ' ' + permalinkFromClient, creator);
       if (!isContentSafe) {
-        return res.status(400).json({ error: true,status: 'error', message: 'Your category was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
+        return res.status(400).json({ error: true, status: 'error', message: 'Your category was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
       }
 
-      // Insert new category
       const insertQuery = `
-            INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created)
-            VALUES (?, ?, ?, ?, toTimestamp(now()));
-        `;
-      await client.execute(insertQuery, [permalink, name, creator, processHTMLFromUsers(description)], { prepare: true });
+      INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created, additional_info)
+      VALUES (?, ?, ?, ?, toTimestamp(now()), ?); // Add additional_info as a parameter
+    `;
+      await client.execute(insertQuery, [permalink, name, creator, processHTMLFromUsers(description), processHTMLFromUsers(additional_info)], { prepare: true }); // Include additional_info in parameters
       console.log('Category created successfully');
-      // Instead of redirect, send a success message as JSON
       res.json({ error: false, message: 'Category created successfully' });
+
     }
   } catch (error) {
     console.error('Error creating category:', error);
-    // Send an error message as JSON
     res.status(500).json({ error: true, message: 'Failed to create category.' });
   }
+
+
 });
 
 
