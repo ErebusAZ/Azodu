@@ -9,22 +9,30 @@
 
 
         <script>
-            function generateCategoryPermalink() {
-                const title = document.getElementById('suggestedPermalink').value;
-                const basePath = "";
-                const cleanedTitle = title
-                    .replace(/[^\w\s]/gi, '') // Remove non-alphanumeric characters except spaces
-                    .trim() // Remove leading and trailing spaces
-                    .replace(/\s+/g, '-') // Replace spaces with hyphens
-                    .toLowerCase(); // Convert to lowercase
+            
+                function generateCategoryPermalink() {
+                    const title = document.getElementById('suggestedPermalink').value;
+                    const basePath = "";
+                    const cleanedTitle = title
+                        .replace(/[^\w\s]/gi, '') // Remove non-alphanumeric characters except spaces
+                        .trim() // Remove leading and trailing spaces
+                        .replace(/\s+/g, '-') // Replace spaces with hyphens
+                        .toLowerCase(); // Convert to lowercase
 
-                const truncatedTitle = cleanedTitle.substring(0, 147); // Truncate to 147 characters to leave room for "/c/"
-                const permalink = basePath + truncatedTitle;
+                    const truncatedTitle = cleanedTitle.substring(0, 147); // Truncate to 147 characters to leave room for "/c/"
+                    const permalink = basePath + truncatedTitle;
 
-                document.getElementById('displayPermalink').textContent = `azodu.com/c/${permalink}`;
-                // Update hidden input to send to server
-                document.getElementById('finalPermalink').value = permalink;
-            }
+                    document.getElementById('displayPermalink').textContent = `azodu.com/c/${permalink}`;
+                    // Update hidden input to send to server
+                    document.getElementById('finalPermalink').value = permalink;
+                }
+
+
+                function getCategoryPermalinkFromUrl() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    return urlParams.get('permalink'); // Assuming "permalink" is the query parameter
+                }
+
         </script>
 
         <div class="container submitCategoryPage">
@@ -103,7 +111,39 @@
                 placeholder: 'Describe the category (will appear in the sidebar)',
             });
 
+
             $(document).ready(function () {
+
+                const permalink = getCategoryPermalinkFromUrl();
+              if (permalink) {
+                  fetch(`/api/categories/${permalink}`, {
+                          method: 'GET',
+                          headers: {
+
+                              'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                          }
+                      })
+                      .then(response => {
+                          if (!response.ok) throw new Error('Failed to fetch category details');
+                          return response.json();
+                      })
+                      .then(data => {
+                          if (data.category) {
+                              console.log(data.category.additional_info);
+                              $('#suggestedPermalink').css({
+                                  'display': 'none'
+                              });
+                              $('#categoryName').val(data.category.name);
+                              $('#suggestedPermalink').val(data.category.permalink).trigger('input');
+                              $('#categoryDescText').val(data.category.description);
+                              $('#categoryAdditionalInfo .ql-editor').html(data.category.additional_info || '');
+                          }
+                      })
+                      .catch(error => {
+                          console.error('Error:', error);
+                      });
+              }
+
                 $('#submit_category_form').on('submit', function (e) {
                     e.preventDefault(); // Prevent default form submission
 

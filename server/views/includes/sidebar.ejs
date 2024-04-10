@@ -10,7 +10,7 @@
                 <p id="cat_createdby">
                     Created by
                     <% if (category.creator==="azodu" ) { %>
-                        <%= category.creator %>
+                        <%= category.creator %> 
                             <% } else { %>
                                 <a class="cat_creator" href="/u/<%= category.creator %>">
                                     <%= category.creator %>
@@ -18,7 +18,7 @@
                                 <% } %> <span style="display: none;" id="cat_date_created">
                                         <%= category.date_created %>
                                     </span>
-                </p>
+                </p><div id="editCategoryButtonContainer"></div>
                 <% } %>
 
                     </p>
@@ -236,7 +236,23 @@
         refreshSubscriptions();
 
 
+        function displayEditButtonIfAuthorized() {
+            const username = localStorage.getItem('username'); // Get the current logged-in username
+            const categoryCreator = '<%= category.creator %>'; // Get the category creator from the server-rendered template
 
+            // Check if the current user is the creator of the category
+            if (username && username === categoryCreator) {
+                const permalink = '<%= category.permalink %>'; // Get the category permalink
+                const editButtonHtml = `<a href="/submit-category?permalink=${permalink}"><button class="sidebar_button"><i class="fas fa-edit"></i>
+Edit Category</button></a>`;
+
+                // Append the Edit button HTML to the container
+                $('#editCategoryButtonContainer').html(editButtonHtml);
+            }
+        }
+
+        // Call the function to check and display the Edit button
+        displayEditButtonIfAuthorized();
 
 
 

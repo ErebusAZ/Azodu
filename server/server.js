@@ -623,36 +623,41 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
   }
 
   try {
-    // Check if permalink already exists
-    const permalinkCheckQuery = 'SELECT permalink FROM my_keyspace.categories WHERE permalink = ?';
+    const permalinkCheckQuery = 'SELECT permalink, creator FROM my_keyspace.categories WHERE permalink = ?';
     const permalinkResult = await client.execute(permalinkCheckQuery, [permalink], { prepare: true });
 
     if (permalinkResult.rowLength > 0) {
-      // Permalink already exists
-      return res.status(409).json({ error: true, message: 'A category with this permalink already exists.' });
-    } else {
-      const isContentSafe = await moderateContent(description + ' ' + additional_info, name + ' ' + permalinkFromClient, creator);
-      if (!isContentSafe) {
-        return res.status(400).json({ error: true, status: 'error', message: 'Your category was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
+      // Permalink exists, check if the current user is the creator
+      const category = permalinkResult.first();
+      if (category.creator === creator) {
+        // Authorized to update the category
+        const updateQuery = `
+          UPDATE my_keyspace.categories 
+          SET name = ?, description = ?, additional_info = ?
+          WHERE permalink = ?;
+        `;
+        await client.execute(updateQuery, [name, description, additional_info, permalink], { prepare: true });
+        console.log('Category updated successfully');
+        res.json({ error: false, message: 'Category updated successfully' });
+      } else {
+        // Not authorized to update the category
+        res.status(403).json({ error: true, message: 'You are not authorized to edit this category.' });
       }
-
+    } else {
+      // Permalink does not exist, creating a new category
       const insertQuery = `
         INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created, additional_info)
         VALUES (?, ?, ?, ?, toTimestamp(now()), ?);
       `;
-      await client.execute(insertQuery, [permalink, name, creator, processHTMLFromUsers(description), processHTMLFromUsers(additional_info)], { prepare: true });
+      await client.execute(insertQuery, [permalink, name, creator, description, additional_info], { prepare: true });
       console.log('Category created successfully');
       res.json({ error: false, message: 'Category created successfully' });
     }
   } catch (error) {
-    console.error('Error creating category:', error);
-    res.status(500).json({ error: true, message: 'Failed to create category.' });
+    console.error('Error creating or updating category:', error);
+    res.status(500).json({ error: true, message: 'Failed to create or update category.' });
   }
 });
-
-
-
-
 
 
 
@@ -738,6 +743,12 @@ app.get('/submit-category/', async (req, res) => {
 
 }); 
 
+
+
+
+
+
+
 app.get('/submit-post/', async (req, res) => {
 
 
@@ -781,6 +792,26 @@ app.get('/api/categories', async (req, res) => {
   }
 });
 
+
+app.get('/api/categories/:permalink', async (req, res) => {
+  const { permalink } = req.params;
+  
+  try {
+    const query = 'SELECT * FROM my_keyspace.categories WHERE permalink = ?';
+    const result = await client.execute(query, [permalink], { prepare: true });
+
+    if (result.rowLength > 0) {
+      // Category found, send its details back as the response
+      res.json({ category: result.first() });
+    } else {
+      // No category found with the provided permalink
+      res.status(404).json({ message: 'Category not found' });
+    }
+  } catch (error) {
+    console.error('Failed to fetch category:', error);
+    res.status(500).send('Failed to fetch category');
+  }
+});
 
 
 
