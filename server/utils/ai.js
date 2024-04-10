@@ -29,6 +29,14 @@ function removeFirstSentence(text) {
 }
 
 
+function removeLeadingNumberFromComment(comment) {
+  // This regular expression matches any leading number followed by a period and a space
+  const leadingNumberPattern = /^\d+\.\s+/;
+  return comment.replace(leadingNumberPattern, '');
+}
+
+
+
 function htmlListToArray(htmlString) {
   htmlString = htmlString.trim();
 
@@ -125,6 +133,7 @@ async function generateAIComment(title, summary, model, post_id) {
       .filter(comment => !comment.toLowerCase().includes('heartbreaking'))
       .filter(comment => !comment.toLowerCase().includes('thought-provoking'))
       .filter(comment => !comment.toLowerCase().includes('thought provoking'))
+      .map(comment => removeLeadingNumberFromComment(comment)) // New line to remove leading number, period, space
 
       
 
