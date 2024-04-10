@@ -516,24 +516,53 @@ async function getTwitterEmbedCode(url) {
 }
 
 
-
-// Your existing route with modifications to handle embedding
 app.post('/submitPost', authenticateToken, async (req, res) => {
   const creator = req.user.username;
   let { title, category, postType, contentText, contentUrl } = req.body;
+
+  // Validate title length for both post types
+  if (title.length < 10 || title.length > 150) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Title must be between 10 and 150 characters.',
+      error: true
+    });
+  }
+
+  // Initialize variables
   let content = postType === 'text' ? contentText : contentUrl;
   let thumbnail = null;
   let summary = ""; // Initialize summary variable
 
-  content = processHTMLFromUsers(contentText);
+  // Validate content length based on post type
+  if (postType === 'text') {
+    if (contentText.length < 30 || contentText.length > 5000) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Content must be between 30 and 5000 characters for text posts.',
+        error: true
+      });
+    }
+  } else if (postType === 'url') {
+    if (!contentUrl || contentUrl.length < 10 || contentUrl.length > 1000) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Content URL must be between 10 and 1000 characters for URL posts.',
+        error: true
+      });
+    }
+  }
+
 
   if (postType === 'text') {
+    content = processHTMLFromUsers(contentText);
+
     const result = validateComment(content);
     if (!result.isValid) {
       return res.status(400).json({ status: 'error', message: 'Failed to submit post. Reason: ' + result.message, error: true });
     }
 
-    const isContentSafe = await moderateContent(content, title,creator);
+    const isContentSafe = await moderateContent(content, title, creator);
     console.log("Is content safe?", isContentSafe);
     if (!isContentSafe) {
       return res.status(400).json({ status: 'error', message: 'Your comment was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
