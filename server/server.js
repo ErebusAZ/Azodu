@@ -525,7 +525,7 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
   let thumbnail = null;
   let summary = ""; // Initialize summary variable
 
-  contentText = processHTMLFromUsers(contentText);
+  content = processHTMLFromUsers(contentText);
 
   if (postType === 'text') {
     const result = validateComment(content);
