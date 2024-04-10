@@ -576,7 +576,22 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
   const creator = req.user.username;
   const { name, permalinkFromClient, description, additional_info } = req.body;
   const permalink = generateCategoryPermalink(permalinkFromClient);
-  
+
+  // Validate category description length
+  if (description.length < 25 || description.length > 175) {
+    return res.status(400).json({
+      error: true,
+      message: 'Category description must be between 25 and 175 characters.'
+    });
+  }
+
+  // Validate additional information length
+  if (additional_info.length > 1000) {
+    return res.status(400).json({
+      error: true,
+      message: 'Additional information must not exceed 1000 characters.'
+    });
+  }
 
   try {
     // Check if permalink already exists
@@ -587,28 +602,25 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
       // Permalink already exists
       return res.status(409).json({ error: true, message: 'A category with this permalink already exists.' });
     } else {
-
-      const isContentSafe = await moderateContent(description + additional_info, name + ' ' + permalinkFromClient, creator);
+      const isContentSafe = await moderateContent(description + ' ' + additional_info, name + ' ' + permalinkFromClient, creator);
       if (!isContentSafe) {
         return res.status(400).json({ error: true, status: 'error', message: 'Your category was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
       }
 
       const insertQuery = `
-      INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created, additional_info)
-      VALUES (?, ?, ?, ?, toTimestamp(now()), ?); // Add additional_info as a parameter
-    `;
-      await client.execute(insertQuery, [permalink, name, creator, processHTMLFromUsers(description), processHTMLFromUsers(additional_info)], { prepare: true }); // Include additional_info in parameters
+        INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created, additional_info)
+        VALUES (?, ?, ?, ?, toTimestamp(now()), ?);
+      `;
+      await client.execute(insertQuery, [permalink, name, creator, processHTMLFromUsers(description), processHTMLFromUsers(additional_info)], { prepare: true });
       console.log('Category created successfully');
       res.json({ error: false, message: 'Category created successfully' });
-
     }
   } catch (error) {
     console.error('Error creating category:', error);
     res.status(500).json({ error: true, message: 'Failed to create category.' });
   }
-
-
 });
+
 
 
 
