@@ -1,28 +1,26 @@
 $(document).on('click', '.admin-actions-gear', function (event) {
     event.stopPropagation(); // Stop click event from propagating
 
-    // Check if the tooltip is already visible
-    if ($(this).siblings('.admin-tooltip').length) {
-        // If visible, remove it (toggle off)
-        $('.admin-tooltip').fadeOut(200, function () {
-            $(this).remove();
-        });
-        return; // Exit the function
-    }
-
     // Close any already open tooltips
     $('.admin-tooltip').remove();
 
-    // Generate the tooltip HTML
+    // Determine if the post is currently pinned
+    const isPinned = $(this).data('pinned'); // This should be set when rendering each post
+
+    // Generate the tooltip HTML based on pin status
+    const pinUnpinHtml = isPinned ?
+        `<a href="#" onclick="unpinPost('${$(this).data('postid')}');return false;">Unpin Post</a>` :
+        `<a href="#" onclick="pinPost('${$(this).data('postid')}');return false;">Pin Post</a>`;
+
     const tooltipHtml = `<div class="admin-tooltip" style="display: none;">
         <a href="#" onclick="deletePost('${$(this).data('postid')}');return false;">Delete Post</a>
-        <a href="#" onclick="pinPost('${$(this).data('postid')}');return false;">Pin Post</a>
+        ${pinUnpinHtml}
     </div>`;
 
     // Append the tooltip HTML and position it
     $(this).parent().css('position', 'relative').append(tooltipHtml);
 
-    // Calculate position for the tooltip
+    // Calculate and adjust tooltip position
     const gearIconOffset = $(this).position();
     const tooltipWidth = $('.admin-tooltip').outerWidth();
     const gearIconWidth = $(this).outerWidth();
@@ -40,6 +38,7 @@ $(document).on('click', '.admin-actions-gear', function (event) {
         event.stopPropagation();
     });
 });
+
 
 // Close the tooltip when clicking anywhere else on the page
 $(document).on('click', function () {
@@ -138,6 +137,34 @@ function pinPost(postId) {
     // Make a POST request to the pinPost API endpoint
     $.ajax({
         url: '/api/pinPost',
+        type: 'POST',
+        contentType: 'application/json',
+        headers: { 'Authorization': 'Bearer ' + authToken },
+        data: JSON.stringify({ category: category, post_id: postId }),
+        success: function (response) {
+            alert('Post pinned successfully.');
+            // Optional: perform any additional actions, like updating the UI to reflect the pinned status
+        },
+        error: function (xhr, status, error) {
+            alert('Failed to pin post: ' + xhr.responseText);
+            // Handle error
+        }
+    });
+}
+
+function unpinPost(postId) {
+    // Retrieve the authToken stored in localStorage
+    var authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+        alert('You must be logged in to pin a post.');
+        return;
+    }
+    const category = $(`div.post[data-postid="${postId}"]`).data('postcat');
+
+
+    // Make a POST request to the pinPost API endpoint
+    $.ajax({
+        url: '/api/unpinPost',
         type: 'POST',
         contentType: 'application/json',
         headers: { 'Authorization': 'Bearer ' + authToken },

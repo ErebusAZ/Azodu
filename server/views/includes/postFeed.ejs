@@ -26,26 +26,24 @@
             $('.container').append(postsHtml);
         }
 
+        let shownPinnedPosts = new Set(); // Tracks shown pinned posts to avoid duplicates
+
         function fetchAndDisplayPosts() {
             if (isFetching) return;
             isFetching = true;
-            const cat = getCategoryFromCurrentUrl();
+            let cat = getCategoryFromCurrentUrl() || 'anything';
             const url = lastPostId ? `/api/posts?startPostId=${lastPostId}&category=${cat}` : `/api/posts?category=${cat}`;
 
             $.ajax({
                 url: url,
                 type: 'GET',
                 success: function (posts) {
-                    console.log(posts);
+                    console.log('Received Posts:', posts);
                     isFetching = false;
                     if (posts.length > 0) {
                         lastPostId = posts[posts.length - 1].post_id;
-                        if (currentPage > 1) {
-                            const pageDividerHtml = `<div style="clear:both;"></div><div class="page-divider">Page ${currentPage}</div>`;
-                            $('.container').append(pageDividerHtml);
-                        }
                         currentPage++;
-                        renderPosts(posts,false);
+                        renderPosts(posts, currentPage > 1); // Adjusted for clarity in conditional rendering
                     }
                 },
                 error: function (error) {
@@ -54,11 +52,16 @@
             });
         }
 
+
         function getCategoryFromCurrentUrl() {
             const pathSegments = window.location.pathname.split('/').filter(Boolean);
             const cIndex = pathSegments.findIndex(segment => segment === 'c');
-            return cIndex !== -1 && cIndex + 1 < pathSegments.length ? pathSegments[cIndex + 1] : null;
+            if (cIndex !== -1 && cIndex + 1 < pathSegments.length) {
+                return pathSegments[cIndex + 1];
+            }
+            return "anything"; // Return default category if no category is found
         }
+
 
         // Initially load the default number of posts
         fetchAndDisplayPosts();
@@ -150,12 +153,12 @@
                 data: JSON.stringify({ postId: postId, category: cat }), // Send the postId and category in the request body
                 success: function (response) {
                     console.log('Post saved successfully:', response);
-                $button.text('saved')
-                $button.css({'color':'gray'});
+                    $button.text('saved')
+                    $button.css({ 'color': 'gray' });
                 },
                 error: function (xhr, status, error) {
                     console.error('Failed to save post:', error);
-                    showNotification('Failed to save post: ' + error,'error', 3000);
+                    showNotification('Failed to save post: ' + error, 'error', 3000);
 
 
                 }
@@ -165,32 +168,6 @@
 
 
 
-        function pinPost(category, post_id) {
-            // Retrieve the authToken stored in localStorage
-            const authToken = localStorage.getItem('authToken');
-            if (!authToken) {
-                console.error('User is not logged in or authToken is missing.');
-                return;
-            }
-
-            // Make a POST request to the pinPost API endpoint
-            fetch('/api/pinPost', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}` // Use the authToken for authentication
-                },
-                body: JSON.stringify({ category, post_id }) // Send category and post_id in the request body
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json(); // Parse the JSON response body
-                })
-                .then(data => console.log(data)) // Log the response data
-                .catch(error => console.error('Error pinning post:', error)); // Log any errors
-        }
 
 
     });

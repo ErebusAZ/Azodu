@@ -119,7 +119,6 @@
                 url: '/api/categories',
                 type: 'GET',
                 success: function (categories) {
-                    console.log(categories);
                     const $communityLinks = $('.community-links');
                     $communityLinks.empty(); // Clear existing categories
                     categories.forEach(function (category) {

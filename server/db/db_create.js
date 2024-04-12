@@ -216,6 +216,24 @@ async function createPostsTable(client) {
   console.log('Table `posts` created or already exists in `my_keyspace`');
 }
 
+async function createPinnedPostsTable(client) {
+  const query = `
+  CREATE TABLE IF NOT EXISTS my_keyspace.pinned_posts (
+    category text,
+    post_id timeuuid,
+    PRIMARY KEY (category, post_id)
+);
+
+  `;
+
+  try {
+    await client.execute(query);
+    console.log('Pinned posts table created successfully.');
+  } catch (error) {
+    console.error('Failed to create pinned posts table:', error);
+  }
+}
+
 
 async function createPostIdCounterTable(client) {
   const query = `
@@ -407,4 +425,4 @@ async function emptyCommentsTable(client) {
 }
 
 
-module.exports = { createKeyspace, createUsersTable, createCommentsTable, createPostsTable, flushAllTables, dropAllTables, createVotesTable, createCategoriesTable, createDefaultCategories, createLinksTable, emptyCommentsTable, createMaterializedViews, insertFakeUsers, createPostIdCounterTable, createUserSavedPostsTable, createUserSavedCommentsTable,createUserEmailsTable };
+module.exports = { createKeyspace, createUsersTable, createCommentsTable, createPostsTable, flushAllTables, dropAllTables, createVotesTable, createCategoriesTable, createDefaultCategories, createLinksTable, emptyCommentsTable, createMaterializedViews, insertFakeUsers, createPostIdCounterTable, createUserSavedPostsTable, createUserSavedCommentsTable,createUserEmailsTable,createPinnedPostsTable };

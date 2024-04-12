@@ -23,7 +23,7 @@ try {
 jwtSecret = secrets.JWT_SECRET;
 
 
-const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable,createUserSavedCommentsTable,createUserEmailsTable } = require('./db/db_create');
+const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable,createUserSavedCommentsTable,createUserEmailsTable,createPinnedPostsTable } = require('./db/db_create');
 const { insertPostData, populateTestData, insertVote,insertCommentData,generateCommentUUID,generateContentId,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink,savePostForUser,saveCommentForUser,unsaveCommentForUser } = require('./db/db_insert');
 const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
@@ -103,7 +103,7 @@ const client = new cassandra.Client({
 
 
 let postsVoteSummary = {};
-
+let pinnedPostsCache = {}; 
 
 
 const loginExpires = 86400 * 30; // how long till login expires
@@ -332,7 +332,36 @@ setInterval(() => {
 }, updateInterval);
 
 
+updatePinnedPostsCache();
+// setInterval(updatePinnedPostsCache, 300000); // 300000 ms = 5 minutes
 
+
+
+
+
+async function updatePinnedPostsCache() {
+  try {
+    const categories = ['anything']; // Dynamic categories as per your setup
+
+    for (const category of categories) {
+      const queryPinnedIds = 'SELECT post_id FROM my_keyspace.pinned_posts WHERE category = ? LIMIT 3';
+      const resultPinnedIds = await client.execute(queryPinnedIds, [category], { prepare: true });
+      const pinnedPostIds = resultPinnedIds.rows.map(row => row.post_id);
+
+      const pinnedPostsDetails = await Promise.all(
+        pinnedPostIds.map(async (post_id) => {
+          const queryPostDetails = 'SELECT * FROM my_keyspace.posts WHERE category = ? AND post_id = ?';
+          const resultPostDetails = await client.execute(queryPostDetails, [category, post_id], { prepare: true });
+          return resultPostDetails.rows[0]; // Assuming each ID returns exactly one post
+        })
+      );
+
+      pinnedPostsCache[category] = pinnedPostsDetails.filter(post => post).map(post => ({ ...post, isPinned: true }));
+    }
+  } catch (error) {
+    console.error('Failed to update pinned posts cache:', error);
+  }
+}
 
 
 
@@ -926,64 +955,46 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
 
 
 app.post('/api/pinPost', authenticateToken, async (req, res) => {
-  const { category, post_id } = req.body;
-  console.log(category, post_id);
-  const pinPrefix = 'pinned_';
-  const newPostId = `${pinPrefix}${post_id}`;
+  const { post_id, category } = req.body;
+  const username = req.user.username; // From JWT after authentication
 
   try {
-    // Step 1: Fetch the existing post
-    const selectQuery = 'SELECT * FROM my_keyspace.posts WHERE category = ? AND post_id = ?';
-    const postResult = await client.execute(selectQuery, [category, post_id], { prepare: true });
+    const postExistsQuery = 'SELECT * FROM my_keyspace.posts WHERE post_id = ? AND category = ?';
+    const postExistsResult = await client.execute(postExistsQuery, [post_id, category], { prepare: true });
 
-    if (postResult.rowLength === 0) {
+    if (postExistsResult.rowLength === 0) {
       return res.status(404).json({ message: 'Post not found.' });
     }
 
-    const roles = req.user.roles || [];
+    const pinPostQuery = `
+    INSERT INTO my_keyspace.pinned_posts (category, post_id) VALUES (?, ?);
 
-    // Check if the user is the author or has an admin/super_admin role
-    if (!roles.includes('admin') && !roles.includes('super_admin')) {
-      return res.status(403).json({ message: 'Access denied. Insufficient permissions.' });
-    }
-
-    const post = postResult.first();
-
-    // Generate a new permalink including the 'pinned_' prefix in the post_id part
-    const newPermalink = generatePermalink(post.title, category, newPostId);
-
-
-    // Step 2: Insert a new post with the updated post_id and identical other fields
-    const insertQuery = `
-      INSERT INTO my_keyspace.posts 
-      (category, post_id, title, author, post_type, content, upvotes, downvotes, comment_count, permalink, timestamp)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     `;
-    await client.execute(insertQuery, [
-      category,
-      newPostId,
-      post.title,
-      post.author,
-      post.post_type,
-      post.content,
-      post.upvotes,
-      post.downvotes,
-      post.comment_count,
-      newPermalink,
-      post.timestamp
-    ], { prepare: true });
-
-    // Step 3: Optionally, delete the original post to avoid duplication
-    // Note: Consider the implications of this operation carefully, especially regarding links or references to the original post_id
-    const deleteQuery = 'DELETE FROM my_keyspace.posts WHERE category = ? AND post_id = ?';
-    await client.execute(deleteQuery, [category, post_id], { prepare: true });
-
-    res.json({ message: 'Post pinned successfully.' });
+    await client.execute(pinPostQuery, [category, post_id], { prepare: true });
+    updatePinnedPostsCache();
+    res.status(200).json({ message: 'Post pinned successfully.' });
   } catch (error) {
     console.error('Error pinning post:', error);
-    res.status(500).json({ message: 'Error processing pinning operation.' });
+    res.status(500).json({ message: 'Failed to pin post.' });
   }
 });
+
+
+app.post('/api/unpinPost', authenticateToken, async (req, res) => {
+  const { post_id, category } = req.body;
+
+  try {
+    const unpinPostQuery = 'DELETE FROM my_keyspace.pinned_posts WHERE category = ? AND post_id = ?;';
+    await client.execute(unpinPostQuery, [category, post_id], { prepare: true });
+    updatePinnedPostsCache();
+
+    res.status(200).json({ message: 'Post unpinned successfully.' });
+  } catch (error) {
+    console.error('Error unpinning post:', error);
+    res.status(500).json({ message: 'Error unpinning the post.' });
+  }
+});
+
 
 
 function deletePostFromSummary(postId) {
@@ -1142,28 +1153,41 @@ app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
+
 app.get('/api/posts', async (req, res) => {
-  let { startPostId, category } = req.query;
-  category = (category && category != 'null' && category != undefined ? category : category = 'anything');
-  let params = [category];
-  let query = 'SELECT * FROM my_keyspace.posts WHERE category = ?';
-
-  if (startPostId) {
-    // Adjust the operator if necessary based on actual ordering and desired pagination direction
-    query += ' AND post_id < ?';
-    params.push(startPostId);
-  }
-
-  query += ' LIMIT 30';
+  const { startPostId, category } = req.query;
 
   try {
+    // Use pinned posts from the cache if this is the first page
+    let pinnedPosts = [];
+    if (!startPostId && pinnedPostsCache[category]) {
+      pinnedPosts = pinnedPostsCache[category]; // Already full objects with isPinned flag
+    }
+
+    // Fetch regular posts
+    let query = 'SELECT * FROM my_keyspace.posts WHERE category = ?';
+    let params = [category];
+
+    if (startPostId) {
+      query += ' AND post_id < ?';
+      params.push(startPostId);
+    }
+
+    query += ' LIMIT 30'; // Adjust as necessary
     const result = await client.execute(query, params, { prepare: true });
-    res.json(result.rows);
+    const regularPosts = result.rows.map(post => ({ ...post, isPinned: false }));
+
+    // Combine pinned and regular posts
+    const posts = [...pinnedPosts, ...regularPosts];
+    res.json(posts);
   } catch (error) {
     console.error('Failed to fetch posts:', error);
     res.status(500).send('Failed to fetch posts');
   }
 });
+
+
+
 
 
 
@@ -1282,6 +1306,8 @@ async function main() {
     await insertFakeUsers(client,usernames); 
     await createCommentsTable(client);
     await createPostsTable(client);
+    await createPinnedPostsTable(client);
+
     await createPostIdCounterTable(client);
 
     await createUserSavedPostsTable(client);
@@ -1298,7 +1324,7 @@ async function main() {
     await createMaterializedViews(client);
     
 
-   // await populateTestData(client, 10);
+    await populateTestData(client, 10);
 
 
   } catch (error) {
