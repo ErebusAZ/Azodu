@@ -332,16 +332,15 @@ setInterval(() => {
 }, updateInterval);
 
 
-updatePinnedPostsCache();
-// setInterval(updatePinnedPostsCache, 300000); // 300000 ms = 5 minutes
+updatePinnedPostsCache('anything');
 
 
 
 
 
-async function updatePinnedPostsCache() {
+async function updatePinnedPostsCache(category) {
   try {
-    const categories = ['anything']; // Dynamic categories as per your setup
+    const categories = [category]; // Dynamic categories as per your setup
 
     for (const category of categories) {
       const queryPinnedIds = 'SELECT post_id FROM my_keyspace.pinned_posts WHERE category = ? LIMIT 3';
@@ -971,7 +970,7 @@ app.post('/api/pinPost', authenticateToken, async (req, res) => {
 
     `;
     await client.execute(pinPostQuery, [category, post_id], { prepare: true });
-    updatePinnedPostsCache();
+    updatePinnedPostsCache(category);
     res.status(200).json({ message: 'Post pinned successfully.' });
   } catch (error) {
     console.error('Error pinning post:', error);
@@ -986,7 +985,7 @@ app.post('/api/unpinPost', authenticateToken, async (req, res) => {
   try {
     const unpinPostQuery = 'DELETE FROM my_keyspace.pinned_posts WHERE category = ? AND post_id = ?;';
     await client.execute(unpinPostQuery, [category, post_id], { prepare: true });
-    updatePinnedPostsCache();
+    updatePinnedPostsCache(category);
 
     res.status(200).json({ message: 'Post unpinned successfully.' });
   } catch (error) {
