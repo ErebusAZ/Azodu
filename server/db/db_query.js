@@ -96,7 +96,7 @@ async function fetchPostByPostID(client, category, post_id) {
 }
 
 
-async function fetchPostsAndCalculateVotes(client, category, postsVoteSummary, updateDb = true,postLimit) {
+async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, postsVoteSummary, updateDb = true,postLimit) {
   try {
     // Fetch the latest posts within the category. Adjust the limit as needed.
     const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT ` + postLimit;
@@ -165,4 +165,4 @@ async function getCommentDetails(client, post_id, comment_id) {
 
 
 
-module.exports = { queryAndLogUserData,fetchPostByPostID,fetchPostsAndCalculateVotes,getCommentDetails,fetchCategoryByName};
+module.exports = { queryAndLogUserData,fetchPostByPostID,fetchPostsAndCalculateVotesAndCommentCounts,getCommentDetails,fetchCategoryByName};

@@ -25,7 +25,7 @@ jwtSecret = secrets.JWT_SECRET;
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable,createUserSavedCommentsTable,createUserEmailsTable,createPinnedPostsTable } = require('./db/db_create');
 const { insertPostData, populateTestData, insertVote,insertCommentData,generateCommentUUID,generateContentId,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink,savePostForUser,saveCommentForUser,unsaveCommentForUser } = require('./db/db_insert');
-const { fetchPostByPostID, fetchPostsAndCalculateVotes, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
+const { fetchPostByPostID, fetchPostsAndCalculateVotesAndCommentCounts, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink,fetchURLAndParseForThumb,extractRelevantText } = require('./utils/util');
 const { generateAIComment,generateSummary,moderateContent } = require('./utils/ai');
@@ -340,7 +340,7 @@ function processCategoriesPeriodically() {
 
         const currentCategory = categoryKeys[currentCategoryIndex];
         try {
-            const result = await fetchPostsAndCalculateVotes(client, currentCategory, postsVoteSummary,NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS);
+            const result = await fetchPostsAndCalculateVotesAndCommentCounts(client, currentCategory, postsVoteSummary,NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS);
             postsVoteSummary[currentCategory] = result;
        //     console.log(`Processed votes for category: ${currentCategory}`);
         } catch (error) {
