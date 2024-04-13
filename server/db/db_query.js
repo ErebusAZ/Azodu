@@ -9,10 +9,10 @@ function isCacheValid(lastFetched,ttl) {
 async function fetchCategoryByName(client, permalink,cache) {
   // Check if category is in cache and valid
   if (cache.category.permalinks[permalink] && isCacheValid(cache.category.permalinks[permalink].lastFetched, cache.category.ttl)) {
-    console.log('Serving category from cache');
+  //  console.log('Serving category from cache');
     return cache.category.permalinks[permalink].data;
   } else {
-    console.log('serving cat not from cache');
+   // console.log('serving cat not from cache');
   }
 
   const categoryQuery = 'SELECT * FROM my_keyspace.categories WHERE permalink = ?';
