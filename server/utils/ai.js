@@ -78,9 +78,13 @@ function removeQuotesFromString(inputString) {
 const commentsCache = {};
 
 function removeUnwantedPatterns(inputString) {
-  // Remove occurrences of "..." or ".." and Unicode emojis
-  // The regex for emojis covers ranges of common emoji characters
-  return inputString.replace(/\.\.+/g, '').replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}]/gu, '');
+  // First, replace occurrences of "..." or ".." with an empty string.
+  // Second, remove all Unicode emojis.
+  // Finally, replace exclamation points with periods.
+  return inputString
+    .replace(/\.\.+/g, '') // Removes sequences of two or more periods.
+    .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}]/gu, '') // Removes emojis.
+    .replace(/!/g, '.'); // Replaces all exclamation points with periods.
 }
 
 async function generateAIComment(title, summary, model, post_id) {
