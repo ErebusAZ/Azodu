@@ -1,18 +1,13 @@
-const cache = {
-  category: {},
-  // You can add more categories here in the future, e.g., posts: {}, users: {}, etc.
-};
 
 const CACHE_VALIDITY_MS = 10 * 60 * 1000; // e.g., 10 minutes
 
 function isCacheValid(lastFetched) {
-  return false; 
   return (new Date() - lastFetched) < CACHE_VALIDITY_MS;
 }
 
 
 
-async function fetchCategoryByName(client, permalink) {
+async function fetchCategoryByName(client, permalink,cache) {
   // Check if category is in cache and valid
   if (cache.category[permalink] && isCacheValid(cache.category[permalink].lastFetched)) {
       console.log('Serving category from cache');

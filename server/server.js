@@ -104,6 +104,11 @@ const client = new cassandra.Client({
 
 let postsVoteSummary = {};
 let pinnedPostsCache = {}; 
+const cache = {
+  category: {},
+  // You can add more categories here in the future, e.g., posts: {}, users: {}, etc.
+};
+
 
 
 const loginExpires = 86400 * 30; // how long till login expires
@@ -695,7 +700,7 @@ app.get('/c/:permalink', async (req, res) => {
   let { permalink } = req.params;
 
   try {
-      const category = await fetchCategoryByName(client, permalink);
+      const category = await fetchCategoryByName(client, permalink,cache);
       if (category) {
           res.render('category', { category: category });
       } else {
@@ -793,7 +798,7 @@ app.get('/c/:category/:uniqueId/:title', async (req, res) => {
 
     let categoryData = {};
    
-    categoryData = await fetchCategoryByName(client, category);
+    categoryData = await fetchCategoryByName(client, category,cache);
     
  
 
