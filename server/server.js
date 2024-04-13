@@ -328,14 +328,27 @@ setInterval(fetchFromExternalAndCreatePosts, FREQUENCY_TO_CREATE_POSTS_FROM_EXTE
 
 
 
-setInterval(() => {
-  fetchPostsAndCalculateVotes(client,'anything',postsVoteSummary).then(result => {
-    postsVoteSummary = result;
-  }).catch(error => {
-    console.error('Failed to fetch posts and calculate votes:', error);
-  });
-}, updateInterval);
 
+let currentCategoryIndex = 0; // To keep track of the current category being processed
+
+function processCategoriesPeriodically() {
+    setInterval(async () => {
+        const categoryKeys = Object.keys(cache.category.permalinks); // Fetch keys dynamically
+        if (categoryKeys.length === 0) return; // Skip if no categories are loaded
+
+        const currentCategory = categoryKeys[currentCategoryIndex];
+        try {
+            const result = await fetchPostsAndCalculateVotes(client, currentCategory, postsVoteSummary);
+            postsVoteSummary[currentCategory] = result;
+       //     console.log(`Processed votes for category: ${currentCategory}`);
+        } catch (error) {
+            console.error(`Failed to process votes for category: ${currentCategory}`, error);
+        }
+
+        // Update index for next iteration
+        currentCategoryIndex = (currentCategoryIndex + 1) % categoryKeys.length;
+    }, updateInterval);
+}
 
 
 
@@ -1353,6 +1366,8 @@ async function main() {
 
   //  await populateTestData(client, 10);
   await initializeAllCategoriesCache(client,cache);
+
+  processCategoriesPeriodically(); 
 
 
   } catch (error) {
