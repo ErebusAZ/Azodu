@@ -340,7 +340,7 @@ function processCategoriesPeriodically() {
 
         const currentCategory = categoryKeys[currentCategoryIndex];
         try {
-            const result = await fetchPostsAndCalculateVotesAndCommentCounts(client, currentCategory, postsVoteSummary,NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS);
+            const result = await fetchPostsAndCalculateVotesAndCommentCounts(client, currentCategory, postsVoteSummary,undefined,NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS);
             postsVoteSummary[currentCategory] = result;
        //     console.log(`Processed votes for category: ${currentCategory}`);
         } catch (error) {
