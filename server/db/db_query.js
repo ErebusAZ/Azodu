@@ -1,5 +1,8 @@
 
 
+
+
+
 function isCacheValid(lastFetched,ttl) {
   return (new Date() - lastFetched) < ttl;
 }
@@ -162,4 +165,4 @@ async function getCommentDetails(client, post_id, comment_id) {
 
 
 
-module.exports = { queryAndLogUserData,fetchPostByPostID,fetchPostsAndCalculateVotes,getCommentDetails,fetchCategoryByName };
+module.exports = { queryAndLogUserData,fetchPostByPostID,fetchPostsAndCalculateVotes,getCommentDetails,fetchCategoryByName};

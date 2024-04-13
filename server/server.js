@@ -337,7 +337,7 @@ setInterval(() => {
 }, updateInterval);
 
 
-updatePinnedPostsCache('anything');
+
 
 
 
@@ -1294,6 +1294,29 @@ app.get('/api/mySavedComments', authenticateToken, async (req, res) => {
 
 
 
+async function initializeAllCategoriesCache(client,cache) {
+  const query = 'SELECT * FROM my_keyspace.categories';
+  try {
+      const result = await client.execute(query);
+      const categories = result.rows;
+
+      // Initialize cache and update pinned posts for each category
+      for (const category of categories) {
+          // Initialize cache entry for each category
+          cache.category.permalinks[category.permalink] = {
+              data: category,
+              lastFetched: new Date()
+          };
+        console.log('updated pinned posts cache for ' + category.permalink);
+          // Update pinned posts cache for each category
+          await updatePinnedPostsCache(category.permalink);
+      }
+  } catch (error) {
+      console.error('Failed to initialize category cache:', error);
+  }
+}
+
+
 
 
 async function main() {
@@ -1329,6 +1352,7 @@ async function main() {
     
 
   //  await populateTestData(client, 10);
+  await initializeAllCategoriesCache(client,cache);
 
 
   } catch (error) {
