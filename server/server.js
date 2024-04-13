@@ -1323,7 +1323,7 @@ async function main() {
     await createMaterializedViews(client);
     
 
-    await populateTestData(client, 10);
+  //  await populateTestData(client, 10);
 
 
   } catch (error) {
