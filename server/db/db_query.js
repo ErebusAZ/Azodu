@@ -1,17 +1,18 @@
 
-const CACHE_VALIDITY_MS = 10 * 60 * 1000; // e.g., 10 minutes
 
-function isCacheValid(lastFetched) {
-  return (new Date() - lastFetched) < CACHE_VALIDITY_MS;
+function isCacheValid(lastFetched,ttl) {
+  return (new Date() - lastFetched) < ttl;
 }
 
 
 
 async function fetchCategoryByName(client, permalink,cache) {
   // Check if category is in cache and valid
-  if (cache.category[permalink] && isCacheValid(cache.category[permalink].lastFetched)) {
-      console.log('Serving category from cache');
-      return cache.category[permalink].data;
+  if (cache.category.permalinks[permalink] && isCacheValid(cache.category.permalinks[permalink].lastFetched, cache.category.ttl)) {
+    console.log('Serving category from cache');
+    return cache.category.permalinks[permalink].data;
+  } else {
+    console.log('serving cat not from cache');
   }
 
   const categoryQuery = 'SELECT * FROM my_keyspace.categories WHERE permalink = ?';
@@ -25,7 +26,7 @@ async function fetchCategoryByName(client, permalink,cache) {
           category.posts = postsResult.rows;
 
           // Cache the category data with current timestamp
-          cache.category[permalink] = {
+          cache.category.permalinks[permalink] = {
               data: category,
               lastFetched: new Date()
           };

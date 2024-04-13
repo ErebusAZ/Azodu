@@ -105,7 +105,7 @@ const client = new cassandra.Client({
 let postsVoteSummary = {};
 let pinnedPostsCache = {}; 
 const cache = {
-  category: {},
+  category: { 'ttl': 10 * 60 * 1000, 'permalinks': {}  },
   // You can add more categories here in the future, e.g., posts: {}, users: {}, etc.
 };
 
