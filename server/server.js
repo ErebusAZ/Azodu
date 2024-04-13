@@ -117,6 +117,8 @@ const updateInterval = 10 * 1000; // how quickly to fetch all posts and update v
 const defaultCategories = ["anything","Books"];
 
 
+const NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS = 50; // the # of posts to go back in a category on an interval to calculate votes and comments
+
 const COMMENT_GENERATION_INTERVAL_MS = 60000; // 1 min
 const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
 const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 10; // 10 min
@@ -338,7 +340,7 @@ function processCategoriesPeriodically() {
 
         const currentCategory = categoryKeys[currentCategoryIndex];
         try {
-            const result = await fetchPostsAndCalculateVotes(client, currentCategory, postsVoteSummary);
+            const result = await fetchPostsAndCalculateVotes(client, currentCategory, postsVoteSummary,NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS);
             postsVoteSummary[currentCategory] = result;
        //     console.log(`Processed votes for category: ${currentCategory}`);
         } catch (error) {

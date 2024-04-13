@@ -96,10 +96,10 @@ async function fetchPostByPostID(client, category, post_id) {
 }
 
 
-async function fetchPostsAndCalculateVotes(client, category, postsVoteSummary, updateDb = true) {
+async function fetchPostsAndCalculateVotes(client, category, postsVoteSummary, updateDb = true,postLimit) {
   try {
     // Fetch the latest posts within the category. Adjust the limit as needed.
-    const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT 50`;
+    const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT ` + postLimit;
 
     const posts = await client.execute(fetchPostsQuery, [category], { prepare: true });
 
