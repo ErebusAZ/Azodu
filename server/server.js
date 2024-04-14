@@ -195,48 +195,52 @@ const usernames = [
 ];
 
 
+const onlyAnythingCategory = true; // Set to false to comment on all categories
+
 setInterval(async () => {
   const now = new Date().getTime(); // Get current time in milliseconds
+  const categories = onlyAnythingCategory ? ['anything'] : Object.keys(postsVoteSummary); // Determine which categories to process
 
-  // Convert postIds into an array of objects with postId and its weight based on timestamp
-  const weightedPosts = Object.keys(postsVoteSummary)
-    .filter(id => !postsCommentBlacklist[id])
-    .map(id => {
-      const postAgeHours = (now - new Date(postsVoteSummary[id].timestamp).getTime()) / (1000 * 60 * 60); // Calculate post age in hours
-      const weight = 1 / (postAgeHours + 1); // Add 1 to avoid division by zero and invert age to weight
-      return { id, weight };
-    });
+  categories.forEach(async (category) => {
+    if (postsVoteSummary[category] && Object.keys(postsVoteSummary[category]).length > 0) {
+      // Convert postIds into an array of objects with postId and its weight based on timestamp
+      const weightedPosts = Object.keys(postsVoteSummary[category])
+        .filter(id => !postsCommentBlacklist[id])
+        .map(id => {
+          const postAgeHours = (now - new Date(postsVoteSummary[category][id].timestamp).getTime()) / (1000 * 60 * 60); // Calculate post age in hours
+          const weight = 1 / (postAgeHours + 1); // Add 1 to avoid division by zero and invert age to weight
+          return { id, weight };
+        });
 
-  // Calculate total weight
-  const totalWeight = weightedPosts.reduce((acc, { weight }) => acc + weight, 0);
+      // Calculate total weight
+      const totalWeight = weightedPosts.reduce((acc, { weight }) => acc + weight, 0);
 
-  // Choose a postId based on weights
-  let accumulator = 0;
-  const random = Math.random() * totalWeight;
-  const postId = weightedPosts.find(({ weight }) => (accumulator += weight) >= random)?.id;
+      // Choose a postId based on weights
+      let accumulator = 0;
+      const random = Math.random() * totalWeight;
+      const postId = weightedPosts.find(({ weight }) => (accumulator += weight) >= random)?.id;
 
-  if (postId && Math.random() <= COMMENT_POST_CHANCE && postsVoteSummary[postId].ai_summary) {
-    const post = postsVoteSummary[postId];
-    const model = "gpt-3.5-turbo";
-    const comment = await generateAIComment(post.title, post.ai_summary, model, postId);
+      if (postId && Math.random() <= COMMENT_POST_CHANCE && postsVoteSummary[category][postId].ai_summary) {
+        const post = postsVoteSummary[category][postId];
+        const model = "gpt-3.5-turbo";
+        const comment = await generateAIComment(post.title, post.ai_summary, model, postId);
+        console.log('created comment for ' + post.title);
 
-    if (comment == null || comment == 'null') {
-      postsCommentBlacklist[postId] = true; // Mark the post in the dedicated blacklist
-      return;
+        if (comment == null || comment == 'null') {
+          postsCommentBlacklist[postId] = true; // Mark the post in the dedicated blacklist
+          return;
+        }
+
+        const generatedCommentId = generateContentId(); // Generate a unique comment ID
+        const timestamp = new Date();
+        const randomIndex = Math.floor(Math.random() * usernames.length);
+        const author = usernames[randomIndex]; // Randomly picked author from the array
+
+        await insertCommentData(client, generatedCommentId, postId, author, postId, "text", comment, 0, 0, `${post.permalink}`, timestamp);
+      }
     }
-
-    const generatedCommentId = generateContentId(); // Generate a unique comment ID
-    const timestamp = new Date();
-    // const author = model + "_generated";
-    // Select a random username from the usernames array
-    const randomIndex = Math.floor(Math.random() * usernames.length);
-    const author = usernames[randomIndex]; // Randomly picked author from the array
-
-  //  console.log('created a new comment on ' + post.title);
-    await insertCommentData(client, generatedCommentId, postId, author, postId, "text", comment, 0, 0, `${post.permalink}`, timestamp);
-  }
+  });
 }, COMMENT_GENERATION_INTERVAL_MS);
-
 
 
 
@@ -340,11 +344,11 @@ async function processCategoriesPeriodically() {
 
     const currentCategory = categoryKeys[currentCategoryIndex];
     try {
-      const postsVoteSummary = await fetchPostsAndCalculateVotesAndCommentCounts(client, currentCategory, {}, true, NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS);
-      updatePinnedPostsInCache(postsVoteSummary, currentCategory);
+      const newSummary = await fetchPostsAndCalculateVotesAndCommentCounts(client, currentCategory, {}, true, NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS);
+      updatePinnedPostsInCache(newSummary, currentCategory);
       // You may want to consider whether you need to keep this assignment or adjust the design
       // to better handle updates.
-      postsVoteSummary[currentCategory] = postsVoteSummary;
+      postsVoteSummary[currentCategory] = newSummary;
     } catch (error) {
       console.error(`Failed to process votes for category: ${currentCategory}`, error);
     }
