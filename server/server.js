@@ -333,26 +333,44 @@ setInterval(fetchFromExternalAndCreatePosts, FREQUENCY_TO_CREATE_POSTS_FROM_EXTE
 
 let currentCategoryIndex = 0; // To keep track of the current category being processed
 
-function processCategoriesPeriodically() {
-    setInterval(async () => {
-        const categoryKeys = Object.keys(cache.category.permalinks); // Fetch keys dynamically
-        if (categoryKeys.length === 0) return; // Skip if no categories are loaded
+async function processCategoriesPeriodically() {
+  setInterval(async () => {
+    const categoryKeys = Object.keys(cache.category.permalinks);
+    if (categoryKeys.length === 0) return;
 
-        const currentCategory = categoryKeys[currentCategoryIndex];
-        try {
-            const result = await fetchPostsAndCalculateVotesAndCommentCounts(client, currentCategory, postsVoteSummary,undefined,NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS);
-            postsVoteSummary[currentCategory] = result;
-       //     console.log(`Processed votes for category: ${currentCategory}`);
-        } catch (error) {
-            console.error(`Failed to process votes for category: ${currentCategory}`, error);
-        }
+    const currentCategory = categoryKeys[currentCategoryIndex];
+    try {
+      const postsVoteSummary = await fetchPostsAndCalculateVotesAndCommentCounts(client, currentCategory, {}, true, NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS);
+      updatePinnedPostsInCache(postsVoteSummary, currentCategory);
+      // You may want to consider whether you need to keep this assignment or adjust the design
+      // to better handle updates.
+      postsVoteSummary[currentCategory] = postsVoteSummary;
+    } catch (error) {
+      console.error(`Failed to process votes for category: ${currentCategory}`, error);
+    }
 
-        // Update index for next iteration
-        currentCategoryIndex = (currentCategoryIndex + 1) % categoryKeys.length;
-    }, updateInterval);
+    // Update index for next iteration
+    currentCategoryIndex = (currentCategoryIndex + 1) % categoryKeys.length;
+  }, updateInterval);
 }
 
 
+function updatePinnedPostsInCache(postsVoteSummary, category) {
+  // Convert the object to an array of posts
+  const posts = Object.values(postsVoteSummary);
+  posts.forEach(post => {
+    if (pinnedPostsCache[category] && pinnedPostsCache[category].some(p => p.post_id.toString() === post.post_id.toString())) {
+      const index = pinnedPostsCache[category].findIndex(p => p.post_id.toString() === post.post_id.toString());
+      if (index !== -1) {
+        // Update the pinned post in the cache
+        pinnedPostsCache[category][index] = {
+          ...pinnedPostsCache[category][index],
+          ...post
+        };
+      }
+    }
+  });
+}
 
 
 
