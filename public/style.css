@@ -809,7 +809,14 @@ h2#post-title {
     bottom: 5px;
     display: inline;
 }
+h2#post-title a {
+text-decoration: none; 
+}
 
+h2#post-title a:hover {
+    text-decoration: underline !important; 
+}
+    
 
 div#op_comment_form {
     margin-top: 0;
