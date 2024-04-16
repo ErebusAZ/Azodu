@@ -88,7 +88,7 @@ function removeUnwantedPatterns(inputString) {
 }
 
 async function generateAIComment(title, summary, model, post_id) {
-  const maxNum = getRandomNumberBetween(5, 13);
+  const maxNum = getRandomNumberBetween(3, 7);
 
   if (commentsCache[post_id] && commentsCache[post_id].length === 0) {
     return null; // No more comments to serve for this title
