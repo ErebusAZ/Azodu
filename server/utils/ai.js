@@ -142,6 +142,7 @@ async function generateAIComment(title, summary, model, post_id) {
       .filter(comment => !comment.toLowerCase().includes('impressive'))
       .filter(comment => !comment.toLowerCase().includes('can\'t wait'))
       .filter(comment => !comment.toLowerCase().includes('it\'s great'))
+      .filter(comment => !comment.toLowerCase().includes('comment'))
 
       .map(comment => removeLeadingNumberFromComment(comment)) // New line to remove leading number, period, space
 
