@@ -142,12 +142,11 @@ function pinPost(postId) {
         headers: { 'Authorization': 'Bearer ' + authToken },
         data: JSON.stringify({ category: category, post_id: postId }),
         success: function (response) {
-            alert('Post pinned successfully.');
-            // Optional: perform any additional actions, like updating the UI to reflect the pinned status
+            showNotification('Post pinned successfully.', type = 'success', duration = 3000);
         },
         error: function (xhr, status, error) {
-            alert('Failed to pin post: ' + xhr.responseText);
-            // Handle error
+            showNotification('Failed to pin post: ' + xhr.responseText, type = 'error', duration = 5000);
+
         }
     });
 }
@@ -170,12 +169,10 @@ function unpinPost(postId) {
         headers: { 'Authorization': 'Bearer ' + authToken },
         data: JSON.stringify({ category: category, post_id: postId }),
         success: function (response) {
-            alert('Post pinned successfully.');
-            // Optional: perform any additional actions, like updating the UI to reflect the pinned status
+            showNotification('Post unpinned successfully.', type = 'success', duration = 3000);
         },
         error: function (xhr, status, error) {
-            alert('Failed to pin post: ' + xhr.responseText);
-            // Handle error
+            showNotification('Failed to unpin post: ' + xhr.responseText, type = 'error', duration = 5000);
         }
     });
 }
