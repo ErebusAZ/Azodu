@@ -130,6 +130,11 @@ label {
     position: relative;
 }
 
+/*
+.post[data-pinned="true"] {
+    background-color: #414141;
+}
+*/
 
 .post-left {
     float: left;

@@ -273,25 +273,25 @@
     }
 
     function generatePostHtml(post, isSaved) {
-        let isTwitterUrl = post.content && post.content.includes("twitter.com");
-        const postTitleHref = post.post_type === 'url' ? post.content : post.permalink;
+    let isTwitterUrl = post.content && post.content.includes("twitter.com");
+    const postTitleHref = post.post_type === 'url' ? post.content : post.permalink;
 
-        let contentDisplay = post.post_type === 'url' && post.ai_summary ?
-            `<div style="display:none;" class="post-text">${post.ai_summary}<span class="ai_summary_heading">AI-generated summary</span></div>` :
-            `<div style="display:none;" class="post-text">${post.content}</div>`;
+    let contentDisplay = post.post_type === 'url' && post.ai_summary ?
+        `<div style="display:none;" class="post-text">${post.ai_summary}<span class="ai_summary_heading">AI-generated summary</span></div>` :
+        `<div style="display:none;" class="post-text">${post.content}</div>`;
 
-        contentDisplay = isTwitterUrl ?
-            `<div style="display:none;" class="post-text"><div class="twitter-placeholder" data-twitter-url="${post.content}" style="display:none;">Loading tweet...</div></div>` :
-            contentDisplay;
+    contentDisplay = isTwitterUrl ?
+        `<div style="display:none;" class="post-text"><div class="twitter-placeholder" data-twitter-url="${post.content}" style="display:none;">Loading tweet...</div></div>` :
+        contentDisplay;
 
-        const link = post.post_type === 'url' ?
-            `<a href="${postTitleHref}" class="post-title single-line" target="_blank">${post.title}<i class="fas fa-external-link-alt"></i></a><i class="fas fa-plus open-content" style="float:left;"></i>` :
-            `<a href="${postTitleHref}" class="post-title single-line">${post.title}</a><i class="fas fa-plus open-content" style="float:left;"></i>`;
+    const pinnedIcon = post.isPinned ? `<i title="pinned" style="font-size: 12px;" class="fas fa-thumbtack"></i> ` : '';
+    const link = post.post_type === 'url' ?
+        `<a href="${postTitleHref}" class="post-title single-line" target="_blank">${pinnedIcon}${post.title}<i class="fas fa-external-link-alt"></i></a><i class="fas fa-plus open-content" style="float:left;"></i>` :
+        `<a href="${postTitleHref}" class="post-title single-line">${pinnedIcon}${post.title}</a><i class="fas fa-plus open-content" style="float:left;"></i>`;
 
-        const thumbnailHtml = post.thumbnail ? `<img src="${post.thumbnail}" alt="Post Thumbnail">` : `<i class="fas fa-${post.post_type === 'url' ? 'link' : 'pencil-alt'}"></i>`;
+    const thumbnailHtml = post.thumbnail ? `<img src="${post.thumbnail}" alt="Post Thumbnail">` : `<i class="fas fa-${post.post_type === 'url' ? 'link' : 'pencil-alt'}"></i>`;
 
-        
-        return `
+    return `
 <div class="post" data-postId="${post.post_id}" data-postcat="${post.category}" data-pinned="${post.isPinned}">
     <div class="post-left">
         <div class="voting">
@@ -316,7 +316,7 @@
     </div>
     <i class="fas fa-cog admin-actions-gear admin-ui" style="float:right; cursor:pointer;" data-postid="${post.post_id}" data-pinned="${post.isPinned}"></i>
 </div>`;
-    }
+}
 
 
     $(document).on('click', '.delete', function (e) {
