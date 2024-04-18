@@ -101,6 +101,9 @@ const client = new cassandra.Client({
   keyspace: 'my_keyspace'
 });
 
+const userTimeouts = {};
+
+
 
 let postsVoteSummary = {};
 let pinnedPostsCache = {}; 
@@ -407,6 +410,35 @@ async function updatePinnedPostsCache(category) {
 
 
 
+// Function to calculate the next timeout duration
+function getNextTimeoutDuration(previousDuration) {
+  if (!previousDuration) return 2 * 60 * 1000; // 5 minutes for the first time
+  return Math.min(previousDuration * 2, 24 * 60 * 60 * 1000); // Double each time but cap at 24 hours
+}
+
+// Function to check if the user is currently timed out
+function checkTimeout(username) {
+  const currentTime = Date.now();
+  const userRecord = userTimeouts[username];
+  if (userRecord && currentTime < userRecord.nextAllowedTime) {
+    return Math.ceil((userRecord.nextAllowedTime - currentTime) / 1000); // Return remaining seconds
+  }
+  return null;
+}
+
+function setTimeoutForUser(username) {
+  const currentTime = Date.now();
+  const userRecord = userTimeouts[username];
+  const nextDuration = getNextTimeoutDuration(userRecord ? userRecord.currentTimeoutDuration : null);
+  userTimeouts[username] = {
+    nextAllowedTime: currentTime + nextDuration,
+    currentTimeoutDuration: nextDuration
+  };
+  return nextDuration; // Return the duration for immediate feedback
+}
+
+
+
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -414,8 +446,8 @@ function authenticateToken(req, res, next) {
 
   jwt.verify(token, jwtSecret, (err, user) => {
     if (err) return res.sendStatus(403);
-      req.user = user; // Assuming user payload has a 'username' field
-      next();
+    req.user = user; // Assuming user payload has a 'username' field
+    next();
   });
 }
 
@@ -590,6 +622,18 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
   const creator = req.user.username;
   let { title, category, postType, contentText, contentUrl } = req.body;
 
+   // Check if user is currently timed out
+   const timeoutSeconds = checkTimeout(creator);
+   if (timeoutSeconds) {
+       return res.status(429).json({
+           status: 'error',
+           message: `You must wait ${timeoutSeconds} more seconds before submitting again.`,
+           error: true
+       });
+   }
+
+
+
   // Validate title length for both post types
   if (title.length < 10 || title.length > 150) {
     return res.status(400).json({
@@ -635,7 +679,9 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
     const isContentSafe = await moderateContent(content, title, creator);
     console.log("Is content safe?", isContentSafe);
     if (!isContentSafe) {
-      return res.status(400).json({ status: 'error', message: 'Your comment was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
+      const nextTimeoutDuration = setTimeoutForUser(creator);
+
+      return res.status(400).json({ status: 'error', message: `Your comment was not approved because it was found by AI to be against our content policies. Wait ${nextTimeoutDuration / 1000} seconds before you can submit again.` });
     }
 
 
@@ -674,10 +720,13 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
 
   let relevancyScore = await checkCategoryRelevancy(title, content, category, categoryDescription, summary, postType);
   if (relevancyScore < 30) {
+    const nextTimeoutDuration = setTimeoutForUser(creator);
+
     return res.status(400).json({
       status: 'error',
-      message: 'Post is not relevant to the selected category.'
+      message: `Post is not relevant to the selected category. Wait ${nextTimeoutDuration / 1000} seconds before submitting again.`
     });
+
   }
 
   try {
@@ -944,19 +993,19 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
       if (!hasPermission) {
         return res.status(403).send('Forbidden: You are not authorized to delete this comment.');
       }
-      
+
       // Construct the deletion message
       const deletedByMessage = commentDetails.author === author ? '<p>[deleted by author]</p>' : '<p>[deleted by admin]</p>';
       const deletedAuthor = 'deleted';
-      
+
       // Update the comment content and set author as 'deleted'
       const updateQuery = `
         UPDATE my_keyspace.comments
         SET content = ?, author = ?
         WHERE post_id = ? AND comment_id = ?`;
-      
+
       await client.execute(updateQuery, [deletedByMessage, deletedAuthor, post_id, commentId], { prepare: true });
-      
+
       res.json({ message: 'Comment deleted successfully.', commentId: commentId });
     } catch (error) {
       console.error('Error in delete operation:', error);
@@ -965,15 +1014,27 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
     return;
   }
 
+  // Check if user is currently timed out
+  const timeoutSeconds = checkTimeout(author);
+  if (timeoutSeconds) {
+    return res.status(429).json({
+      status: 'error',
+      message: `You must wait ${timeoutSeconds} more seconds before submitting again.`,
+      error: true
+    });
+  }
+
 
   if (!validateComment(content).isValid)
     return;
 
   try {
-    const isContentSafe = await moderateContent(content,undefined,author);
+    const isContentSafe = await moderateContent(content, undefined, author);
     console.log("Is content safe?", isContentSafe);
     if (!isContentSafe) {
-      return res.status(400).json({ message: 'Your comment was not approved because it was found by AI to be against our content policies. Wait 5 minutes before you can submit again.' });
+      const nextTimeoutDuration = setTimeoutForUser(author);
+
+      return res.status(400).json({ message: `Your comment was not approved because it was found by AI to be against our content policies. Wait ${nextTimeoutDuration / 1000} seconds before you can submit again.` });
     }
   } catch (error) {
     console.error(error.message);
