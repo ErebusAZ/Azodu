@@ -145,7 +145,7 @@ async function generateAIComment(title, summary, model, post_id) {
 
       .map(comment => removeLeadingNumberFromComment(comment)) // New line to remove leading number, period, space
 
-      
+
 
       .map(comment => removeUnwantedPatterns(comment)); // New line to remove "..." and ".."
 
@@ -189,7 +189,50 @@ async function generateSummary(text) {
   }
 }
 
-async function moderateContent(content,title,author) {
+
+
+async function checkCategoryRelevancy(title, content, category, categoryDescription, summary, postType) {
+  try {
+    let prompt = `Based on the title, content (which is sometimes a URL), and category description provided, rate the relevancy of this post to the category "${category}" on a scale from 1 to 1000. Only provide the number, nothing else.\n\n`;
+    prompt += `Title: ${title}\n`;
+    prompt += `Content: ${content}\n`;
+    if (summary) {
+      prompt += `Summary: ${summary}\n`;
+    }
+    prompt += `Category Description: ${categoryDescription}\n`;
+    prompt += `Post Type: ${postType}\n`;
+
+    console.log("Sending the following prompt to OpenAI:", prompt); // Log the prompt
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are a helpful assistant." },
+        { role: "user", content: prompt }
+      ],
+      max_tokens: 20,  // Increase max tokens slightly to accommodate potentially larger number responses
+      temperature: 0.7  // Adjusting temperature to allow for a bit of variability while still aiming for relevance
+    });
+
+    console.log("OpenAI API response:", JSON.stringify(completion, null, 2)); // Log the raw API response
+
+    // Extract and parse the relevancy score from the API response
+    let contentResponse = completion.choices[0].message.content.trim();
+    console.log("Extracted content:", contentResponse); // Log the extracted content for verification
+
+    // Attempt to directly parse the number from the response
+    let relevancyScore = parseFloat(contentResponse);
+
+    console.log('Parsed relevancy score:', relevancyScore); // Log the parsed relevancy score
+    return isNaN(relevancyScore) ? 0 : relevancyScore;  // Return 0 if parsing fails or no number is found
+  } catch (error) {
+    console.error('Error checking category relevancy:', error);
+    return 0;  // Return 0 if there's an error in checking relevancy
+  }
+}
+
+
+async function moderateContent(content, title, author) {
   try {
     // Directly call the Moderation API with the input text
     const moderation = await openai.moderations.create({
@@ -243,5 +286,6 @@ function makeTextMoreHuman(text, noCapitalizeChance = 20, removePeriodChance = 2
 module.exports = {
   generateAIComment,
   generateSummary,
-  moderateContent
+  moderateContent,
+  checkCategoryRelevancy
 };

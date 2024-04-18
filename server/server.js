@@ -28,7 +28,7 @@ const { insertPostData, populateTestData, insertVote,insertCommentData,generateC
 const { fetchPostByPostID, fetchPostsAndCalculateVotesAndCommentCounts, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink,fetchURLAndParseForThumb,extractRelevantText } = require('./utils/util');
-const { generateAIComment,generateSummary,moderateContent } = require('./utils/ai');
+const { generateAIComment,generateSummary,moderateContent,checkCategoryRelevancy } = require('./utils/ai');
 
 const app = express();
 const port = 3000; // Use any port that suits your setup
@@ -660,6 +660,24 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
         //  return res.status(500).json({ message: 'Failed to fetch URL content' });
       }
     }
+  }
+
+  // Fetch category description from cache or handle cache miss
+  let categoryDescription = "";
+  if (cache.category.permalinks[category] && cache.category.permalinks[category].data) {
+    categoryDescription = cache.category.permalinks[category].data.description;
+  } else {
+    // Fallback: Fetch from database if not in cache (not shown here, implementation depends on your setup)
+    // categoryDescription = await fetchCategoryDescriptionFromDB(category);
+    console.log("Cache miss: category description not found in cache."); // Log for debugging
+  }
+
+  let relevancyScore = await checkCategoryRelevancy(title, content, category, categoryDescription, summary, postType);
+  if (relevancyScore < 30) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Post is not relevant to the selected category.'
+    });
   }
 
   try {
