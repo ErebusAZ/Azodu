@@ -18,15 +18,20 @@
         var postsShown = 0;
 
 
+        let shownPinnedPosts = new Set(); // Tracks shown pinned posts to avoid duplicates
+
         function renderPosts(posts, isSaved) {
             let postsHtml = '';
             for (let i = 0; i < posts.length; i++) {
-                postsHtml += generatePostHtml(posts[i], isSaved);
+                if (!shownPinnedPosts.has(posts[i].post_id)) {
+                    postsHtml += generatePostHtml(posts[i], isSaved);
+                    if (posts[i].isPinned) {
+                        shownPinnedPosts.add(posts[i].post_id); // Track shown pinned posts
+                    }
+                }
             }
             $('.container').append(postsHtml);
         }
-
-        let shownPinnedPosts = new Set(); // Tracks shown pinned posts to avoid duplicates
 
         function fetchAndDisplayPosts() {
             if (isFetching) return;
@@ -43,7 +48,7 @@
                     if (posts.length > 0) {
                         lastPostId = posts[posts.length - 1].post_id;
                         currentPage++;
-                        renderPosts(posts, currentPage > 1); // Adjusted for clarity in conditional rendering
+                        renderPosts(posts.filter(post => !shownPinnedPosts.has(post.post_id)), currentPage > 1); // Filter out already displayed pinned posts
                     }
                 },
                 error: function (error) {
@@ -51,6 +56,7 @@
                 }
             });
         }
+
 
 
         function getCategoryFromCurrentUrl() {
