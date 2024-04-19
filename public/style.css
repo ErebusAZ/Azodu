@@ -1103,7 +1103,7 @@ button#submit-comment {
     position: relative;
 }
 
-#selftext {
+#post_text {
     clear: both;
     margin-top: 30px;
     background-color: #2d2d2d;
