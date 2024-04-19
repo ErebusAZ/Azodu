@@ -243,9 +243,9 @@
 
         return `<div data-postpermalink="${postPermalink}" data-depth="${depth}" data-parentid="${parent_id}" data-commentid="${commentId}" id="comment-${commentId}" class="comment" style="background-color: ${backgroundColor}; margin-left: ${depth * 20}px;">
     <div class="voting">
-        <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${commentId}"><img src="/img/up-arrow.svg" alt="Upvote"></a>
+        <a title="upvote" description="upvote" href="#" class="upvote upvote_comment" data-postid="${commentId}"><img src="/img/up-arrow.svg" alt="Upvote"></a>
         <span class="votes">${votes}</span>
-        <a title="downvote" description="downvote" href="#" class="downvote" data-postid="${commentId}"><img src="/img/down-arrow.svg" alt="Downvote"></a>
+        <a title="downvote" description="downvote" href="#" class="downvote downvote_comment" data-postid="${commentId}"><img src="/img/down-arrow.svg" alt="Downvote"></a>
     </div>
     <div class="comment-content">
         <div class="comment-header">
@@ -295,11 +295,11 @@
 <div class="post" data-postId="${post.post_id}" data-postcat="${post.category}" data-pinned="${post.isPinned}">
     <div class="post-left">
         <div class="voting">
-            <a title="upvote" description="upvote" href="#" class="upvote" data-postid="${post.post_id}">
+            <a title="upvote" description="upvote" href="#" class="upvote upvote_post" data-postid="${post.post_id}">
                 <img src="/img/up-arrow.svg" alt="Upvote">
             </a>
             <span class="votes">${post.upvotes - post.downvotes}</span>
-            <a title="downvote" description="downvote" href="#" class="downvote" data-postid="${post.post_id}">
+            <a title="downvote" description="downvote" href="#" class="downvote downvote_post" data-postid="${post.post_id}">
                 <img src="/img/down-arrow.svg" alt="Downvote">
             </a>
         </div>
@@ -508,6 +508,14 @@
             const $this = $(this);
             const $post = $this.closest('.post');
             const isUpvote = $this.hasClass('upvote');
+            let originalPostID = $this.data('postid');
+
+
+            if ($this.hasClass('upvote_comment') || $this.hasClass('downvote_comment')) {
+                originalPostID = getThirdPathSegment($this.closest('.comment').data('postpermalink'));
+            }
+
+
             let voteState = $post.data('voteState') || 'none'; // Get current vote state: 'up', 'down', or 'none'
 
             // Determine new vote state based on current state and action
@@ -552,7 +560,8 @@
                 type: 'POST',
                 data: {
                     upvote: isUpvote,
-                    post_id: $this.data('postid')
+                    post_id: $this.data('postid'),
+                    root_post_id: originalPostID
                 },
                 success: function (response) {
                     console.log('Vote recorded successfully.');
@@ -571,7 +580,7 @@
 
 
         });
-
+        
 
 
 
