@@ -257,6 +257,8 @@ $(document).ready(function () {
         if (e.target === loginRegisterForm) {
             loginRegisterForm.style.display = 'none';
         }
+        $('.grecaptcha-badge').css({ 'visibility': 'hidden','display': 'none'}); 
+
     });
 
     function updateFormMode() {
@@ -265,6 +267,8 @@ $(document).ready(function () {
             submitAuthButton.value = 'Login';
             switchAuthMode.innerHTML = 'Don\'t have an account? <a href="#" id="switchForm">Register here.</a>';
             document.getElementById('email')?.remove();
+            $('.grecaptcha-badge').css({ 'visibility': 'hidden','display': 'none'}); 
+
         } else {
             formTitle.textContent = 'Register';
             submitAuthButton.value = 'Register';
@@ -277,6 +281,7 @@ $(document).ready(function () {
                 emailInput.required = true;
                 submitAuthButton.before(emailInput);
             }
+            $('.grecaptcha-badge').css({ 'visibility': 'initial','display': 'block'}); 
         }
     }
 

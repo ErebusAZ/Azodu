@@ -38,6 +38,8 @@
     text-decoration: none;
 }
 
+.grecaptcha-badge { display: none; z-index:9999; }
+
 
 body {
     background-color: #1a1a1a;
