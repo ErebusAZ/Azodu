@@ -19,6 +19,8 @@
 <meta name="msapplication-TileColor" content="#da532c">
 <meta name="theme-color" content="#ffffff">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<script src="https://www.google.com/recaptcha/api.js?render=6Lfh2sApAAAAAB_-Xt310RQ5kYgu_wOSPA2sEfu2"></script>
+
 <script src="/js/login.js"></script>
 <script src="/js/admin.js"></script>
 
@@ -736,6 +738,8 @@
                 <input type="text" id="username" placeholder="Username" required>
                 <input type="password" id="password" placeholder="Password" required>
                 <input type="submit" id="submitAuth" value="Login">
+                <input type="hidden" id="recaptchaResponse" name="recaptchaResponse">
+
                 <div id="formMessage" style="color: #d7dadc; margin-top: 10px;"></div> <!-- Message placeholder -->
                 <p id="switchAuthMode">Don't have an account? <a href="#" id="switchForm">Register here.</a></p>
             </form>

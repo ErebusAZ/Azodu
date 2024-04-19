@@ -80,82 +80,116 @@ $(document).ready(function () {
 
 
     function handleFormSubmission(isLoginMode, username, password, email) {
-
         const actionUrl = isLoginMode ? '/api/login' : '/api/register';
-        const payload = isLoginMode ? { username, password } : { username, password, email };
         const formMessage = document.getElementById('formMessage');
-
+    
+        // Disable form fields to prevent multiple submissions
+        disableFormFields();
+    
         if (!isLoginMode) {
-
+            // Validate username before attempting to register
             const result = validateUsername(username);
             if (!result.isValid) {
                 showNotification(result.message, 'error', 5000);
+                enableFormFields(); // Re-enable form fields if validation fails
                 return;
-
-
             }
-
+    
+            // Only handle reCAPTCHA and registration here
+            grecaptcha.ready(function() {
+                grecaptcha.execute('6Lfh2sApAAAAAB_-Xt310RQ5kYgu_wOSPA2sEfu2', { action: 'register' }).then(function(token) {
+                    // Include reCAPTCHA token in the registration payload
+                    const payload = { username, password, email, recaptchaToken: token };
+                    submitFormData(actionUrl, payload);
+                });
+            });
+        } else {
+            // Login does not require reCAPTCHA
+            const payload = { username, password };
+            submitFormData(actionUrl, payload);
         }
-
+    }
+    
+    function submitFormData(url, data) {
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            const formMessage = document.getElementById('formMessage');
+            console.log(data);
+            if (data.auth === true || (data.message && data.message.includes('successful'))) {
+                // Successful login or registration
+                localStorage.setItem('authToken', data.token || '');
+                localStorage.setItem('username', data.username || '');
+                updateUIBasedOnAuthStatus();
+    
+                if (data.token) {
+                    const decodedToken = parseJwt(data.token);
+                    localStorage.setItem('userRoles', JSON.stringify(decodedToken.roles || []));
+                    localStorage.setItem('userSubscriptions', JSON.stringify(data.subscriptions || []));
+                    console.log('Roles:', localStorage.getItem('userRoles'));
+                }
+    
+                formMessage.textContent = data.message || 'Action successful. Redirecting...';
+                formMessage.style.color = 'limegreen';
+                setTimeout(() => { loginRegisterForm.style.display = 'none'; }, 1000);
+            } else {
+                // Handle errors or informative messages from server
+                formMessage.textContent = data.message;
+                formMessage.style.color = 'red';
+                enableFormFields();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            formMessage.textContent = 'An error occurred, please try again.';
+            formMessage.style.color = 'red';
+            enableFormFields();
+        });
+    }
+    
+    function disableFormFields() {
         document.getElementById('username').disabled = true;
         document.getElementById('password').disabled = true;
         const emailField = document.getElementById('email');
         if (emailField) emailField.disabled = true;
         document.getElementById('submitAuth').disabled = true;
-
-        fetch(actionUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        })
-            .then(response => response.json()) // Expecting JSON response now
-            .then(data => {
-                if (data.auth === true || (data.message && data.message.includes('successful'))) {
-                    // Handle both login and registration success
-                    localStorage.setItem('authToken', data.token || ''); // Fallback to empty string if no token is present
-                    localStorage.setItem('username', username); // Store username for displaying
-
-                    const decodedToken = parseJwt(data.token); // Decode the token to access the payload
-                    
-                    // Check if the decoded token has roles
-                    if (decodedToken && decodedToken.roles) {
-                        localStorage.setItem('userRoles', JSON.stringify(decodedToken.roles)); // Store roles in local storage
-                    } else {
-                        // Handle the case where no roles are decoded, or the user has default roles
-                        localStorage.setItem('userRoles', JSON.stringify([]));
-                    }
-
-                    console.log('roles: ' + localStorage.getItem('userRoles'));
-
-                    updateUIBasedOnAuthStatus();
-                    formMessage.textContent = data.message || 'Action successful. Redirecting...';
-                    formMessage.style.color = 'limegreen';
-
-                    // New: Store subscriptions in local storage
-                    if (data.subscriptions) {
-                        localStorage.setItem('userSubscriptions', JSON.stringify(data.subscriptions));
-                    } else {
-                        // Handle the case where no subscriptions are returned, or the user has none
-                        localStorage.setItem('userSubscriptions', JSON.stringify([]));
-                    }
-
-
-                    // Optionally close the form after a delay on success
-                    setTimeout(() => { loginRegisterForm.style.display = 'none'; }, 1000);
-                } else {
-                    // Display error or informative message from server
-                    formMessage.textContent = data.message;
-                    formMessage.style.color = 'red';
-                    resetFormFields();
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                formMessage.textContent = 'An error occurred, please try again.';
-                formMessage.style.color = 'red';
-                resetFormFields();
-            });
     }
+    
+    function enableFormFields() {
+        document.getElementById('username').disabled = false;
+        document.getElementById('password').disabled = false;
+        const emailField = document.getElementById('email');
+        if (emailField) emailField.disabled = false;
+        document.getElementById('submitAuth').disabled = false;
+    }
+    
+    function handleResponse(data) {
+        const formMessage = document.getElementById('formMessage');
+        if (data.auth === true || (data.message && data.message.includes('successful'))) {
+            // Success logic here...
+            console.log('Action successful. Redirecting...');
+            setTimeout(() => { loginRegisterForm.style.display = 'none'; }, 1000);
+        } else {
+            // Error or informative message from server
+            formMessage.textContent = data.message;
+            formMessage.style.color = 'red';
+        }
+        enableFormFields();
+    }
+    
+    function handleError(error) {
+        console.error('Error:', error);
+        const formMessage = document.getElementById('formMessage');
+        formMessage.textContent = 'An error occurred, please try again.';
+        formMessage.style.color = 'red';
+        enableFormFields();
+    }
+    
+    
 
 
 
@@ -206,17 +240,18 @@ $(document).ready(function () {
 
 
 
-    // Handle form submission
     document.getElementById('authForm').addEventListener('submit', function (e) {
         e.preventDefault();
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        const email = document.getElementById('email') ? document.getElementById('email').value : '';
+        const emailField = document.getElementById('email'); // Get the email input element
+        const email = emailField ? emailField.value : ''; // Check if the email field exists
+    
         console.log(username, password, isLoginMode);
         handleFormSubmission(isLoginMode, username, password, email);
-
     });
-
+    
+    
     // Close the form lightbox when clicking outside of it
     loginRegisterForm.addEventListener('click', function (e) {
         if (e.target === loginRegisterForm) {

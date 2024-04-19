@@ -456,53 +456,63 @@ function authenticateToken(req, res, next) {
 
 
 app.post('/api/register', async (req, res) => {
-  const { username, password, email } = req.body;
+  const { username, password, email, recaptchaToken } = req.body; // Include recaptchaToken in the body
   const clientIp = req.headers['cf-connecting-ip'] || req.ip;
 
-  // Validation omitted for brevity
+  // reCAPTCHA Verification
+  const secretKey = 'REDACTED'; // Replace 'your_secret_key' with your actual secret key
+  try {
+    const recaptchaResponse = await axios.post(`https://www.google.com/recaptcha/api/siteverify`, {}, {
+      params: {
+        secret: secretKey,
+        response: recaptchaToken,
+        remoteip: clientIp
+      }
+    });
 
+    if (!recaptchaResponse.data.success || recaptchaResponse.data.score < 0.5) { // Consider a threshold score to determine a pass
+      return res.status(403).json({ message: 'Failed reCAPTCHA verification.' });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: 'Error verifying reCAPTCHA.', error: error.toString() });
+  }
+
+  // Proceed with the existing registration logic if reCAPTCHA verification is successful
   if (!username || !password || !email) {
     return res.status(400).json({ message: 'Username, password, and email are required.' });
   }
 
-  // Hash the password before saving it to the database
   const hashedPassword = await bcrypt.hash(password, 8);
   const dateRegistered = new Date();
 
   try {
-    // Attempt to insert the email first
     const insertEmailQuery = `INSERT INTO my_keyspace.user_emails (email, username) VALUES (?, ?) IF NOT EXISTS;`;
     const emailInsertResult = await client.execute(insertEmailQuery, [email, username], { prepare: true });
 
-    // Check if the email insert was not applied (meaning the email already exists)
     if (emailInsertResult && emailInsertResult.rows && emailInsertResult.rows[0] && !emailInsertResult.rows[0]['[applied]']) {
       return res.status(409).json({ message: 'Email already exists.' });
     }
 
-    // Proceed to insert the user
     const insertUserQuery = `
       INSERT INTO my_keyspace.users (username, password, email, date_registered, last_ip)
       VALUES (?, ?, ?, ?, ?) IF NOT EXISTS;
     `;
     const userInsertResult = await client.execute(insertUserQuery, [username, hashedPassword, email, dateRegistered, clientIp], { prepare: true });
 
-    // Check if the user insert was not applied (meaning the username already exists)
     if (userInsertResult && userInsertResult.rows && userInsertResult.rows[0] && !userInsertResult.rows[0]['[applied]']) {
-      // Attempt to remove the previously inserted email since the user insert failed
       const deleteEmailQuery = `DELETE FROM my_keyspace.user_emails WHERE email = ?`;
       await client.execute(deleteEmailQuery, [email], { prepare: true });
 
       return res.status(409).json({ message: 'Username already exists.' });
     }
 
-    const token = jwt.sign({ username: username }, jwtSecret, { expiresIn: loginExpires });
-    res.status(201).json({ auth: true, token: token, message: 'User created successfully. Redirecting...' });
+    const token = jwt.sign({ username: username }, jwtSecret, { expiresIn: '1h' }); // Adjusted expiresIn
+    res.status(201).json({ auth: true, token: token,username:username, message: 'User created successfully. Redirecting...' });
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ message: 'Error registering user.' });
   }
 });
-
 
 
 
@@ -530,7 +540,7 @@ app.post('/api/login', async (req, res) => {
       await client.execute(updateIpQuery, [clientIp, username], { prepare: true });
 
       const token = jwt.sign({ username: user.username, roles: ['super_admin'] }, jwtSecret, { expiresIn: loginExpires });
-      res.status(200).json({ auth: true, token: token, message: 'Login successful.' });
+      res.status(200).json({ auth: true, token: token, username: user.username,message: 'Login successful.' });
     } else {
       res.status(404).json({ message: 'No user found.' });
     }
