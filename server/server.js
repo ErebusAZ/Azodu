@@ -23,7 +23,7 @@ try {
 jwtSecret = secrets.JWT_SECRET;
 
 
-const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable,createUserSavedCommentsTable,createUserEmailsTable,createPinnedPostsTable } = require('./db/db_create');
+const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable,createUserSavedCommentsTable,createUserEmailsTable,createPinnedPostsTable,createAzoTable } = require('./db/db_create');
 const { insertPostData, populateTestData, insertVote,insertCommentData,generateCommentUUID,generateContentId,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink,savePostForUser,saveCommentForUser,unsaveCommentForUser } = require('./db/db_insert');
 const { fetchPostByPostID, fetchPostsAndCalculateVotesAndCommentCounts, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
@@ -102,6 +102,8 @@ const client = new cassandra.Client({
 });
 
 const userTimeouts = {};
+
+let azoChanges = {};
 
 
 
@@ -196,6 +198,25 @@ const usernames = [
   "bane",
 
 ];
+
+
+
+setInterval(async () => {
+  for (const [username, azoChange] of Object.entries(azoChanges)) {
+    if (azoChange !== 0) {
+      try {
+        // Determine the correct CQL query based on whether azoChange is positive or negative
+        const query = `UPDATE my_keyspace.user_azo SET azo = azo + ? WHERE username = ?`;
+        await client.execute(query, [azoChange, username], { prepare: true });
+        // Reset the change tracker after successful update
+        azoChanges[username] = 0;
+        console.log(`Successfully updated azo for ${username}. New change: ${azoChange}`);
+      } catch (error) {
+        console.error(`Failed to update azo for user ${username}:`, error);
+      }
+    }
+  }
+}, 10000); // Update every 10 seconds, adjust timing as necessary
 
 
 const onlyAnythingCategory = true; // Set to false to comment on all categories
@@ -963,16 +984,25 @@ app.get('/api/categories/:permalink', async (req, res) => {
 
 
 app.post('/api/vote', async (req, res) => {
-  const { post_id, upvote,root_post_id } = req.body; // `upvote` might be a string here
+  const { post_id, upvote, root_post_id, author } = req.body; // `upvote` might be a string here
   const ip = req.ip;
-
-  // Explicitly convert `upvote` to boolean
   const isUpvote = upvote === 'true' || upvote === true; // Handles both string and boolean inputs
 
   try {
     await insertVote(client, post_id, isUpvote, ip);
-    if((root_post_id && post_id) && (root_post_id != post_id)) // only comments are tallied here as posts are tallied elsewhere
-    await tallyVotesForComment(client,root_post_id, post_id); // Indicate it's a comment
+    if ((root_post_id && post_id) && (root_post_id != post_id)) { // only comments are tallied here as posts are tallied elsewhere
+      await tallyVotesForComment(client, root_post_id, post_id); // Indicate it's a comment
+    }
+
+    console.log('author is ' + author);
+    // Calculate azo change
+    const azoDelta = isUpvote ? 1 : -1;
+    if (azoChanges[author]) {
+      azoChanges[author] += azoDelta;
+    } else {
+      azoChanges[author] = azoDelta;
+    }
+
 
     res.json({ message: 'Vote recorded successfully.' });
   } catch (error) {
@@ -980,7 +1010,6 @@ app.post('/api/vote', async (req, res) => {
     res.status(500).send('Failed to record vote');
   }
 });
-
 
 
 
@@ -1449,12 +1478,13 @@ async function main() {
   try {
 
     //   await flushAllTables(client,'my_keyspace','comments'); 
-  //  await dropAllTables(client, 'my_keyspace'); 
+   // await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
 
     await createUsersTable(client);
+    await createAzoTable(client); 
     await createUserEmailsTable(client);
     await insertFakeUsers(client,usernames); 
     await createCommentsTable(client);
