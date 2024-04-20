@@ -128,10 +128,6 @@ const COMMENT_GENERATION_INTERVAL_MS = 60000; // 1 min
 const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
 const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 10; // 10 min
 
-
-const MAX_AZO_PROCESS_PER_INTERVAL = 10; 
-
-
 // Dedicated blacklist for posts to skip commenting
 const postsCommentBlacklist = {};
 
@@ -211,10 +207,7 @@ setInterval(async () => {
     .filter(([username, data]) => data.azoDelta !== 0)
     .sort((a, b) => a[1].lastUpdated - b[1].lastUpdated);
 
-  // Process only a limited number of updates per interval
-  const updatesToProcess = sortedUpdates.slice(0, MAX_AZO_PROCESS_PER_INTERVAL);
-
-  for (const [username, data] of updatesToProcess) {
+  for (const [username, data] of sortedUpdates) {
     try {
       const query = `UPDATE my_keyspace.user_azo SET azo = azo + ? WHERE username = ?`;
       await client.execute(query, [data.azoDelta, username], { prepare: true });
