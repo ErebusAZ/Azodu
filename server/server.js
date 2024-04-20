@@ -202,20 +202,18 @@ const usernames = [
 
 
 setInterval(async () => {
-  // Create an array from azoChanges, sort by lastUpdated timestamp
-  const sortedUpdates = Object.entries(azoChanges)
-    .filter(([username, data]) => data.azoDelta !== 0)
-    .sort((a, b) => a[1].lastUpdated - b[1].lastUpdated);
-
-  for (const [username, data] of sortedUpdates) {
-    try {
-      const query = `UPDATE my_keyspace.user_azo SET azo = azo + ? WHERE username = ?`;
-      await client.execute(query, [data.azoDelta, username], { prepare: true });
-      // Reset the change tracker and update the lastUpdated timestamp after successful update
-      azoChanges[username] = { azoDelta: 0, lastUpdated: new Date().getTime() };
-      console.log(`Successfully updated azo for ${username}. New change: ${data.azoDelta}`);
-    } catch (error) {
-      console.error(`Failed to update azo for user ${username}:`, error);
+  for (const [username, azoChange] of Object.entries(azoChanges)) {
+    if (azoChange !== 0) {
+      try {
+        // Determine the correct CQL query based on whether azoChange is positive or negative
+        const query = `UPDATE my_keyspace.user_azo SET azo = azo + ? WHERE username = ?`;
+        await client.execute(query, [azoChange, username], { prepare: true });
+        // Reset the change tracker after successful update
+        azoChanges[username] = 0;
+        console.log(`Successfully updated azo for ${username}. New change: ${azoChange}`);
+      } catch (error) {
+        console.error(`Failed to update azo for user ${username}:`, error);
+      }
     }
   }
 }, 10000); // Update every 10 seconds, adjust timing as necessary
@@ -1000,9 +998,9 @@ app.post('/api/vote', async (req, res) => {
     // Calculate azo change
     const azoDelta = isUpvote ? 1 : -1;
     if (azoChanges[author]) {
-      azoChanges[author].azoDelta += azoDelta;
+      azoChanges[author] += azoDelta;
     } else {
-      azoChanges[author] = { azoDelta: azoDelta, lastUpdated: new Date().getTime() };
+      azoChanges[author] = azoDelta;
     }
 
 
