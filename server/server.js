@@ -827,48 +827,42 @@ app.get('/c/:permalink', async (req, res) => {
 });
 
 
+
 app.get('/u/:username', async (req, res) => {
   const username = req.params.username;
 
-  // Query for the user's details remains the same
-  const queryUser = 'SELECT * FROM my_keyspace.users WHERE username = ?';
-
-  // Update the query for the user's posts to use the materialized view
-  const queryPosts = 'SELECT * FROM my_keyspace.posts_by_author WHERE author = ?';
-
-  // Query for the user's comments remains the same
-  const queryComments = 'SELECT * FROM my_keyspace.comments_by_author WHERE author = ?';
-
   try {
-    // Execute queries
-    const resultUser = await client.execute(queryUser, [username], { prepare: true });
-    const resultPosts = await client.execute(queryPosts, [username], { prepare: true });
-    const resultComments = await client.execute(queryComments, [username], { prepare: true });
-
-    // Check if the user exists
-    if (resultUser.rows.length === 0) {
+    const userResult = await client.execute('SELECT * FROM my_keyspace.users WHERE username = ?', [username], { prepare: true });
+    if (userResult.rows.length === 0) {
       return res.status(404).json({ message: `User ${username} not found.` });
     }
+    const user = userResult.rows[0];
 
-    // Prepare objects to pass to the template
-    const user = resultUser.rows[0]; // Assuming we're interested in the first (should be only) row
-    const posts = resultPosts.rows;
-    const comments = resultComments.rows;
+    const postsResult = await client.execute('SELECT * FROM my_keyspace.posts_by_author WHERE author = ?', [username], { prepare: true });
+    const commentsResult = await client.execute('SELECT * FROM my_keyspace.comments_by_author WHERE author = ?', [username], { prepare: true });
 
-    // Render the template with user, posts, and comments
+    const azoBalance = calculateAzo(postsResult.rows, commentsResult.rows);
+    console.log('azo blance is ' + azoBalance);
+    // Render the user page with AZO balance
     res.render('userPage', {
       user: user,
-      posts: posts,
-      comments: comments,
+      azoBalance: azoBalance,
+      posts: postsResult.rows,
+      comments: commentsResult.rows,
       category: {} // Assuming you need this for the sidebar or other parts of the template
     });
-
   } catch (error) {
     console.error(`Failed to fetch data for user ${username}:`, error);
     res.status(500).json({ error: 'Failed to fetch data due to an internal error.' });
   }
 });
 
+function calculateAzo(posts, comments) {
+  let azo = 0;
+  posts.forEach(post => azo += (post.upvotes - post.downvotes));
+  comments.forEach(comment => azo += (comment.upvotes - comment.downvotes));
+  return azo;
+}
 
 
 
