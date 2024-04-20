@@ -508,7 +508,7 @@
             event.preventDefault();
 
             const $this = $(this);
-            const $post = $this.closest('.post');
+            const $post = $this.closest('.post, .comment');
             const isUpvote = $this.hasClass('upvote');
             let originalPostID = $this.data('postid');
 
