@@ -34,22 +34,6 @@ async function createUsersTable(client) {
   }
 }
 
-async function createAzoTable(client) {
-  const query = `
-  CREATE TABLE IF NOT EXISTS my_keyspace.user_azo (
-    username text PRIMARY KEY,
-    azo counter
-);
-  `;
-  try {
-    await client.execute(query);
-    console.log('Table `azo` created or already exists in `my_keyspace`');
-  } catch (error) {
-    console.error('Error creating azo table:', error);
-  }
-}
-
-
 async function createUserEmailsTable(client) {
   const query = `
     CREATE TABLE IF NOT EXISTS my_keyspace.user_emails (
@@ -441,4 +425,4 @@ async function emptyCommentsTable(client) {
 }
 
 
-module.exports = { createKeyspace, createUsersTable, createCommentsTable, createPostsTable, flushAllTables, dropAllTables, createVotesTable, createCategoriesTable, createDefaultCategories, createLinksTable, emptyCommentsTable, createMaterializedViews, insertFakeUsers, createPostIdCounterTable, createUserSavedPostsTable, createUserSavedCommentsTable,createUserEmailsTable,createPinnedPostsTable,createAzoTable };
+module.exports = { createKeyspace, createUsersTable, createCommentsTable, createPostsTable, flushAllTables, dropAllTables, createVotesTable, createCategoriesTable, createDefaultCategories, createLinksTable, emptyCommentsTable, createMaterializedViews, insertFakeUsers, createPostIdCounterTable, createUserSavedPostsTable, createUserSavedCommentsTable,createUserEmailsTable,createPinnedPostsTable };
