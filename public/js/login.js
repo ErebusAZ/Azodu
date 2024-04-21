@@ -255,9 +255,10 @@ $(document).ready(function () {
     // Close the form lightbox when clicking outside of it
     loginRegisterForm.addEventListener('click', function (e) {
         if (e.target === loginRegisterForm) {
+            $('.grecaptcha-badge').css({ 'visibility': 'hidden','display': 'none'}); 
+
             loginRegisterForm.style.display = 'none';
         }
-        $('.grecaptcha-badge').css({ 'visibility': 'hidden','display': 'none'}); 
 
     });
 
