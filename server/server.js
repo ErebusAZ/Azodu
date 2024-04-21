@@ -841,12 +841,14 @@ app.get('/u/:username', async (req, res) => {
     const postsResult = await client.execute('SELECT * FROM my_keyspace.posts_by_author WHERE author = ?', [username], { prepare: true });
     const commentsResult = await client.execute('SELECT * FROM my_keyspace.comments_by_author WHERE author = ?', [username], { prepare: true });
 
-    const azoBalance = calculateAzo(postsResult.rows, commentsResult.rows);
-    console.log('azo blance is ' + azoBalance);
+    const totalAzoEarned = calculateAzo(postsResult.rows, commentsResult.rows);
+    const azoBalance = totalAzoEarned - user.azo_spent;
+
     // Render the user page with AZO balance
     res.render('userPage', {
       user: user,
       azoBalance: azoBalance,
+      azoEarned: totalAzoEarned,
       posts: postsResult.rows,
       comments: commentsResult.rows,
       category: {} // Assuming you need this for the sidebar or other parts of the template
@@ -863,6 +865,9 @@ function calculateAzo(posts, comments) {
   comments.forEach(comment => azo += (comment.upvotes - comment.downvotes));
   return azo;
 }
+
+
+
 
 
 
