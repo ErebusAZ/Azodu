@@ -861,8 +861,8 @@ app.get('/u/:username', async (req, res) => {
 
 function calculateAzo(posts, comments) {
   let azo = 0;
-  posts.forEach(post => azo += (post.upvotes - post.downvotes));
-  comments.forEach(comment => azo += (comment.upvotes - comment.downvotes));
+  posts.forEach(post => azo += post.upvotes);
+  comments.forEach(comment => azo += comment.upvotes);
   return azo;
 }
 
