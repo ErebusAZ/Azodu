@@ -254,44 +254,51 @@ async function populateTestData(client, numberOfPosts = 100) {
 
 
 
-async function insertVote(client, post_id, isUpvote, ip) {
-
+async function insertOrUpdateVote(client, post_id, voteValue, ip) {
   const query = `
-    INSERT INTO my_keyspace.votes (post_id, ip, is_upvote)
-    VALUES (?, ?, ?);
+    INSERT INTO my_keyspace.votes (post_id, ip, vote_value)
+    VALUES (?, ?, ?)
   `;
 
-  const params = [post_id, ip, isUpvote];
+  const params = [post_id, ip, voteValue];
 
   try {
     await client.execute(query, params, { prepare: true });
-    //  console.log('Vote recorded successfully');
+    console.log('Vote recorded or updated successfully');
   } catch (error) {
-    console.error('Error inserting vote:', error);
+    console.error('Error inserting or updating vote:', error);
   }
 }
 
 
-async function tallyVotesForComment(client, post_id, comment_id,) {
-  // Assume entityId is comment_id for comments and post_id for posts
-  const votesQuery = `SELECT is_upvote FROM my_keyspace.votes WHERE post_id = ?`;
+
+async function tallyVotesForComment(client, post_id, comment_id) {
+  // Fetch the vote values for the specified comment_id
+  const votesQuery = `SELECT vote_value FROM my_keyspace.votes WHERE post_id = ?`;
   const votesResult = await client.execute(votesQuery, [comment_id], { prepare: true });
   const votes = votesResult.rows;
 
   let upvotes = 0;
   let downvotes = 0;
   votes.forEach(vote => {
-    vote.is_upvote ? upvotes++ : downvotes++;
+    if (vote.vote_value === 1) {
+      upvotes++;  // Increment for each upvote
+    } else if (vote.vote_value === -1) {
+      downvotes++;  // Increment for each downvote
+    }
+    // Note: vote_value of 0 does not affect counts
   });
+  console.log(upvotes,downvotes); 
 
+  // Update the comment's upvote and downvote counts in the database
   const updateQuery = `UPDATE my_keyspace.comments SET upvotes = ?, downvotes = ? WHERE post_id = ? AND comment_id = ?`;
   await client.execute(updateQuery, [upvotes, downvotes, post_id, comment_id], { prepare: true });
 
-  // console.log(`Updated votes for entity ${comment_id}: ${upvotes} upvotes, ${downvotes} downvotes`);
+  console.log(`Updated votes for comment ${comment_id}: ${upvotes} upvotes, ${downvotes} downvotes`);
 }
 
 
 
 
 
-module.exports = { insertPostData, populateTestData, insertVote, insertCommentData, generateCommentUUID, generateContentId,insertCategoryData, generatePermalink, updateCommentData, tallyVotesForComment, deleteCommentData,savePostForUser,saveCommentForUser,unsaveCommentForUser };
+module.exports = { insertPostData, populateTestData, insertCommentData, generateCommentUUID, generateContentId,insertCategoryData, generatePermalink, updateCommentData, tallyVotesForComment, deleteCommentData,savePostForUser,saveCommentForUser,unsaveCommentForUser,insertOrUpdateVote };

@@ -291,7 +291,7 @@ async function createVotesTable(client) {
     CREATE TABLE IF NOT EXISTS my_keyspace.votes (
       post_id timeuuid,
       ip text,
-      is_upvote boolean,
+      vote_value int,
       PRIMARY KEY ((post_id), ip)
     );
   `;

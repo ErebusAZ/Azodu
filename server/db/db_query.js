@@ -96,23 +96,23 @@ async function fetchPostByPostID(client, category, post_id) {
 }
 
 
-async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, postsVoteSummary, updateDb = true,postLimit) {
+async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, postsVoteSummary, updateDb = true, postLimit) {
   try {
     // Fetch the latest posts within the category. Adjust the limit as needed.
     const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT ` + postLimit;
-
     const posts = await client.execute(fetchPostsQuery, [category], { prepare: true });
 
     for (const post of posts.rows) {
-      // Fetch votes
-      const fetchVotesQuery = `SELECT is_upvote FROM my_keyspace.votes WHERE post_id = ?`;
+      // Fetch votes and calculate upvotes and downvotes
+      const fetchVotesQuery = `SELECT vote_value FROM my_keyspace.votes WHERE post_id = ?`;
       const votes = await client.execute(fetchVotesQuery, [post.post_id], { prepare: true });
 
       let upvotes = 0;
       let downvotes = 0;
       votes.rows.forEach(vote => {
-        if (vote.is_upvote) upvotes++;
-        else downvotes++;
+        if (vote.vote_value === 1) upvotes++;
+        else if (vote.vote_value === -1) downvotes++;
+        // We ignore vote_value of 0 as they do not affect the count
       });
 
       // Fetch comments count for the post
@@ -140,13 +140,14 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, pos
       }
     }
 
-    // console.log(`Posts and vote summary updated for category: ${category}.`);
+    console.log(`Posts and vote summary updated for category: ${category}.`);
   } catch (error) {
     console.error(`Error fetching posts and calculating votes for category: ${category}`, error);
   }
 
   return postsVoteSummary;
 }
+
 
 async function getCommentDetails(client, post_id, comment_id) {
   // Use both post_id and comment_id to uniquely identify the comment

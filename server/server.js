@@ -24,7 +24,7 @@ jwtSecret = secrets.JWT_SECRET;
 
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable,createUserSavedCommentsTable,createUserEmailsTable,createPinnedPostsTable } = require('./db/db_create');
-const { insertPostData, populateTestData, insertVote,insertCommentData,generateCommentUUID,generateContentId,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink,savePostForUser,saveCommentForUser,unsaveCommentForUser } = require('./db/db_insert');
+const { insertPostData, populateTestData, insertCommentData,generateCommentUUID,generateContentId,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink,savePostForUser,saveCommentForUser,unsaveCommentForUser,insertOrUpdateVote } = require('./db/db_insert');
 const { fetchPostByPostID, fetchPostsAndCalculateVotesAndCommentCounts, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink,fetchURLAndParseForThumb,extractRelevantText } = require('./utils/util');
@@ -962,16 +962,15 @@ app.get('/api/categories/:permalink', async (req, res) => {
 
 
 app.post('/api/vote', async (req, res) => {
-  const { post_id, upvote,root_post_id } = req.body; // `upvote` might be a string here
+  const { post_id, voteValue, root_post_id } = req.body;  // Changed to receive `voteValue` as an integer
   const ip = req.ip;
 
-  // Explicitly convert `upvote` to boolean
-  const isUpvote = upvote === 'true' || upvote === true; // Handles both string and boolean inputs
-
   try {
-    await insertVote(client, post_id, isUpvote, ip);
-    if((root_post_id && post_id) && (root_post_id != post_id)) // only comments are tallied here as posts are tallied elsewhere
-    await tallyVotesForComment(client,root_post_id, post_id); // Indicate it's a comment
+    await insertOrUpdateVote(client, post_id, voteValue, ip);  // Using the modified function that handles integers
+
+    if ((root_post_id && post_id) && (root_post_id != post_id)) {  // Handling for comments
+      await tallyVotesForComment(client, root_post_id, post_id);  // Existing logic to tally votes for comments
+    }
 
     res.json({ message: 'Vote recorded successfully.' });
   } catch (error) {
