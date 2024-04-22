@@ -961,10 +961,10 @@ app.get('/api/categories/:permalink', async (req, res) => {
 
 
 
-app.post('/api/vote', async (req, res) => {
+app.post('/api/vote',authenticateToken, async (req, res) => {
   const { post_id, voteValue, root_post_id } = req.body;  // Changed to receive `voteValue` as an integer
   const ip = req.ip;
-
+  const voter = req.user.username; 
   try {
     await insertOrUpdateVote(client, post_id, voteValue, ip);  // Using the modified function that handles integers
 
