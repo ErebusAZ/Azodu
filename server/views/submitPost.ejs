@@ -142,7 +142,14 @@
           
           <div id="categoryRelevanceDescription"></div>
 
+          <!-- Checkbox for content policy agreement -->
+          <div class="form-check" id="content_policy_checkbox_container">
+            <input type="checkbox" id="contentPolicyCheckbox" name="contentPolicyCheckbox" required>
+            <label id="policy_checkbox_label" for="contentPolicyCheckbox">My post is relevant to the above category description and does not violate the Azodu content policy.</label>
+          </div>
+          
           <button type="submit">Submit</button>
+          
 
         </form>
       </div>
@@ -180,10 +187,8 @@
 
 
 
-        // Override the default form submission
         $('form#submit_post_form').on('submit', function (e) {
           e.preventDefault(); // Prevent the form from submitting through the browser
-
 
           var postType = $('#postType').val();
           var title = $('#postTitle').val();
@@ -191,24 +196,24 @@
           var contentText = postType === 'text' ? quill.root.innerHTML : null;
           var contentUrl = postType === 'url' ? $('#postContentUrl').val() : null;
 
+          // Check if the content policy checkbox is checked
+          var isPolicyChecked = $('#contentPolicyCheckbox').is(':checked');
+          if (!isPolicyChecked) {
+            alert('Please confirm that your post adheres to the content policy.');
+            return; // Stop the form submission if policy is not confirmed
+          }
+
           contentText = processHTMLFromUsers(contentText);
 
           if (postType === 'text') {
-
-            console.log(postType);
             var result = validateComment(contentText);
-
             if (!result.isValid) {
-
               showNotification('Comment is too short or unsubstantive.', 'error', 5000);
               return;
-
             }
-
           }
 
           $('button[type="submit"]').prop('disabled', true).text('Submitting...');
-
 
           // Prepare the formData object
           var formData = {

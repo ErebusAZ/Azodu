@@ -1276,6 +1276,27 @@ form#submit_post_form, form#submit_category_form, #category_submit_info {
     margin-top: 20px;
 }
 
+#content_policy_checkbox_container {
+    padding: 4px;
+    margin-top: 10px;
+}
+
+#policy_checkbox_label {
+    display: inline;
+    position: relative;
+    bottom: 4px;
+    left: 4px;
+    line-height: 24px;
+}
+
+
+#contentPolicyCheckbox {
+    position: relative;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+}
+
 .submission-form input[type="text"],
 
 .submission-form select, #postContentUrl {
