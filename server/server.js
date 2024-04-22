@@ -506,7 +506,7 @@ app.post('/api/register', async (req, res) => {
       return res.status(409).json({ message: 'Username already exists.' });
     }
 
-    const token = jwt.sign({ username: username }, jwtSecret, { expiresIn: '1h' }); // Adjusted expiresIn
+    const token = jwt.sign({ username: username }, jwtSecret, { expiresIn: loginExpires }); // Adjusted expiresIn
     res.status(201).json({ auth: true, token: token,username:username, message: 'User created successfully. Redirecting...' });
   } catch (error) {
     console.error('Registration error:', error);
