@@ -39,52 +39,61 @@
           if (postContentUrl) postContentUrl.setAttribute('required', '');
         }
       }
-      $(document).ready(function () {
+        $(document).ready(function () {
+          $('#postType').change(togglePostContentField);
 
-        $('#postType').change(togglePostContentField);
+          function getQueryParamByName(name) {
+            var url = window.location.href;
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+              results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
+          }
 
-        // Function to get query parameter by name
-        function getQueryParamByName(name) {
-          var url = window.location.href;
-          name = name.replace(/[\[\]]/g, "\\$&");
-          var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-            results = regex.exec(url);
-          if (!results) return null;
-          if (!results[2]) return '';
-          return decodeURIComponent(results[2].replace(/\+/g, " "));
-        }
+          function setCategoryDescription(description) {
+            description = `<p style="color: #dcdc7a; padding-top:0;margin-top: 0;">Post must be relevant to the following ...</p>` + description; 
+            $('#categoryRelevanceDescription').html(description || 'Select a category to see the description.');
+          }
 
-        // Fetch and display categories in the select dropdown
-        function fetchAndPopulateCategories() {
-          let selectedCategory = "anything";
-          selectedCategory = (getQueryParamByName('cat') ? getQueryParamByName('cat'): selectedCategory); // Get 'cat' query parameter
+          function fetchAndPopulateCategories() {
+            let selectedCategory = "anything";
+            selectedCategory = getQueryParamByName('cat') ? getQueryParamByName('cat') : selectedCategory;
 
-          $.ajax({
-            url: '/api/categories',
-            type: 'GET',
-            success: function (categories) {
-              const $categorySelect = $('#category');
-              $categorySelect.empty(); // Clear existing options
+            $.ajax({
+              url: '/api/categories',
+              type: 'GET',
+              success: function (categories) {
+                const $categorySelect = $('#category');
+                $categorySelect.empty(); // Clear existing options
+                let initialDescription = '';
 
-              categories.forEach(function (category) {
-                // Append category as an option
-                const option = $('<option></option>').val(category.permalink).text(category.name + ' - /c/' + category.permalink);
-                $categorySelect.append(option);
-                if (category.permalink === selectedCategory) {
-                  option.prop('selected', true); // Set as selected if matches the query parameter
-                }
-              });
-            },
-            error: function (error) {
-              console.error('Failed to fetch categories:', error);
-            }
-          });
-        }
+                categories.forEach(function (category) {
+                  const option = $('<option></option>').val(category.permalink).text(category.name + ' - /c/' + category.permalink);
+                  option.data('description', category.description); // Store the description in the option
+                  $categorySelect.append(option);
+                  if (category.permalink === selectedCategory) {
+                    option.prop('selected', true); // Set as selected if matches the query parameter
+                    initialDescription = category.description; // Set the initial description based on the selected category
+                  }
+                });
 
-        // Load categories when the document is ready
-        fetchAndPopulateCategories();
+                setCategoryDescription(initialDescription); // Set the initial description
+                $('#category').change(function () {
+                  // Update the description when the category changes
+                  const selectedOption = $(this).find('option:selected');
+                  setCategoryDescription(selectedOption.data('description'));
+                });
+              },
+              error: function (error) {
+                console.error('Failed to fetch categories:', error);
+              }
+            });
+          }
 
-      });
+          fetchAndPopulateCategories();
+        });
 
 
 
@@ -130,6 +139,8 @@
           </div>
 
           <input type="hidden" id="quillContentText" name="contentText">
+          
+          <div id="categoryRelevanceDescription"></div>
 
           <button type="submit">Submit</button>
 
