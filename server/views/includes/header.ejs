@@ -561,6 +561,7 @@
                 $.ajax({
                     url: '/api/vote/',
                     type: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + authToken },
                     data: {
                         voteValue: newVoteState,
                         post_id: $this.data('postid'),
@@ -574,6 +575,8 @@
                         // Optionally handle rollback of UI changes here
                     }
                 });
+
+
             }
         });
 
