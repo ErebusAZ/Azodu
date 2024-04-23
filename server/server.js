@@ -98,7 +98,9 @@ app.post('/*', postLimiter);
 const client = new cassandra.Client({
   contactPoints: ['149.28.231.86', '45.77.101.209'],
   localDataCenter: 'datacenter1',
-  keyspace: 'my_keyspace'
+  keyspace: 'my_keyspace',
+  authProvider: new cassandra.auth.PlainTextAuthProvider('cassandra', secrets.CASSANDRA_PW)
+
 });
 
 const userTimeouts = {};
