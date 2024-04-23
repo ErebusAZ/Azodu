@@ -539,7 +539,7 @@ app.post('/api/login', async (req, res) => {
       const updateIpQuery = 'UPDATE my_keyspace.users SET last_ip = ? WHERE username = ?';
       await client.execute(updateIpQuery, [clientIp, username], { prepare: true });
 
-      const token = jwt.sign({ username: user.username, roles: ['super_admin'] }, jwtSecret, { expiresIn: loginExpires });
+      const token = jwt.sign({ username: user.username, roles: user.roles }, jwtSecret, { expiresIn: loginExpires });
       res.status(200).json({ auth: true, token: token, username: user.username,message: 'Login successful.' });
     } else {
       res.status(404).json({ message: 'No user found.' });
