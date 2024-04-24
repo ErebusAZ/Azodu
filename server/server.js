@@ -107,7 +107,7 @@ const userTimeouts = {};
 
 
 
-let postsVoteSummary = {};
+let postsCache = {};
 let pinnedPostsCache = {}; 
 const cache = {
   category: { 'ttl': 10 * 60 * 1000, 'permalinks': {}  },
@@ -204,15 +204,15 @@ const onlyAnythingCategory = true; // Set to false to comment on all categories
 
 setInterval(async () => {
   const now = new Date().getTime(); // Get current time in milliseconds
-  const categories = onlyAnythingCategory ? ['anything'] : Object.keys(postsVoteSummary); // Determine which categories to process
+  const categories = onlyAnythingCategory ? ['anything'] : Object.keys(postsCache); // Determine which categories to process
 
   categories.forEach(async (category) => {
-    if (postsVoteSummary[category] && Object.keys(postsVoteSummary[category]).length > 0) {
+    if (postsCache[category] && Object.keys(postsCache[category]).length > 0) {
       // Convert postIds into an array of objects with postId and its weight based on timestamp
-      const weightedPosts = Object.keys(postsVoteSummary[category])
+      const weightedPosts = Object.keys(postsCache[category])
         .filter(id => !postsCommentBlacklist[id])
         .map(id => {
-          const postAgeHours = (now - new Date(postsVoteSummary[category][id].timestamp).getTime()) / (1000 * 60 * 60); // Calculate post age in hours
+          const postAgeHours = (now - new Date(postsCache[category][id].timestamp).getTime()) / (1000 * 60 * 60); // Calculate post age in hours
           const weight = 1 / (postAgeHours + 1); // Add 1 to avoid division by zero and invert age to weight
           return { id, weight };
         });
@@ -225,8 +225,8 @@ setInterval(async () => {
       const random = Math.random() * totalWeight;
       const postId = weightedPosts.find(({ weight }) => (accumulator += weight) >= random)?.id;
 
-      if (postId && Math.random() <= COMMENT_POST_CHANCE && postsVoteSummary[category][postId].ai_summary) {
-        const post = postsVoteSummary[category][postId];
+      if (postId && Math.random() <= COMMENT_POST_CHANCE && postsCache[category][postId].ai_summary) {
+        const post = postsCache[category][postId];
         const model = "gpt-3.5-turbo";
         const comment = await generateAIComment(post.title, post.ai_summary, model, postId);
         console.log('created comment for ' + post.title);
@@ -353,7 +353,7 @@ async function processCategoriesPeriodically() {
       updatePinnedPostsInCache(newSummary, currentCategory);
       // You may want to consider whether you need to keep this assignment or adjust the design
       // to better handle updates.
-      postsVoteSummary[currentCategory] = newSummary;
+      postsCache[currentCategory] = newSummary;
     } catch (error) {
       console.error(`Failed to process votes for category: ${currentCategory}`, error);
     }
@@ -364,9 +364,9 @@ async function processCategoriesPeriodically() {
 }
 
 
-function updatePinnedPostsInCache(postsVoteSummary, category) {
+function updatePinnedPostsInCache(postsCache, category) {
   // Convert the object to an array of posts
-  const posts = Object.values(postsVoteSummary);
+  const posts = Object.values(postsCache);
   posts.forEach(post => {
     if (pinnedPostsCache[category] && pinnedPostsCache[category].some(p => p.post_id.toString() === post.post_id.toString())) {
       const index = pinnedPostsCache[category].findIndex(p => p.post_id.toString() === post.post_id.toString());
@@ -1171,12 +1171,12 @@ app.post('/api/unpinPost', authenticateToken, async (req, res) => {
 
 function deletePostFromSummary(postId) {
   // Check if the post exists in the summary
-  if (postsVoteSummary.hasOwnProperty(postId)) {
+  if (postsCache.hasOwnProperty(postId)) {
     // Delete the post from the summary
-    delete postsVoteSummary[postId];
-    console.log(`Deleted post with ID ${postId} from postsVoteSummary.`);
+    delete postsCache[postId];
+    console.log(`Deleted post with ID ${postId} from postsCache.`);
   } else {
-    console.log(`Post with ID ${postId} not found in postsVoteSummary.`);
+    console.log(`Post with ID ${postId} not found in postsCache.`);
   }
 }
 

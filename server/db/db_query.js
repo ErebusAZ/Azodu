@@ -96,7 +96,7 @@ async function fetchPostByPostID(client, category, post_id) {
 }
 
 
-async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, postsVoteSummary, updateDb = true, postLimit) {
+async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, postsCache, updateDb = true, postLimit) {
   try {
     // Fetch the latest posts within the category. Adjust the limit as needed.
     const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT ` + postLimit;
@@ -120,8 +120,8 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, pos
       const commentsCountResult = await client.execute(fetchCommentsCountQuery, [post.post_id], { prepare: true });
       const commentCount = commentsCountResult.first()['comment_count'] || 0;
 
-      // Update the in-memory postsVoteSummary object
-      postsVoteSummary[post.post_id] = {
+      // Update the in-memory postsCache object
+      postsCache[post.post_id] = {
         ...post,
         upvotes: upvotes,
         downvotes: downvotes,
@@ -145,7 +145,7 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, pos
     console.error(`Error fetching posts and calculating votes for category: ${category}`, error);
   }
 
-  return postsVoteSummary;
+  return postsCache;
 }
 
 
