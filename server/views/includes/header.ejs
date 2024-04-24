@@ -515,6 +515,11 @@
             }
 
 
+            // disallow voting on user page
+            if($('#user_page').length > 0)
+            return; 
+
+
 
             const $this = $(this);
             // Finding the closest common container that includes all elements involved in voting.
