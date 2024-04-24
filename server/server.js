@@ -750,10 +750,43 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
 });
 
 
+function getAzoCostForCategory(permalink) {
+  const baseCost = 100; // Base cost in Azo
+  const minLength = 3;  // Minimum length for a category name
+  const maxLength = 147; // Maximum length for a category name
+  const length = Math.max(minLength, Math.min(permalink.length, maxLength));
+
+  // Inverse proportionality: the shorter the name, the higher the cost
+  return Math.ceil(baseCost * (maxLength / length));
+}
+
+
+
 app.post('/submitCategory', authenticateToken, async (req, res) => {
   const creator = req.user.username;
   const { name, permalinkFromClient, description, additional_info } = req.body;
   const permalink = generateCategoryPermalink(permalinkFromClient);
+  const azoCost = getAzoCostForCategory(permalink);
+
+  // Fetch user's current Azo balance
+  const userResult = await client.execute('SELECT azo_spent FROM my_keyspace.users WHERE username = ?', [creator], { prepare: true });
+  const user = userResult.rows[0];
+  const totalAzoEarned = await calculateAzoForUser(creator);
+
+  const azoBalance = totalAzoEarned - user.azo_spent;
+
+  if (azoBalance < azoCost) {
+    return res.status(400).json({
+      error: true,
+      message: `Insufficient Azo balance to create a category. Required: ${azoCost}, Your balance: ${azoBalance}`
+    });
+  }
+
+  // Deduct the Azo cost from user's balance
+  const newAzoSpent = user.azo_spent + azoCost;
+  await client.execute('UPDATE my_keyspace.users SET azo_spent = ? WHERE username = ?', [newAzoSpent, creator], { prepare: true });
+
+
 
   // Validate category description length
   if (description.length < 25 || description.length > 175) {
@@ -869,7 +902,16 @@ function calculateAzo(posts, comments) {
 }
 
 
-
+async function calculateAzoForUser(username) {
+  const postsResult = await client.execute('SELECT upvotes FROM my_keyspace.posts_by_author WHERE author = ?', [username], { prepare: true });
+  const commentsResult = await client.execute('SELECT upvotes FROM my_keyspace.comments_by_author WHERE author = ?', [username], { prepare: true });
+  
+  let totalAzo = 0;
+  postsResult.rows.forEach(post => totalAzo += post.upvotes);
+  commentsResult.rows.forEach(comment => totalAzo += comment.upvotes);
+  
+  return totalAzo;
+}
 
 
 

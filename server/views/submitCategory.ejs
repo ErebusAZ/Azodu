@@ -9,29 +9,41 @@
 
 
         <script>
-            
-                function generateCategoryPermalink() {
-                    const title = document.getElementById('suggestedPermalink').value;
-                    const basePath = "";
-                    const cleanedTitle = title
-                        .replace(/[^\w\s]/gi, '') // Remove non-alphanumeric characters except spaces
-                        .trim() // Remove leading and trailing spaces
-                        .replace(/\s+/g, '-') // Replace spaces with hyphens
-                        .toLowerCase(); // Convert to lowercase
+            function getAzoCostForCategory(permalink) {
+                const baseCost = 100; // Base cost in Azo
+                const minLength = 3;  // Minimum length for a category name
+                const maxLength = 147; // Maximum length for a category name
+                const length = Math.max(minLength, Math.min(permalink.length, maxLength));
 
-                    const truncatedTitle = cleanedTitle.substring(0, 147); // Truncate to 147 characters to leave room for "/c/"
-                    const permalink = basePath + truncatedTitle;
+                // Inverse proportionality: the shorter the name, the higher the cost
+                return Math.ceil(baseCost * (maxLength / length));
+            }
 
-                    document.getElementById('displayPermalink').textContent = `azodu.com/c/${permalink}`;
-                    // Update hidden input to send to server
-                    document.getElementById('finalPermalink').value = permalink;
-                }
+            function generateCategoryPermalink() {
+                const title = document.getElementById('suggestedPermalink').value;
+                const basePath = "";
+                const cleanedTitle = title
+                    .replace(/[^\w\s]/gi, '') // Remove non-alphanumeric characters except spaces
+                    .trim() // Remove leading and trailing spaces
+                    .replace(/\s+/g, '-') // Replace spaces with hyphens
+                    .toLowerCase(); // Convert to lowercase
+
+                const truncatedTitle = cleanedTitle.substring(0, 147); // Truncate to 147 characters to leave room for "/c/"
+                const permalink = basePath + truncatedTitle;
+
+                document.getElementById('displayPermalink').textContent = `azodu.com/c/${permalink}`;
+                // Update hidden input to send to server
+                document.getElementById('finalPermalink').value = permalink;
+                const cost = getAzoCostForCategory(permalink);
+                document.getElementById('displayCost').innerHTML = `Cost to create:<br /><br />  <div class="red-orb"></div> ${cost} Azo`;
+
+            }
 
 
-                function getCategoryPermalinkFromUrl() {
-                    const urlParams = new URLSearchParams(window.location.search);
-                    return urlParams.get('permalink'); // Assuming "permalink" is the query parameter
-                }
+            function getCategoryPermalinkFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('permalink'); // Assuming "permalink" is the query parameter
+            }
 
         </script>
 
@@ -47,7 +59,11 @@
 
                     <p id="displayPermalink">azodu.com/c/</p>
                     <input type="hidden" id="finalPermalink" name="permalink">
+
                     <br />
+                    <p id="displayCost"></p>
+                    <br />
+
                     <div class="tooltip cat_tooltip">
                         <span class="help-icon">
                             Relevancy prompt<i class="fas fa-question-circle"></i>
@@ -66,13 +82,14 @@
                         <span class="help-icon">
                             Additional info<i class="fas fa-question-circle"></i>
                         </span>
-                        <span class="tooltiptext">This additional info appears in the sidebar below the description. The info is purely for users and is not used by AI to determine relevancy on submissions.</span>
+                        <span class="tooltiptext">This additional info appears in the sidebar below the description. The
+                            info is purely for users and is not used by AI to determine relevancy on submissions.</span>
                     </div>
                     <div id="categoryAdditionalInfo" class="contentField">
                         <textarea id="categoryAdditionalInfoText" name="additional_info"
-                                  placeholder="Additional info (will appear in the sidebar)"></textarea>
-                      </div>
-                      
+                            placeholder="Additional info (will appear in the sidebar)"></textarea>
+                    </div>
+
 
                     <!--
             <label for="categoryModerators">Moderators:</label>
@@ -85,9 +102,11 @@
                 <h3 style="margin-top:0;">No-frills community building</h3>
                 <ul>
                     <li>Sit back and let the AI moderate!</li>
-                    <li>Control what type of content is allowed in the category: the AI rejects inappropriate content and anything that isn't relevant to the description (relevancy prompt) you provide.</li>
+                    <li>Control what type of content is allowed in the category: the AI rejects inappropriate content
+                        and anything that isn't relevant to the description (relevancy prompt) you provide.</li>
 
-                    <li>As the category creator, your username gets a unique <span class="cat_creator">color</span> in comments.</li>
+                    <li>As the category creator, your username gets a unique <span class="cat_creator">color</span> in
+                        comments.</li>
 
                     <li>Your username appears as the creator in the sidebar.</li>
                     <li>You have the power to pin and unpin posts.</li>
@@ -99,119 +118,119 @@
 
 
         <%- include('includes/sidebar', { category: category || null }) %>
-        <script>
-            new Quill('#categoryAdditionalInfo', {
-                modules: {
-                    toolbar: [
-                        ['bold', 'italic', 'underline', 'strike'],        // formatting options
-                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],    // lists
-                        ['link']                                          // links
-                    ]
-                },
-                theme: 'snow', // Specify theme in configuration
-                placeholder: 'Describe the category (will appear in the sidebar)',
-            });
+            <script>
+                new Quill('#categoryAdditionalInfo', {
+                    modules: {
+                        toolbar: [
+                            ['bold', 'italic', 'underline', 'strike'],        // formatting options
+                            [{ 'list': 'ordered' }, { 'list': 'bullet' }],    // lists
+                            ['link']                                          // links
+                        ]
+                    },
+                    theme: 'snow', // Specify theme in configuration
+                    placeholder: 'Describe the category (will appear in the sidebar)',
+                });
 
 
-            $(document).ready(function () {
+                $(document).ready(function () {
 
-                const permalink = getCategoryPermalinkFromUrl();
-              if (permalink) {
-                  fetch(`/api/categories/${permalink}`, {
-                          method: 'GET',
-                          headers: {
+                    const permalink = getCategoryPermalinkFromUrl();
+                    if (permalink) {
+                        fetch(`/api/categories/${permalink}`, {
+                            method: 'GET',
+                            headers: {
 
-                              'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                          }
-                      })
-                      .then(response => {
-                          if (!response.ok) throw new Error('Failed to fetch category details');
-                          return response.json();
-                      })
-                      .then(data => {
-                          if (data.category) {
-                              console.log(data.category.additional_info);
-                              $('#suggestedPermalink').css({
-                                  'display': 'none'
-                              });
-                              $('#categoryName').val(data.category.name);
-                              $('#suggestedPermalink').val(data.category.permalink).trigger('input');
-                              $('#categoryDescText').val(data.category.description);
-                              $('#categoryAdditionalInfo .ql-editor').html(data.category.additional_info || '');
-                          }
-                      })
-                      .catch(error => {
-                          console.error('Error:', error);
-                      });
-              }
-
-                $('#submit_category_form').on('submit', function (e) {
-                    e.preventDefault(); // Prevent default form submission
-
-                    $('button[type="submit"]').prop('disabled', true).text('Submitting...');
-
-
-                    // Retrieve values from form elements using jQuery
-                    const name = $('#categoryName').val();
-                    const permalinkFromClient = $('#finalPermalink').val();
-                    const description = $('#categoryDescText').val(); 
-                    const additionalInfo = $('#categoryAdditionalInfo .ql-editor').html();
-
-                    // Prepare data to be sent
-                    const formData = {
-                        name,
-                        permalinkFromClient,
-                        description,
-                        additional_info: additionalInfo
-                    };
-
-                    // Retrieve the authToken from local storage
-                    const authToken = localStorage.getItem('authToken');
-
-                    // Use fetch API to submit the form data along with the authToken in the header
-                    fetch('/submitCategory', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${authToken}` // Include the auth token in the request headers
-                        },
-                        body: JSON.stringify(formData) // Convert formData object to JSON string
-                    })
-                        .then(response => response.json()) // First, parse JSON response
-                        .then(data => {
-                            if (data.message) {
-
-                                if (!data.error) {
-                                $('button[type="submit"]').text('Success!');
-
-                                } else {
-                                    
-                                $('button[type="submit"]').prop('disabled', false).text('Submit');
-
-
-                                }
-
-                                // Check if there is a message property in the response data
-                                showNotification(data.message, data.error ? 'error' : 'success', 3000, () => {
-                                    if (!data.error) {
-                                        // Redirect only on success
-                                        window.location.href = "/";
-                                    }
-                                });
+                                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                             }
                         })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showNotification('There was an error processing your request.', 'error', 3000);
-                            $('button[type="submit"]').prop('disabled', false).text('Submit');
+                            .then(response => {
+                                if (!response.ok) throw new Error('Failed to fetch category details');
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.category) {
+                                    console.log(data.category.additional_info);
+                                    $('#suggestedPermalink').css({
+                                        'display': 'none'
+                                    });
+                                    $('#categoryName').val(data.category.name);
+                                    $('#suggestedPermalink').val(data.category.permalink).trigger('input');
+                                    $('#categoryDescText').val(data.category.description);
+                                    $('#categoryAdditionalInfo .ql-editor').html(data.category.additional_info || '');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                    }
 
-                        });
+                    $('#submit_category_form').on('submit', function (e) {
+                        e.preventDefault(); // Prevent default form submission
+
+                        $('button[type="submit"]').prop('disabled', true).text('Submitting...');
+
+
+                        // Retrieve values from form elements using jQuery
+                        const name = $('#categoryName').val();
+                        const permalinkFromClient = $('#finalPermalink').val();
+                        const description = $('#categoryDescText').val();
+                        const additionalInfo = $('#categoryAdditionalInfo .ql-editor').html();
+
+                        // Prepare data to be sent
+                        const formData = {
+                            name,
+                            permalinkFromClient,
+                            description,
+                            additional_info: additionalInfo
+                        };
+
+                        // Retrieve the authToken from local storage
+                        const authToken = localStorage.getItem('authToken');
+
+                        // Use fetch API to submit the form data along with the authToken in the header
+                        fetch('/submitCategory', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${authToken}` // Include the auth token in the request headers
+                            },
+                            body: JSON.stringify(formData) // Convert formData object to JSON string
+                        })
+                            .then(response => response.json()) // First, parse JSON response
+                            .then(data => {
+                                if (data.message) {
+
+                                    if (!data.error) {
+                                        $('button[type="submit"]').text('Success!');
+
+                                    } else {
+
+                                        $('button[type="submit"]').prop('disabled', false).text('Submit');
+
+
+                                    }
+
+                                    // Check if there is a message property in the response data
+                                    showNotification(data.message, data.error ? 'error' : 'success', 3000, () => {
+                                        if (!data.error) {
+                                            // Redirect only on success
+                                            window.location.href = "/";
+                                        }
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                showNotification('There was an error processing your request.', 'error', 3000);
+                                $('button[type="submit"]').prop('disabled', false).text('Submit');
+
+                            });
+                    });
                 });
-            });
 
 
 
-        </script>
-        </body>
+            </script>
+            </body>
 
 </html>
