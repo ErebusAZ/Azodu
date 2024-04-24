@@ -4411,6 +4411,7 @@ ul.tabs li.current {
     background: #212121;
     /* padding: 15px; */
     margin-top: 20px;
+    font-size: 14px;
 }
 
 .tab-content.current {
