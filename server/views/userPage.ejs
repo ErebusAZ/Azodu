@@ -21,8 +21,8 @@
     <div id="tab-info" class="tab-content current" style="padding-top:10px;">
       <p id="date-registered"><%= new Date(user.date_registered) %></p>
       <p>Roles: <%= user.roles ? user.roles.join(', ') : 'None' %></p>
-      <p>Lifetime Azo earnings: <%= azoEarned %></p> <!-- Display lifetime AZO earned -->
-      <p>Azo balance: <%= azoBalance %></p> <!-- Display current AZO balance after spending -->
+      <p>Lifetime Azo earnings: <div class="red-orb"></div> <%= azoEarned %></p> <!-- Display lifetime AZO earned -->
+      <p>Azo balance: <div class="red-orb"></div><%= azoBalance %></p> <!-- Display current AZO balance after spending -->
     </div>
     
     

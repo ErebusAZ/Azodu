@@ -2194,7 +2194,2232 @@ ul.tabs li.current {
     display: inherit;
 }
 
+.red-orb {
+    width: 15px; /* Size of the orb */
+    height: 15px; /* Size of the orb */
+    background: radial-gradient(circle, rgb(255 113 113) 0%, rgb(249 51 51 / 80%) 70%, rgba(255, 0, 0, 0) 100%);
+    border-radius: 50%; /* Makes the div circular */
+    box-shadow: 0 0 8px 3px rgb(255 73 73 / 50%); /* Creates the outer glow */
+    display: block;
+     /* Centering the orb */
+    float: left;
+    margin-top: 2px;
+    margin-right: 8px;
+    /* animation: glow 2s infinite ease-in-out; */
+  }
+
+  @keyframes glow {
+    0%, 100% {
+      box-shadow: 0 0 20px 4px rgba(255,0,0,0.7);
+    }
+    50% {
+      box-shadow: 0 0 20px 5px rgba(255,0,0,.7);
+    }
+  }
+
 
 div#user-posts {
     margin-top: 3px;
 }
+#logo {
+    width: 59px;
+    height: auto;
+    float: left;
+    position: relative;
+    bottom: 10px;
+}
+
+#logo_cont {
+    height: auto;
+    margin-left: 0px;
+    margin-bottom: 0px;
+    /* margin-top: 10px; */
+    display: block;
+}
+
+#logo_cont a {
+    display: inline-block;
+    margin: 20px;
+    margin-bottom: 0;
+    margin-top: 7px;
+    margin-left: 10px;
+}
+
+
+#satori_logo {
+    font-size: 30px;
+    background-color: #efefef;
+    display: inline;
+    color: black;
+    font-weight: 600;
+    padding: 4px 10px;
+    font-family: roboto, arial;
+}
+
+#satori_logo a {
+    color: black;
+    text-decoration: none;
+}
+
+.grecaptcha-badge {
+    display: none;
+    z-index: 9999;
+}
+
+
+body {
+    background-color: #1a1a1a;
+    color: #d7dadc;
+    font-family: roboto, arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    /* padding-bottom: 110px; */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 500;
+}
+
+
+textarea {
+    font-family: roboto, arial, sans-serif;
+}
+
+.container {
+    width: 100%;
+    margin: auto;
+    padding: 20px;
+    /* min-height: 900px; */
+}
+
+
+a:hover {
+    text-decoration: none !important;
+}
+
+a, p a, .ql-snow a {
+    color: white;
+    text-decoration: underline;
+}
+
+
+
+h1 {
+    color: #ffffff;
+    font-size: 24px;
+    padding-top: 0 !important;
+}
+
+p {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+ul {
+    font-size: 14px;
+    line-height: 20px;
+}
+
+/*
+button {
+    font-weight: bold;
+}
+*/
+
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+}
+
+
+label {
+    font-size: 14px;
+}
+
+.post {
+    background-color: #2d2d2d;
+    /* Dark gray background for each post */
+    margin-bottom: 5px;
+    padding: 5px 15px;
+    /* Adds some padding inside each post for spacing */
+    border-radius: 5px;
+    /* Slightly rounded corners for a modern look */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    /* Subtle shadow for depth */
+    transition: background-color 0.3s;
+    /* Smooth transition for hover effect */
+    float: left;
+    clear: both;
+    width: 100%;
+    min-height: 70px;
+    padding-left: 0;
+    padding-right: 0;
+    position: relative;
+}
+
+/*
+.post[data-pinned="true"] {
+    background-color: #414141;
+}
+*/
+
+.post-left {
+    float: left;
+    /* Float the left column */
+}
+
+.post-content {
+    overflow: hidden;
+    /* Prevent wrapping around the floated element */
+}
+
+
+
+/*
+.post:hover {
+    background-color: #3a3a3a;
+}
+*/
+
+.post-links {
+    margin-top: 3px;
+    /* margin-left: 87px; */
+    clear: both;
+}
+
+.thumbnail {
+    width: 70px !important;
+    height: 50px;
+    background-color: #343536;
+    margin-right: 15px;
+    float: left;
+    margin-top: 4px;
+    /* display: grid; */
+    /* place-items: center; */
+    position: relative;
+}
+
+.thumbnail i {
+    font-size: 27px !important;
+    display: block;
+    text-align: center;
+    line-height: 47px;
+}
+
+.content {
+    flex-grow: 1;
+    min-height: 50px;
+}
+
+#post_title_container {
+    padding-top: 10px;
+    overflow: hidden;
+}
+
+.post-title {
+    color: #d7dadc;
+    font-size: 16px;
+    text-decoration: none;
+    display: block;
+    /* Make the title take its own line */
+    /* margin-bottom: 5px; */
+    padding-top: 4px;
+}
+
+.post-title:hover {
+    text-decoration: underline !important;
+}
+
+div#post_meta {
+    font-size: 12px;
+    color: gray;
+    /* position: absolute; */
+    /* left: 64px; */
+}
+
+.post-description {
+    color: #818384;
+    display: none;
+}
+
+.post-links a {
+    color: #d7dadc;
+    text-decoration: none;
+    margin-right: 10px;
+    font-size: 12px;
+    float: left;
+}
+
+.post-links a:hover {
+    text-decoration: underline !important;
+}
+
+.page-divider {
+    background-color: #2b2b2b;
+    color: #fff;
+    text-align: center;
+    font-weight: bold;
+    clear: both;
+    width: 100%;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    display: none;
+}
+
+.post-submitted {
+    font-size: 12px;
+    color: #818384;
+    margin: 10px 0;
+    padding-top: 3px;
+    margin-top: 0;
+    margin-bottom: 3px;
+}
+
+.post-submitted a {
+    color: #8197bf;
+    text-decoration: none;
+}
+
+.post-submitted a:hover {
+    text-decoration: underline !important;
+}
+
+
+
+.thumbnail img {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+
+/* Voting */
+
+
+.voting {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 0;
+    padding-right: 0;
+    float: left;
+    min-width: 34px;
+}
+
+.votes {
+    color: #d7dadc;
+    font-size: 14px;
+}
+
+.upvote, .downvote {
+    color: #d7dadc;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.upvote:hover, .downvote:hover {
+    color: #ff4500;
+    /* Or any color to indicate active/hover state */
+}
+
+.upvote-active img {
+    filter: brightness(0) saturate(100%) invert(46%) sepia(94%) saturate(2094%) hue-rotate(80deg) brightness(102%) contrast(88%);
+}
+
+.downvote-active img {
+    filter: brightness(0) saturate(100%) invert(20%) sepia(77%) saturate(6349%) hue-rotate(356deg) brightness(103%) contrast(101%);
+}
+
+
+
+
+
+/* Sidebar */
+
+
+
+
+#r_prompt {
+    color: gray;
+    display: block;
+    margin-top: 10px;
+}
+
+#r_prompt i {
+    font-size: 14px;
+    position: relative;
+    left: 5px;
+
+}
+
+div#additional_info_sidebar {
+    margin-top: 30px;
+}
+
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: rgb(22, 22, 22);
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 10px;
+
+    /* Position the tooltip text - adjust as needed */
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
+
+
+#cat_subscribers_count {
+    padding-left: 5px;
+}
+
+#editCategoryButtonContainer button {
+    padding: 10px;
+    margin-top: 10px;
+    padding-top: 2px;
+    padding-bottom: 10px;
+    padding-left: 40px;
+}
+
+#subscribe_button {
+    border: none;
+    color: #fff;
+    background-color: #439c41;
+    padding: 5px;
+    margin-top: 10px;
+    font-size: 12px;
+    padding-left: 10px;
+    padding-right: 10px;
+    cursor: pointer;
+    visibility: hidden;
+}
+
+#subscribe_button.unsubscribe {
+    background-color: #b72d2d;
+}
+
+#subscribe_button:hover {
+    text-decoration: underline;
+}
+
+
+.category-metadata-box {
+    background-color: #2d2d2d;
+    font-size: 12px;
+    border-radius: 5px;
+    width: 215px;
+    padding: 20px;
+    margin-right: 20px;
+    margin-top: 5px;
+    float: right;
+    margin-bottom: 22px;
+}
+
+.category-metadata-box h2 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.category-metadata-box p {
+    line-height: 18px;
+    margin-top: 3px;
+}
+
+#cat_createdby, #cat_createdtime {
+    color: gray;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    padding-top: 3px;
+    margin-top: 0;
+}
+
+
+#cat_permalink {
+    background-color: #494949;
+    padding: 6px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    overflow: hidden;
+}
+
+#cat_createdby, #cat_createdtime {
+    color: gray;
+    font-size: 12px;
+}
+
+
+#sidebar_container {
+    width: 270px;
+    float: right;
+    padding-bottom: 160px;
+}
+
+.sidebar_button {
+    width: 100%;
+    border: none;
+    background-color: #3c3c3c;
+    color: #d7dadc;
+    padding-top: 2px;
+    padding-bottom: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+    text-align: left;
+    padding-left: 40px;
+}
+
+.sidebar_button:hover {
+    text-decoration: underline;
+}
+
+.sidebar_button i {
+    font-size: 12px;
+}
+
+
+.sidebar_button i.fa-pencil-alt, #editCategoryButtonContainer i {
+    position: relative;
+    top: 2px;
+    right: 5px;
+
+}
+
+.sidebar_button i.fa-sign-in-alt {
+    position: relative;
+    top: 3px;
+    right: 8px;
+}
+
+.sidebar_button i.fa-plus-square {
+    position: relative;
+    top: 2px;
+    right: 5px;
+    font-size: 18px;
+}
+
+
+.sidebar ul {
+    font-size: 12px;
+    margin-left: -10px;
+}
+
+#breadcrumbs {
+    color: gray;
+    margin-top: 0;
+    border-radius: 5px;
+    padding: 10px 10px;
+    padding-bottom: 0;
+}
+
+.container {
+    width: calc(100% - 315px);
+    /* Adjust container width to make space for sidebar */
+    float: left;
+    padding: 20px;
+    padding-bottom: 100px;
+    padding-top: 0;
+    margin-top: 0;
+}
+
+.sidebar {
+    width: 215px;
+    /* Or keep it at 300px if you prefer */
+    background-color: #2d2d2d;
+    /* Slightly lighter than the body for contrast */
+    padding: 20px;
+    margin-top: 22px;
+    /* Adjusted to position the sidebar */
+    float: right;
+    /* Float to the right of the container */
+    border-radius: 5px;
+    margin-right: 20px;
+}
+
+/* Login Form */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    /* Full width of the sidebar */
+}
+
+.login-form input[type="text"],
+.login-form input[type="password"] {
+    width: 180px;
+    /* Full width of the form */
+    padding: 4px;
+    margin-bottom: 10px;
+    /* Space between fields */
+    background-color: #404040;
+    /* Dark input fields for the theme */
+    border: none;
+    /* Slightly lighter border for visibility */
+    color: #d7dadc;
+    /* Text color similar to body text */
+    border-radius: 4px;
+    /* Optional: rounded corners */
+    padding-left: 10px;
+}
+
+.login-form input[type="submit"] {
+    width: 100%;
+    /* Full width of the form */
+    padding: 10px;
+    /* Larger padding for a bigger button */
+    background-color: #555;
+    /* Grayish button */
+    color: #d7dadc;
+    /* Text color similar to body text */
+    border: none;
+    /* No border for the button */
+    cursor: pointer;
+    /* Pointer cursor on hover */
+    border-radius: 4px;
+    /* Optional: rounded corners */
+    font-weight: bold;
+    /* Optional: make the button text bold */
+    /* margin-top: 10px; */
+    /* Space above the submit button */
+}
+
+.login-form input[type="submit"]:hover {
+    background-color: #676767;
+    /* Slightly lighter on hover for feedback */
+}
+
+/* Reset float layout */
+.clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.sort-container {
+    width: 100%;
+
+    /* Space between the sort dropdown and the first post */
+
+    /* Align the dropdown to the right */
+    font-size: 12px;
+    text-align: left;
+}
+
+#postfeed_container .post-content {
+    padding-right: 20px;
+}
+
+.post-content.post-container {
+    margin-top: 20px;
+}
+
+
+#sort-by {
+    padding: 7px 15px;
+    background-color: #2d2d2d;
+    /* Dark background for the dropdown */
+    color: #d7dadc;
+    /* Light text color */
+    border: none;
+    /* Subtle border */
+    border-radius: 4px;
+    /* Rounded corners for the dropdown */
+    font-size: 14px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    width: 100%;
+    padding: 8px;
+    padding-right: 0;
+    padding-left: 0;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+
+
+.sort-container_new ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.sort-container_new li {
+    margin-right: 10px;
+}
+
+.sort-container_new li:first-child {
+    padding-left: 10px
+}
+
+.sort-container_new a {
+    text-decoration: none;
+    color: #d7dadc;
+    font-size: 12px;
+}
+
+.sort-container_new a.selected,
+.sort-container_new a:hover {
+    text-decoration: underline;
+}
+
+
+
+
+.sidebar ul li.censorship:before {
+    content: "\f3ed";
+    /* Font Awesome shield-alt icon */
+}
+
+.sidebar ul li.bot-proof:before {
+    content: "\f544";
+    /* Font Awesome user-shield icon */
+}
+
+
+.sidebar ul li.earn-voc:before {
+    content: "\f53d";
+    /* Font Awesome coin icon */
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    padding-left: 30px;
+}
+
+.sidebar ul li {
+    position: relative;
+    padding-left: 25px;
+    margin-bottom: 10px;
+    color: #d7dadc;
+}
+
+/* General icon style */
+.sidebar ul li:before {
+    font-family: 'Font Awesome 5 Free';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #b1b1b1;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+/* Specific icons */
+.sidebar ul li.censorship:before {
+    content: "\f3ed";
+}
+
+/* shield-alt */
+.sidebar ul li.bot-proof:before {
+    content: "\f544";
+}
+
+/* user-shield */
+.sidebar ul li.earn-voc:before {
+    content: "\f555";
+}
+
+
+
+/* Explore our communities */
+
+#explore_sidebar {
+    float: right;
+    margin-right: 80px;
+}
+
+#explore_sidebar h3 {
+    margin-bottom: 0;
+    font-size: 16px;
+    padding-left: 20px;
+    margin-top: 25px;
+    clear: both;
+}
+
+
+.community-links, #subscribed_links {
+    list-style: none;
+    padding: 0;
+    float: left;
+    padding-left: 30px;
+    font-size: 14px;
+    text-decoration: underline;
+    line-height: 14px;
+    margin-top: 6px;
+    margin-bottom: 30px;
+    padding-left: 40px;
+}
+
+.community-links li, #subscribed_links li {
+    margin-top: 10px;
+}
+
+.communities-section {
+    background-color: #1a1a1a;
+    color: #d7dadc;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.communities-section h3 {
+    color: #fff;
+}
+
+.community-links {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 0px;
+}
+
+.community-links li {
+    margin-bottom: 10px;
+    padding-left: 40px;
+}
+
+.community-links a {
+    color: #d7dadc;
+    text-decoration: none;
+}
+
+.community-links a:hover {
+    text-decoration: none !important;
+}
+
+
+
+
+.show-more {
+    color: #8197bf !important;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    display: block;
+    margin-left: 20px;
+    clear: both;
+    padding-top: 0;
+}
+
+.hidden {
+    display: none;
+}
+
+
+
+
+
+
+
+
+
+/* Internal Pages */
+
+h2#post-title {
+    font-size: 16px;
+    position: relative;
+    bottom: 5px;
+    display: inline;
+}
+
+h2#post-title a {
+    text-decoration: none;
+}
+
+h2#post-title a:hover {
+    text-decoration: underline !important;
+}
+
+
+div#op_comment_form {
+    margin-top: 0;
+}
+
+.comment-form {
+    margin-top: 20px;
+}
+
+.comment-form textarea {
+    width: 410px;
+    background-color: #333;
+    color: #d7dadc;
+    border: 1px solid #555;
+    padding: 10px;
+    border-radius: 4px;
+    resize: both;
+    height: 70px;
+    max-width: 70%;
+}
+
+.comment-form button {
+    background-color: #555;
+    color: #d7dadc;
+    border: none;
+    padding: 5px 12px;
+    margin-top: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    clear: both;
+    display: block;
+    font-size: 12px;
+}
+
+.comment-form button:hover {
+    background-color: #676767;
+}
+
+
+#submit-comment, .submit-reply, .cancel-reply {
+    background-color: #4c4c4c;
+    border: none;
+    color: white;
+    padding: 6px 10px;
+    font-size: 12px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.submit-reply:hover, .cancel-reply:hover {
+    text-decoration: underline;
+}
+
+#submit-comment:hover {
+    text-decoration: underline;
+
+}
+
+button#submit-comment {
+    margin-bottom: 40px;
+}
+
+
+.post-content h2 {
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.post-content .voting {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.comments {
+    /* margin-top: 20px; */
+}
+
+.comment {
+    background-color: #2d2d2d;
+    padding: 10px;
+    margin-top: 3px;
+    border-radius: 5px;
+}
+
+.comment .comment {
+    background-color: #444;
+    /* Slightly lighter for nested comments */
+    margin-top: 10px;
+}
+
+.comment.dark {
+    background-color: #2d2d2d;
+    /* Other styles for dark comments */
+}
+
+.comment.light {
+    background-color: #262626;
+    /* Other styles for light comments */
+}
+
+
+.voting a {
+    text-decoration: none;
+    color: #d7dadc;
+    font-size: 16px;
+    margin: 0 5px;
+}
+
+
+
+.voting a:hover {
+    transform: scale(1.2);
+    /* scale up the arrow */
+    color: #ddd;
+    /* change color on hover */
+}
+
+
+.voting span.votes {
+    color: #d7dadc;
+    font-size: 14px;
+    position: relative;
+    text-align: center;
+    top: 4px;
+}
+
+.voting a:hover {
+    color: #ff4500;
+}
+
+
+.comment {
+    display: flex;
+    align-items: flex-start;
+    background-color: #2d2d2d;
+    padding: 7px 20px;
+    /* margin-top: 10px; */
+    border-radius: 5px;
+    padding-left: 10px;
+}
+
+.voting {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.comment-content {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+}
+
+.username, .points, .time {
+    margin-right: 10px;
+    color: #d7dadc;
+}
+
+.comment-links a {
+    margin-right: 10px;
+    color: #828282;
+    font-size: 12px;
+    text-decoration: none;
+    font-size: 11px;
+}
+
+.comment-links a:hover {
+    text-decoration: underline !important;
+}
+
+.comment p {
+    color: #d7dadc;
+    padding-bottom: 0;
+}
+
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    /* margin-bottom: 5px; */
+    /* Space between header and comment text */
+}
+
+.comment-text p:first-child {
+    padding-top: 0;
+    margin-top: 5px;
+}
+
+.username {
+    color: #8197bf;
+    /* A distinct color for the username */
+    margin-right: 10px;
+    text-decoration: none;
+}
+
+.username:hover {
+    text-decoration: underline !important;
+
+}
+
+.username.cat_creator, span.cat_creator {
+    color: #fdc560;
+
+}
+
+.username.post_creator, span.post_creator {
+    color: #6cfd6c;
+
+}
+
+.points, .time {
+    color: #828282;
+    /* Gray color for points and timestamp */
+    margin-right: 10px;
+}
+
+.comment-content p {
+    font-size: 14px;
+    color: #d7dadc;
+    /* Ensure comment text is visible against the dark background */
+    line-height: 18px;
+}
+
+.comment-links a {
+    color: #828282;
+    /* Consistent gray color for action links */
+    font-size: 12px;
+    margin-right: 10px;
+    text-decoration: none;
+}
+
+.comment-links a:hover {
+    text-decoration: underline;
+}
+
+
+.comment.even-depth {
+    background-color: #2e2e2e;
+    /* Slightly darker shade for even depth */
+}
+
+.comment.odd-depth {
+    background-color: #383838;
+    /* Slightly lighter shade for odd depth */
+}
+
+
+.status-message {
+    font-size: 14px;
+    padding: 0 10px;
+    position: relative;
+    bottom: -5px;
+    left: -5px;
+    width: 400px;
+}
+
+
+.voting {
+    display: inline-flex;
+    /* flex-direction: column; */
+    align-items: center;
+    margin-right: 0px;
+    float: left;
+    min-width: 34px;
+}
+
+.voting a, .voting .votes {
+    display: block;
+    height: 15px;
+}
+
+
+#voting_main {
+    float: left;
+    z-index: 1;
+    position: relative;
+}
+
+#post_text {
+    clear: both;
+    margin-top: 30px;
+    background-color: #2d2d2d;
+    padding: 2px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    line-height: 18px;
+    padding: 7px 20px;
+    margin-bottom: 20px;
+}
+
+
+
+
+
+/* Comment Sorting */
+
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+    user-select: none;
+}
+
+.dropdown-select {
+    padding: 9px 9px;
+    /* background-color: #333; */
+    color: #d7dadc;
+    cursor: pointer;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-select:focus {
+    outline: none;
+    border-color: #777;
+}
+
+.dropdown-list {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    right: 0;
+    background-color: #3e3e3e;
+    border-radius: 0 0 5px 5px;
+    display: none;
+    z-index: 10;
+    /* border: 1px solid #5b5b5b; */
+    border-top: 0;
+}
+
+.dropdown-item {
+    padding: 9px 9px;
+    cursor: pointer;
+    color: #d7dadc;
+    text-align: left;
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+    background-color: #4f4f4f;
+    color: #ffffff;
+}
+
+.dropdown-active .dropdown-select {
+    border-color: #777;
+    background-color: #3a3a3a;
+}
+
+.dropdown-select::after {
+    content: '\25BC';
+    /* Down arrow */
+    font-size: 0.8em;
+    margin-left: 10px;
+}
+
+.dropdown {
+    width: 110px;
+    /* Adjust the width of the dropdown to fit your layout */
+}
+
+
+
+
+/* Submission page */
+
+
+
+
+#displayPermalink {
+    background-color: #1f1f1f;
+    display: inline-block;
+    clear: both;
+    min-width: 150px;
+    padding: 10px;
+}
+
+#categoryDescription .ql-editor {
+    background-color: #333333;
+
+}
+
+div#categoryAdditionalInfo {
+    margin-top: 0;
+}
+
+
+.submitCategoryPage .submission-form button, .ql-toolbar {
+    margin-top: 0 !important;
+}
+
+#create_category_submit_button {
+    margin-top: 20px !important;
+}
+
+
+form#submit_post_form, form#submit_category_form, #category_submit_info {
+    padding: 33px 50px;
+}
+
+
+
+.cat_tooltip {
+    color: gray;
+    display: inline;
+    font-size: 14px;
+}
+
+.cat_tooltip i {
+    padding-left: 5px;
+}
+
+
+#category_submit_info {
+
+    background-color: #252525;
+    margin-top: 20px;
+    border-radius: 5px;
+}
+
+
+
+.submission-form, textarea {
+    background-color: #252525;
+    color: #d7dadc;
+    border-radius: 5px;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.submission-form h2 {
+    color: #fff;
+    margin-top: 0;
+}
+
+.submission-form label {
+    display: block;
+    margin-top: 20px;
+}
+
+#content_policy_checkbox_container {
+    padding: 4px;
+    margin-top: 10px;
+}
+
+#policy_checkbox_label {
+    display: inline;
+    position: relative;
+    bottom: 4px;
+    left: 4px;
+    line-height: 24px;
+}
+
+
+#contentPolicyCheckbox {
+    position: relative;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+}
+
+.submission-form input[type="text"],
+
+.submission-form select, #postContentUrl {
+    width: 290px;
+    padding: 10px 10px;
+    margin-top: 5px;
+    background-color: #333;
+    border: none;
+    color: #d7dadc;
+    border-radius: 4px;
+    clear: both;
+    display: block;
+}
+
+.submission-form button {
+    display: block;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: #555;
+    color: #d7dadc;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submission-form button:hover {
+    background-color: #676767;
+}
+
+.contentField {
+    margin-top: 20px;
+}
+
+#categoryRelevanceDescription {
+    font-size: 14px;
+    background-color: #1a1a1a;
+    padding: 16px;
+    margin-top: 20px;
+
+}
+
+
+select#postType {
+    width: 80px;
+}
+
+
+#category {
+    width: 160px;
+}
+
+#submit_post_text .ql-editor {
+    background-color: #333333;
+    width: 100%;
+    height: 170px;
+}
+
+
+div#categoryDescription, #submit_post_text {
+    margin-top: 0;
+}
+
+
+i.fas {
+    font-size: 18px;
+    margin-right: 5px;
+    margin-top: 3px;
+    cursor: pointer;
+}
+
+i.fas.fa-plus, i.fas.fa-minus {
+    float: left;
+    background-color: #3c3c3c;
+    padding: 3px;
+    border-radius: 3px;
+    margin-right: 6px;
+    font-size: 12px;
+    margin-bottom: 3px;
+}
+
+
+i.fas.fa-plus:hover, i.fas.fa-minus:hover {
+    background-color: #1f1f1f;
+
+}
+
+i.fas.fa-external-link-alt {
+    font-size: 12px;
+    position: relative;
+    bottom: 4px;
+    left: 5px;
+}
+
+.post-text, .post-iframe {
+    clear: both;
+    display: block;
+}
+
+
+.post-text {
+    background-color: #202020;
+    margin: 6px 18px;
+    border-radius: 5px;
+    margin-top: 33px;
+    font-size: 14px;
+    line-height: 18px;
+    margin-left: 0;
+    padding: 6px 18px;
+}
+
+span.ai_summary_heading {
+    color: gray;
+    font-size: 12px;
+    display: block;
+    text-align: right;
+    padding-bottom: 4px;
+}
+
+.single-line {
+    /* white-space: nowrap; */
+    /* overflow: hidden; */
+    /* text-overflow: ellipsis; */
+    line-height: 1.1;
+    /* Adjust line height as needed */
+}
+
+
+/* Rights & Rules */
+
+#rules {
+    margin-top: 10px;
+}
+
+#rights {
+    margin-top: 13px;
+}
+
+span#rules_span {
+    /* padding-left: 5px; */
+}
+
+#rights, #rules {
+    font-size: 14px;
+    margin-left: 30px;
+}
+
+#rights a, #rules a {
+    color: #d7dadc;
+}
+
+#rights_span, #rules_span {
+    padding-left: 32px;
+    position: relative;
+    top: 2px;
+}
+
+i.fas.fa-scroll, i.fas.fa-gavel {
+    position: absolute;
+}
+
+
+
+
+
+
+/* Skeletons */
+
+
+/* Skeleton Base Style */
+.skeleton-loader {
+    animation: shimmer 2s infinite linear;
+    background: linear-gradient(to right, #404040 8%, #383737 18%, #393939 33%);
+    background-size: 1000px 100%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+
+
+
+/* Specific Skeleton styles */
+.post.skeleton .thumbnail {
+    background-color: #343536;
+    /* Use the theme's gray shades */
+}
+
+.post.skeleton .post-title,
+.post.skeleton .post-description,
+.post.skeleton .post-links a {
+    background-color: #fdb0b0;
+    height: 10px;
+    width: 90%;
+    margin: 5px 0;
+}
+
+.post.skeleton .post-title {
+    width: 60%;
+    height: 20px;
+    margin-top: 5px !important;
+    margin-left: 0px !important;
+}
+
+/*
+.skeleton .voting {
+    opacity: 0; 
+}
+*/
+
+.skeleton .content {
+    margin-left: 120px;
+}
+
+.skeleton .post-links {
+    margin-left: 0px;
+    position: relative;
+    bottom: 20px;
+}
+
+
+/* Quill */
+
+
+
+/* Link pop-up */
+.ql-snow .ql-tooltip {
+    box-shadow: none !important;
+    border: 3px solid #1a1a1a !important;
+    color: gray !important;
+    background-color: #262626 !important;
+}
+
+
+.ql-snow .ql-tooltip .ql-action {
+    color: gray;
+}
+
+
+.ql-snow .ql-tooltip input {
+    background-color: #1a1a1a;
+    border: none !important;
+    color: #d7dadc;
+
+}
+
+
+
+
+
+.ql-toolbar.ql-snow, .ql-container.ql-snow {
+    border: none !important;
+}
+
+.ql-editor, textarea {
+    background-color: #2d2d2d;
+    width: 400px;
+    min-height: 100px;
+    resize: both;
+    max-width: 100%;
+    border: none;
+    box-sizing: border-box;
+    line-height: 1.42;
+    height: 100%;
+    outline: none;
+    overflow-y: auto;
+    padding: 12px 15px;
+    tab-size: 4;
+    -moz-tab-size: 4;
+    text-align: left;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    border-radius: 0;
+}
+
+
+.ql-editor-dark {
+    background-color: #2d2d2d;
+    /* Light theme for dark containers */
+    color: white;
+}
+
+.ql-editor-light {
+    background-color: #262626;
+    /* Dark theme for light containers */
+    color: white;
+}
+
+
+
+.ql-toolbar {
+    margin-top: 20px;
+}
+
+.ql-editor.ql-blank::before {
+    color: #757575 !important;
+    content: attr(data-placeholder);
+    font-style: italic;
+    left: 15px;
+    pointer-events: none;
+    position: absolute;
+    right: 15px;
+}
+
+blockquote {
+    border-left: 4px solid #ccc;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    padding-left: 10px;
+    font-size: 14px;
+    margin-left: 10px;
+    color: gray;
+}
+
+
+
+
+
+.edit-actions button {
+    background-color: #555;
+    color: #d7dadc;
+    border: none;
+    padding: 5px 12px;
+    margin-top: 10px;
+    margin-right: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.edit-actions button:hover {
+    background-color: #676767;
+}
+
+
+/* Login & Register */
+
+
+div#loginRegisterForm {
+    font-size: 14px;
+}
+
+
+button#loginRegisterButton {
+    margin-bottom: 20px;
+}
+
+.lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    /* Ensure it's above other content */
+}
+
+.lightbox-content {
+    background-color: #2d2d2d;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    width: 300px;
+}
+
+
+
+
+/* Lightbox and Form Styling */
+.lightbox-content {
+    color: #d7dadc;
+    /* Off-white text */
+    background-color: #2d2d2d;
+    /* Muted dark gray */
+}
+
+/* Inputs */
+#authForm input[type="text"], #authForm input[type="password"], #authForm input[type="email"] {
+    background-color: #3c3c3c;
+    /* Darker gray for input fields */
+    color: #d7dadc;
+    /* Off-white text */
+    /*  border: 1px solid #555; */
+    border: none;
+    padding: 8px;
+    /* Padding for input fields */
+    margin-bottom: 10px;
+    /* Space between inputs */
+    width: 100%;
+    /* Full width minus padding */
+    box-sizing: border-box;
+    /* Include padding and border in width */
+}
+
+/* Submit Button */
+#authForm input[type="submit"] {
+    background-color: #555;
+    /* Dark gray button */
+    color: #d7dadc;
+    /* Off-white text */
+    padding: 10px 15px;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 4px;
+    /* Rounded corners */
+}
+
+#authForm input[type="submit"]:hover {
+    background-color: #676767;
+    /* Slightly lighter gray on hover */
+}
+
+
+p#switchAuthMode {
+    font-size: 14px;
+}
+
+h2#formTitle {
+    margin-top: 0;
+}
+
+
+#account_info {
+    font-size: 14px;
+    position: absolute;
+    right: 20px;
+    top: 5px;
+}
+
+#userDisplay {
+    display: inline;
+}
+
+#logoutButton {
+    color: gray;
+}
+
+
+/* Notification */
+
+
+.notificationBar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    text-align: center;
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+}
+
+.notification-success {
+    background-color: #0d970d;
+    color: #fff;
+}
+
+.notification-error {
+    background-color: red;
+    color: white;
+}
+
+.notification-info {
+    background-color: black;
+    color: white;
+}
+
+
+
+/* Admin */
+
+
+
+/* Admin Actions Gear Icon */
+.admin-actions-gear {
+    color: #d7dadc;
+    /* Match the site's text color */
+    margin-top: 5px;
+    /* Adjust as needed */
+}
+
+/* Tooltip Container */
+.admin-tooltip {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #3f3f3f;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 100;
+    width: 120px;
+    top: 30px;
+    /* Adjust based on your layout */
+}
+
+/* Tooltip Option Style */
+.admin-tooltip a {
+    color: #d7dadc;
+    display: block;
+    padding: 5px 5px;
+    font-size: 14px;
+}
+
+.admin-tooltip a:hover {
+    text-decoration: underline;
+}
+
+i.fas.fa-cog.admin-actions-gear {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 12px;
+    display: none;
+}
+
+
+
+body.is_admin i.fas.fa-cog.admin-actions-gear {
+    display: block;
+}
+
+body.is_admin .admin-ui {
+    display: block !important;
+}
+
+
+
+
+
+/* User Page */
+
+
+div#user_page {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    background-color: #212121;
+    height: 100%;
+    min-height: 680px;
+    margin-top: 130px;
+    position: absolute;
+    z-index: -1;
+    height: max-content;
+    padding-bottom: 100px;
+}
+
+
+
+div#user_page_inner {
+    width: 60%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 20px;
+    margin-top: -56px;
+}
+
+
+#user_page_inner h1#username_user_page i {
+    padding-right: 5px;
+}
+
+div#user_page_inner h1#username_user_page {
+    position: absolute;
+    top: -100px;
+}
+
+div#user-comments {
+    /* margin-top: 20px; */
+}
+
+
+
+/* Info area in sidebar */
+
+
+h4#ai_moderated {
+    text-align: center;
+    font-size: 16px;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+#ai_moderated i {
+    font-size: 23px;
+    position: relative;
+    top: 2px;
+    right: 3px;
+}
+
+
+#info_bar_1 {
+    display: block;
+    clear: both;
+    width: 215px;
+    background-color: #2d2d2d;
+    padding: 20px;
+    float: right;
+    border-radius: 5px;
+    margin-right: 20px;
+    font-size: 14px;
+    padding-bottom: 30px;
+    margin-top: 5px;
+}
+
+#info_bar_1 p {
+    line-height: 18px;
+    padding-top: 5px;
+    margin-bottom: 20px;
+}
+
+
+
+
+
+
+
+
+
+
+/* Mobile */
+
+
+
+@media (max-width: 800px) {
+
+    .post-content {
+        padding-right: 0px;
+    }
+
+    .post-title {
+        font-size: 14px;
+    }
+
+    .voting {
+        display: none;
+    }
+
+    .post-submitted {
+        font-size: 10px;
+    }
+
+    .post-text {
+        margin-left: 15px;
+
+    }
+
+    .thumbnail {
+        margin-left: 7px;
+        width: 58px !important;
+    }
+
+    #logo_satori1 {
+        /* width: 130px; */
+    }
+
+    #sidebar_container {
+        display: none;
+    }
+
+
+    .container {
+        width: 95%;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        float: none;
+        margin-top: 10px;
+        padding: 0;
+        padding-bottom: 70px;
+    }
+
+    div#user_page_inner {
+        width: 90%;
+    }
+
+
+
+
+}
+
+
+/* Mobile comments */
+
+
+.comment {
+    position: relative;
+    /* Smaller left margin for all comments */
+}
+
+.comment::before {
+    content: "";
+    position: absolute;
+    left: -5px;
+    /* Adjust based on actual layout */
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    /* Thickness of the line */
+    background-color: #ccc;
+    /* Line color */
+}
+
+/* Adjustments for the first level comments to remove the vertical line */
+.comments>.comment::before {
+    display: none;
+}
+
+/* Adjustments for nested comment margins using percentages */
+.comment[data-depth="1"] {
+    margin-left: 2.5% !important;
+}
+
+.comment[data-depth="2"] {
+    margin-left: 5% !important;
+}
+
+.comment[data-depth="3"] {
+    margin-left: 7% !important;
+}
+
+.comment[data-depth="4"] {
+    margin-left: 10% !important;
+    /* Slightly bigger increment */
+}
+
+.comment[data-depth="5"] {
+    margin-left: 11% !important;
+    /* Smaller increment */
+}
+
+.comment[data-depth="6"] {
+    margin-left: 12% !important;
+    /* Smaller increment */
+}
+
+.comment[data-depth="7"] {
+    margin-left: 13% !important;
+    /* Smaller increment */
+}
+
+.comment[data-depth="8"] {
+    margin-left: 14% !important;
+    /* Smaller increment */
+}
+
+.comment[data-depth="9"] {
+    margin-left: 15% !important;
+    /* Smaller increment */
+}
+
+.comment[data-depth="10"] {
+    margin-left: 16% !important;
+    /* Smaller increment */
+}
+
+
+
+/* Apply vertical lines for comments deeper than the first depth */
+.comment[data-depth="1"]::before {
+    background-color: green;
+    /* Color for depth 1 */
+}
+
+.comment[data-depth="2"]::before {
+    background-color: #4949e5;
+    /* Color for depth 2 */
+}
+
+.comment[data-depth="3"]::before {
+    background-color: red;
+    /* Color for depth 3 */
+}
+
+.comment[data-depth="4"]::before {
+    background-color: yellow;
+    /* Color for depth 4 */
+}
+
+.comment[data-depth="5"]::before {
+    background-color: purple;
+    /* Color for depth 5 */
+}
+
+.comment[data-depth="6"]::before {
+    background-color: orange;
+    /* Color for depth 6 */
+}
+
+.comment[data-depth="7"]::before {
+    background-color: pink;
+    /* Color for depth 7 */
+}
+
+.comment[data-depth="8"]::before {
+    background-color: cyan;
+    /* Color for depth 8 */
+}
+
+.comment[data-depth="9"]::before {
+    background-color: lime;
+    /* Color for depth 9 */
+}
+
+.comment[data-depth="10"]::before {
+    background-color: magenta;
+    /* Color for depth 10 */
+}
+
+/* Add more depths as needed, changing the color for each */
+
+.comment::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    /* Adjust this value to align with your layout */
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    /* Thickness of the line */
+    display: none;
+    /* Initially hide, show for specific depths */
+}
+
+/* Only show the line for comments beyond the first depth */
+.comment[data-depth="1"]::before,
+.comment[data-depth="2"]::before,
+.comment[data-depth="3"]::before,
+.comment[data-depth="4"]::before,
+.comment[data-depth="5"]::before,
+.comment[data-depth="6"]::before,
+.comment[data-depth="7"]::before,
+.comment[data-depth="8"]::before,
+.comment[data-depth="9"]::before,
+.comment[data-depth="10"]::before {
+    display: block;
+}
+
+
+
+
+
+#comment * {
+    all: revert;
+}
+
+
+
+/* Tabs on user page */
+
+
+
+ul.tabs {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    line-height: 16px;
+}
+
+ul.tabs li {
+    background: none;
+    color: #fff;
+    display: inline-block;
+    padding: 10px 15px;
+    cursor: pointer;
+    background-color: #2e2e2e;
+}
+
+ul.tabs li.current {
+    background: #212121;
+    color: #fff;
+}
+
+.tab-content {
+    display: none;
+    background: #212121;
+    /* padding: 15px; */
+    margin-top: 20px;
+}
+
+.tab-content.current {
+    display: inherit;
+}
+
+
+div#user-posts {
+    margin-top: 3px;
+}
+
+
