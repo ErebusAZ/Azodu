@@ -16,6 +16,7 @@
         let isFetching = false;
         var currentPage = 1; // Initialize current page
         var postsShown = 0;
+        var allPostsLoaded = false; // Flag to indicate whether all posts have been loaded
 
 
         let shownPinnedPosts = new Set(); // Tracks shown pinned posts to avoid duplicates
@@ -34,7 +35,7 @@
         }
 
         function fetchAndDisplayPosts() {
-            if (isFetching) return;
+            if (isFetching || allPostsLoaded) return;
             isFetching = true;
             let cat = getCategoryFromCurrentUrl() || 'anything';
             const url = lastPostId ? `/api/posts?startPostId=${lastPostId}&category=${cat}` : `/api/posts?category=${cat}`;
@@ -49,10 +50,14 @@
                         lastPostId = posts[posts.length - 1].post_id;
                         currentPage++;
                         renderPosts(posts.filter(post => !shownPinnedPosts.has(post.post_id)), currentPage > 1); // Filter out already displayed pinned posts
+                    } else {
+                        // If no posts are returned, set allPostsLoaded to true
+                        allPostsLoaded = true;
                     }
                 },
                 error: function (error) {
                     console.error('Failed to fetch posts:', error);
+                    isFetching = false; // Ensure fetching can resume in case of error
                 }
             });
         }
@@ -114,7 +119,7 @@
 
         // Lazy load more posts as the user scrolls down
         $(window).scroll(function () {
-            if (nearBottomOfPage() && postsShown < totalNumberOfPosts) {
+            if (nearBottomOfPage() && postsShown < totalNumberOfPosts && !allPostsLoaded) {
                 fetchAndDisplayPosts();
             }
         });
