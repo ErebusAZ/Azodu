@@ -9,7 +9,7 @@ const fs = require('fs');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const rateLimit = require('express-rate-limit');
-
+const NodeCache = require('node-cache');
 
 
 let secrets;
@@ -114,6 +114,8 @@ const cache = {
   // You can add more categories here in the future, e.g., posts: {}, users: {}, etc.
 };
 
+
+const myCache = new NodeCache({ stdTTL: 200, checkperiod: 120 });
 
 
 const loginExpires = 86400 * 30; // how long till login expires
@@ -1328,6 +1330,7 @@ app.listen(port, () => {
 });
 
 
+
 app.get('/api/posts', async (req, res) => {
   const { startPostId, category } = req.query;
 
@@ -1336,6 +1339,19 @@ app.get('/api/posts', async (req, res) => {
     let pinnedPosts = [];
     if (!startPostId && pinnedPostsCache[category]) {
       pinnedPosts = pinnedPostsCache[category]; // Already full objects with isPinned flag
+    }
+
+    // Create a unique cache key based on query parameters
+    const cacheKey = `regular_${category}_${startPostId || 'start'}`;
+
+    // Check for cached data for regular posts
+    let cachedPosts = myCache.get(cacheKey);
+    if (cachedPosts) {
+      console.log(`Cache hit for regular posts: ${cacheKey}`);
+      const posts = [...pinnedPosts, ...cachedPosts];
+      return res.json(posts);
+    } else {
+      console.log(`Cache miss for regular posts: ${cacheKey}`);
     }
 
     // Fetch regular posts
@@ -1350,6 +1366,9 @@ app.get('/api/posts', async (req, res) => {
     query += ' LIMIT 30'; // Adjust as necessary
     const result = await client.execute(query, params, { prepare: true });
     const regularPosts = result.rows.map(post => ({ ...post, isPinned: false }));
+
+    // Save fetched regular posts to cache
+    myCache.set(cacheKey, regularPosts, 300); // Cache for 5 minutes
 
     // Combine pinned and regular posts
     const posts = [...pinnedPosts, ...regularPosts];
