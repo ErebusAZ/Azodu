@@ -747,7 +747,7 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
 
   try {
     await insertPostData(client, title, creator, category, postType, content, thumbnail, summary);
-    res.status(200).json({ message: 'Post submitted successfully. Redirecting ...', summary: summary });
+    res.status(200).json({ message: 'Success! Your post will appear in a few minutes. Redirecting ...', summary: summary });
   } catch (error) {
     res.status(500).json({ message: '' + error, error: true });
   }
@@ -837,7 +837,7 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
       `;
       await client.execute(insertQuery, [permalink, name, creator, description, additional_info], { prepare: true });
       console.log('Category created successfully');
-      res.json({ error: false, message: 'Category created successfully' });
+      res.json({ error: false, message: 'Success! Your category will appear in a few minutes.' });
     }
   } catch (error) {
     console.error('Error creating or updating category:', error);

@@ -213,7 +213,7 @@
                                     }
 
                                     // Check if there is a message property in the response data
-                                    showNotification(data.message, data.error ? 'error' : 'success', 3000, () => {
+                                    showNotification(data.message, data.error ? 'error' : 'success', 4000, () => {
                                         if (!data.error) {
                                             // Redirect only on success
                                             window.location.href = "/";
@@ -223,7 +223,7 @@
                             })
                             .catch(error => {
                                 console.error('Error:', error);
-                                showNotification('There was an error processing your request.', 'error', 3000);
+                                showNotification('There was an error processing your request.', 'error', 4000);
                                 $('button[type="submit"]').prop('disabled', false).text('Submit');
 
                             });
