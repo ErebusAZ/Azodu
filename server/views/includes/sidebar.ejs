@@ -12,9 +12,7 @@
                     <% if (category.creator==="azodu" ) { %>
                         <%= category.creator %> 
                             <% } else { %>
-                                <a class="cat_creator" href="/u/<%= category.creator %>">
-                                    <%= category.creator %>
-                                </a>
+                                <a class="cat_creator" href="/u/<%= category.creator %>"><%= category.creator %></a>
                                 <% } %> <span style="display: none;" id="cat_date_created">
                                         <%= category.date_created %>
                                     </span>
