@@ -12,8 +12,16 @@ $(document).on('click', '.admin-actions-gear', function (event) {
         `<a href="#" onclick="unpinPost('${$(this).data('postid')}');return false;">Unpin Post</a>` :
         `<a href="#" onclick="pinPost('${$(this).data('postid')}');return false;">Pin Post</a>`;
 
+    // Check if the user has admin or super_admin roles
+    var rolesString = localStorage.getItem('userRoles');
+    var roles = rolesString ? JSON.parse(rolesString) : [];
+    var isAdmin = roles.some(role => role.toLowerCase().includes('admin'));
+
+    // Conditionally add the Delete Post link based on admin status
+    const deletePostHtml = isAdmin ? `<a href="#" onclick="deletePost('${$(this).data('postid')}');return false;">Delete Post</a>` : '';
+
     const tooltipHtml = `<div class="admin-tooltip" style="display: none;">
-        <a href="#" onclick="deletePost('${$(this).data('postid')}');return false;">Delete Post</a>
+        ${deletePostHtml}
         ${pinUnpinHtml}
     </div>`;
 
@@ -38,6 +46,7 @@ $(document).on('click', '.admin-actions-gear', function (event) {
         event.stopPropagation();
     });
 });
+
 
 
 // Close the tooltip when clicking anywhere else on the page
