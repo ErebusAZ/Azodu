@@ -145,7 +145,7 @@ function pinPost(postId) {
             showNotification('Post pinned successfully.', type = 'success', duration = 3000);
         },
         error: function (xhr, status, error) {
-            showNotification('Failed to pin post: ' + xhr.responseText, type = 'error', duration = 5000);
+            showNotification(xhr.responseJSON.message, type = 'error', duration = 5000);
 
         }
     });
@@ -172,7 +172,7 @@ function unpinPost(postId) {
             showNotification('Post unpinned successfully.', type = 'success', duration = 3000);
         },
         error: function (xhr, status, error) {
-            showNotification('Failed to unpin post: ' + xhr.responseText, type = 'error', duration = 5000);
+            showNotification(xhr.responseJSON.message, type = 'error', duration = 5000);
         }
     });
 }

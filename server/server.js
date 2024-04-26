@@ -1130,22 +1130,31 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
 
 
 
+function hasAdminRole(roles) {
+  return roles?.includes('admin') || roles?.includes('super_admin');
+}
+
 app.post('/api/pinPost', authenticateToken, async (req, res) => {
   const { post_id, category } = req.body;
-  const username = req.user.username; // From JWT after authentication
+  const username = req.user.username;
 
   try {
-    const postExistsQuery = 'SELECT * FROM my_keyspace.posts WHERE post_id = ? AND category = ?';
-    const postExistsResult = await client.execute(postExistsQuery, [post_id, category], { prepare: true });
+    const userQuery = 'SELECT roles, username FROM my_keyspace.users WHERE username = ?';
+    const userResult = await client.execute(userQuery, [username], { prepare: true });
+    const user = userResult.rows[0];
+    
+    const categoryQuery = 'SELECT creator FROM my_keyspace.categories WHERE permalink = ?';
+    const categoryResult = await client.execute(categoryQuery, [category], { prepare: true });
+    const categoryCreator = categoryResult.rows[0]?.creator;
 
-    if (postExistsResult.rowLength === 0) {
-      return res.status(404).json({ message: 'Post not found.' });
+    const isAdmin = hasAdminRole(user.roles);
+    const isCreator = username === categoryCreator;
+
+    if (!isAdmin && !isCreator) {
+      return res.status(403).json({ message: 'Not authorized to pin posts in this category.' });
     }
 
-    const pinPostQuery = `
-    INSERT INTO my_keyspace.pinned_posts (category, post_id) VALUES (?, ?);
-
-    `;
+    const pinPostQuery = 'INSERT INTO my_keyspace.pinned_posts (category, post_id) VALUES (?, ?)';
     await client.execute(pinPostQuery, [category, post_id], { prepare: true });
     updatePinnedPostsCache(category);
     res.status(200).json({ message: 'Post pinned successfully.' });
@@ -1155,21 +1164,36 @@ app.post('/api/pinPost', authenticateToken, async (req, res) => {
   }
 });
 
-
 app.post('/api/unpinPost', authenticateToken, async (req, res) => {
   const { post_id, category } = req.body;
+  const username = req.user.username;
 
   try {
-    const unpinPostQuery = 'DELETE FROM my_keyspace.pinned_posts WHERE category = ? AND post_id = ?;';
+    const userQuery = 'SELECT roles FROM my_keyspace.users WHERE username = ?';
+    const userResult = await client.execute(userQuery, [username], { prepare: true });
+    const user = userResult.rows[0];
+
+    const categoryQuery = 'SELECT creator FROM my_keyspace.categories WHERE permalink = ?';
+    const categoryResult = await client.execute(categoryQuery, [category], { prepare: true });
+    const categoryCreator = categoryResult.rows[0]?.creator;
+
+    const isAdmin = hasAdminRole(user.roles);
+    const isCreator = username === categoryCreator;
+
+    if (!isAdmin && !isCreator) {
+      return res.status(403).json({ message: 'Not authorized to unpin posts in this category.' });
+    }
+
+    const unpinPostQuery = 'DELETE FROM my_keyspace.pinned_posts WHERE category = ? AND post_id = ?';
     await client.execute(unpinPostQuery, [category, post_id], { prepare: true });
     updatePinnedPostsCache(category);
-
     res.status(200).json({ message: 'Post unpinned successfully.' });
   } catch (error) {
     console.error('Error unpinning post:', error);
     res.status(500).json({ message: 'Error unpinning the post.' });
   }
 });
+
 
 
 

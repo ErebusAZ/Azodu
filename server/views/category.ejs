@@ -2,34 +2,30 @@
 <html lang="en">
 
 <head>
-
     <title>
         Azodu - <%= category.name %>
     </title>
     <%- include('includes/header') %>
 
     <script>
-
-   // Convert the post object to a JSON string and parse it back to an object
-   var category = JSON.parse('<%- JSON.stringify(category).replace(/'/g, "\\'").replace(/"/g, '\\"') %>');
+        // Convert the post object to a JSON string and parse it back to an object
+        var category = JSON.parse('<%- JSON.stringify(category).replace(/'/g, "\\'").replace(/"/g, '\\"') %>');
         console.log(category);
-
-  
-   
-
     </script>
+</head>
 
-
-
-
-
+<body>
     <%- include('includes/postFeed') %>
-
-  
     <%- include('includes/sidebar', { category: category }) %>
 
-
-
+    <script>
+        $(document).ready(function() {
+            var username = localStorage.getItem('username');
+            if (category.creator === username) {
+                $('body').addClass('is_admin');
+            }
+        });
+    </script>
 </body>
 
 </html>
