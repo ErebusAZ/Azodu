@@ -1356,52 +1356,90 @@ app.listen(port, () => {
 
 
 app.get('/api/posts', async (req, res) => {
-  const { startPostId, category } = req.query;
+  const { startPostId, category, sort = 'latest' } = req.query;
 
   try {
-    // Use pinned posts from the cache if this is the first page
-    let pinnedPosts = [];
-    if (!startPostId && pinnedPostsCache[category]) {
-      pinnedPosts = pinnedPostsCache[category]; // Already full objects with isPinned flag
-    }
+    // Define cache key including the sort type
+    const cacheKey = `posts_${category}_${sort}`;
 
-    // Create a unique cache key based on query parameters
-    const cacheKey = `regular_${category}_${startPostId || 'start'}`;
+    // Check for cached data of all sorted posts
+    let allSortedPosts = myCache.get(cacheKey);
+    if (!allSortedPosts) {
+      // Cache miss, need to fetch and sort all posts from the database
+      let query = 'SELECT * FROM my_keyspace.posts WHERE category = ?';
+      let params = [category];
+      const result = await client.execute(query, params, { prepare: true });
+      let posts = result.rows;
 
-    // Check for cached data for regular posts
-    let cachedPosts = myCache.get(cacheKey);
-    if (cachedPosts) {
-      console.log(`Cache hit for regular posts: ${cacheKey}`);
-      const posts = [...pinnedPosts, ...cachedPosts];
-      return res.json(posts);
+      // Sort posts based on the sort parameter
+      switch (sort) {
+        case 'top':
+          posts.sort((a, b) => topScore(b) - topScore(a));
+          break;
+        case 'controversial':
+          posts = posts.filter(isControversial).sort((a, b) => b.timestamp - a.timestamp);
+          break;
+        case 'latest':
+        default:
+          posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+          break;
+      }
+
+      // Save sorted and fetched posts to cache
+      myCache.set(cacheKey, posts, 300); // Cache for 5 minutes
+      allSortedPosts = posts;
     } else {
-      console.log(`Cache miss for regular posts: ${cacheKey}`);
+
+      console.log(cacheKey + 'found in cache!');
+
     }
 
-    // Fetch regular posts
-    let query = 'SELECT * FROM my_keyspace.posts WHERE category = ?';
-    let params = [category];
-
+    // Find the starting index if startPostId is specified
+    let startIndex = 0;
     if (startPostId) {
-      query += ' AND post_id < ?';
-      params.push(startPostId);
+      startIndex = allSortedPosts.findIndex(post => post.post_id.toString() === startPostId) + 1;
     }
 
-    query += ' LIMIT 30'; // Adjust as necessary
-    const result = await client.execute(query, params, { prepare: true });
-    const regularPosts = result.rows.map(post => ({ ...post, isPinned: false }));
+    // Limit the number of posts to return
+    const postsToShow = allSortedPosts.slice(startIndex, startIndex + 30);
 
-    // Save fetched regular posts to cache
-    myCache.set(cacheKey, regularPosts, 300); // Cache for 5 minutes
+    // Include pinned posts if this is the first page
+    if (startIndex === 0 && pinnedPostsCache[category]) {
+      const pinnedPosts = pinnedPostsCache[category];
+      postsToShow.unshift(...pinnedPosts);
+    }
 
-    // Combine pinned and regular posts
-    const posts = [...pinnedPosts, ...regularPosts];
-    res.json(posts);
+    res.json(postsToShow);
   } catch (error) {
     console.error('Failed to fetch posts:', error);
     res.status(500).send('Failed to fetch posts');
   }
 });
+
+function topScore(post) {
+  return (post.upvotes - post.downvotes) / ((Date.now() - new Date(post.timestamp).getTime()) / 3600000 + 1);
+}
+
+function isControversial(post) {
+  const minVotes = Math.min(post.upvotes, post.downvotes);
+  const maxVotes = Math.max(post.upvotes, post.downvotes);
+  return minVotes > 10 && (minVotes / maxVotes) > 0.5;
+}
+
+
+// Helper function to calculate top score
+function topScore(post) {
+  // Example score calculation, you can adjust as needed
+  return (post.upvotes - post.downvotes) / ((Date.now() - new Date(post.timestamp).getTime()) / 3600000 + 1);
+}
+
+// Helper function to determine if a post is controversial
+function isControversial(post) {
+  const minVotes = Math.min(post.upvotes, post.downvotes);
+  const maxVotes = Math.max(post.upvotes, post.downvotes);
+  return minVotes > 3 && (minVotes / maxVotes) > 0.5;
+}
+
 
 
 
