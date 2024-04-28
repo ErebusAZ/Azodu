@@ -1,8 +1,8 @@
 <div class="container" id="postfeed_container">
     <div class="sort-container_new">
         <ul id="sort-by">
-            <li><a href="#" data-sort="top" class="selected">Top</a></li>
-            <li><a href="#" data-sort="latest">Latest</a></li>
+            <li><a href="#" data-sort="top">Top</a></li>
+            <li><a href="#" data-sort="latest" class="selected">Latest</a></li>
             <li><a href="#" data-sort="controversial">Controversial</a></li>
         </ul>
     </div>
@@ -10,7 +10,7 @@
 
 <script>
     $(document).ready(function () {
-        let currentSort = 'top'; // Default sort
+        let currentSort = 'latest'; // Default sort
 
         const totalNumberOfPosts = 400; // Max posts to generate
         const postsToShowInitially = 25; // Posts to show initially and on each scroll
