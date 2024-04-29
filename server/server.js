@@ -117,7 +117,7 @@ const cache = {
 };
 
 
-const myCache = new NodeCache({ stdTTL: 200, checkperiod: 120 });
+const fullPostsCache = new NodeCache({ stdTTL: 200, checkperiod: 120 });
 
 
 const loginExpires = 86400 * 30; // how long till login expires
@@ -376,10 +376,10 @@ async function processCategoriesPeriodically() {
 
 const getCacheSize = () => {
   let totalSize = 0;
-  const keys = myCache.keys(); // Get all keys stored in the cache
+  const keys = fullPostsCache.keys(); // Get all keys stored in the cache
 
   for (const key of keys) {
-    const value = myCache.get(key);
+    const value = fullPostsCache.get(key);
     const size = sizeof(value); // Calculate the size of each cached item
     totalSize += size; // Sum up the total size
   }
@@ -1385,7 +1385,7 @@ app.get('/api/posts', async (req, res) => {
     const cacheKey = `posts_${category}_${sort}`;
 
     // Check for cached data of all sorted posts
-    let allSortedPosts = myCache.get(cacheKey);
+    let allSortedPosts = fullPostsCache.get(cacheKey);
     if (!allSortedPosts) {
       // Cache miss, need to fetch and sort all posts from the database
       let query = 'SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT ?';
@@ -1414,7 +1414,7 @@ app.get('/api/posts', async (req, res) => {
       }
 
       // Save sorted and fetched posts to cache
-      myCache.set(cacheKey, posts, 300); // Cache for 5 minutes
+      fullPostsCache.set(cacheKey, posts, 300); // Cache for 5 minutes
       allSortedPosts = posts;
     } else {
 
