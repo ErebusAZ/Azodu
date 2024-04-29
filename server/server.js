@@ -488,7 +488,7 @@ app.post('/api/register', async (req, res) => {
   const clientIp = req.headers['cf-connecting-ip'] || req.ip;
 
   // reCAPTCHA Verification
-  const secretKey = 'REDACTED'; // Replace 'your_secret_key' with your actual secret key
+  const secretKey = secrets.RECAPTCHA_KEY; 
   try {
     const recaptchaResponse = await axios.post(`https://www.google.com/recaptcha/api/siteverify`, {}, {
       params: {
