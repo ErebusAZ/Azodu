@@ -128,6 +128,8 @@ const defaultCategories = ["anything","Books"];
 
 const NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS = 50; // the # of posts to go back in a category on an interval to calculate votes and comments
 
+const NUM_POSTS_CACHED = 2500; // num of posts to go back via api/posts. multiplies in memory for each category and each sort: latest/top/controversial
+
 const COMMENT_GENERATION_INTERVAL_MS = 60000; // 1 min
 const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
 const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 10; // 10 min
@@ -1386,8 +1388,8 @@ app.get('/api/posts', async (req, res) => {
     let allSortedPosts = myCache.get(cacheKey);
     if (!allSortedPosts) {
       // Cache miss, need to fetch and sort all posts from the database
-      let query = 'SELECT * FROM my_keyspace.posts WHERE category = ?';
-      let params = [category];
+      let query = 'SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT ?';
+      let params = [category,NUM_POSTS_CACHED];
       const result = await client.execute(query, params, { prepare: true });
       let posts = result.rows;
 
