@@ -10,6 +10,8 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const rateLimit = require('express-rate-limit');
 const NodeCache = require('node-cache');
+const sizeof = require('object-sizeof');
+
 
 
 let secrets;
@@ -207,6 +209,7 @@ const onlyAnythingCategory = true; // Set to false to comment on all categories
 setInterval(async () => {
   const now = new Date().getTime(); // Get current time in milliseconds
   const categories = onlyAnythingCategory ? ['anything'] : Object.keys(postsCache); // Determine which categories to process
+  // etCacheSize();
 
   categories.forEach(async (category) => {
     if (postsCache[category] && Object.keys(postsCache[category]).length > 0) {
@@ -366,6 +369,23 @@ async function processCategoriesPeriodically() {
     currentCategoryIndex = (currentCategoryIndex + 1) % categoryKeys.length;
   }, updateInterval);
 }
+
+
+
+const getCacheSize = () => {
+  let totalSize = 0;
+  const keys = myCache.keys(); // Get all keys stored in the cache
+
+  for (const key of keys) {
+    const value = myCache.get(key);
+    const size = sizeof(value); // Calculate the size of each cached item
+    totalSize += size; // Sum up the total size
+  }
+
+  console.log(`Total Cache Size: ${totalSize} bytes`);
+  return totalSize;
+};
+
 
 
 function updatePinnedPostsInCache(postsCache, category) {
@@ -1370,6 +1390,12 @@ app.get('/api/posts', async (req, res) => {
       let params = [category];
       const result = await client.execute(query, params, { prepare: true });
       let posts = result.rows;
+
+      // Count the number of posts
+      let numberOfPosts = posts.length;
+
+    //  console.log(`Number of posts returned: ${numberOfPosts}`);
+
 
       // Sort posts based on the sort parameter
       switch (sort) {

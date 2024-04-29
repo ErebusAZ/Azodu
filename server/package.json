@@ -21,6 +21,7 @@
     "express-rate-limit": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
     "node-cache": "^5.1.2",
+    "object-sizeof": "^2.6.4",
     "openai": "^4.31.0",
     "uuid": "^9.0.1"
   }
