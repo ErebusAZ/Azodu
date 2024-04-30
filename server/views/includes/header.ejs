@@ -275,6 +275,8 @@
     }
 
     function generatePostHtml(post, isSaved) {
+    if(post.isPinned == undefined)
+        post.isPinned = false; 
     let isTwitterUrl = post.content && post.content.includes("twitter.com");
     const postTitleHref = post.post_type === 'url' ? post.content : post.permalink;
 
