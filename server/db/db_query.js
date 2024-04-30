@@ -96,13 +96,12 @@ async function fetchPostByPostID(client, category, post_id) {
 }
 
 
-
 async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, postsCache, updateDb = true, postLimit) {
   try {
-    const maxCacheSize = postLimit * 2;  // Maximum posts to keep in cache
 
-
-    const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT ${postLimit}`;
+    const maxCacheSize = postLimit * 2; 
+    // Fetch the latest posts within the category. Adjust the limit as needed.
+    const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT ` + postLimit;
     const posts = await client.execute(fetchPostsQuery, [category], { prepare: true });
 
     // Check and manage cache size
@@ -117,7 +116,10 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, pos
       }
     }
 
+
+
     for (const post of posts.rows) {
+      // Fetch votes and calculate upvotes and downvotes
       const fetchVotesQuery = `SELECT vote_value FROM my_keyspace.votes WHERE post_id = ?`;
       const votes = await client.execute(fetchVotesQuery, [post.post_id], { prepare: true });
 
@@ -126,22 +128,24 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, pos
       votes.rows.forEach(vote => {
         if (vote.vote_value === 1) upvotes++;
         else if (vote.vote_value === -1) downvotes++;
+        // We ignore vote_value of 0 as they do not affect the count
       });
 
+      // Fetch comments count for the post
       const fetchCommentsCountQuery = `SELECT COUNT(*) AS comment_count FROM my_keyspace.comments WHERE post_id = ?`;
       const commentsCountResult = await client.execute(fetchCommentsCountQuery, [post.post_id], { prepare: true });
       const commentCount = commentsCountResult.first()['comment_count'] || 0;
 
-      // Store current time as last accessed time for LRU cache management
+      // Update the in-memory postsCache object
       postsCache[post.post_id] = {
         ...post,
-        upvotes,
-        downvotes,
+        upvotes: upvotes,
+        downvotes: downvotes,
         total_votes: upvotes - downvotes,
-        comment_count,
-        lastAccessed: Date.now()
+        comment_count: commentCount, // Add comment count to summary
       };
 
+      // Optionally update the database
       if (updateDb) {
         const updatePostQuery = `
           UPDATE my_keyspace.posts
@@ -159,7 +163,6 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, pos
 
   return postsCache;
 }
-
 
 
 async function getCommentDetails(client, post_id, comment_id) {
