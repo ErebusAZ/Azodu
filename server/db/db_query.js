@@ -96,7 +96,7 @@ async function fetchPostByPostID(client, category, post_id) {
 }
 
 
-async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, postsCache, updateDb = true, postLimit) {
+async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, categoryInPostsCache, updateDb = true, postLimit) {
   try {
 
     const maxCacheSize = postLimit * 2; 
@@ -105,14 +105,14 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, pos
     const posts = await client.execute(fetchPostsQuery, [category], { prepare: true });
 
     // Check and manage cache size
-    let cacheKeys = Object.keys(postsCache);
+    let cacheKeys = Object.keys(categoryInPostsCache);
     if (cacheKeys.length >= maxCacheSize) {
       // Sort keys by their last accessed time, stored in cache as part of the object
-      cacheKeys.sort((a, b) => postsCache[a].lastAccessed - postsCache[b].lastAccessed);
+      cacheKeys.sort((a, b) => categoryInPostsCache[a].lastAccessed - categoryInPostsCache[b].lastAccessed);
       // Remove the oldest item(s) as needed to make room
       while (cacheKeys.length >= maxCacheSize) {
         const oldestKey = cacheKeys.shift();
-        delete postsCache[oldestKey];
+        delete categoryInPostsCache[oldestKey];
       }
     }
 
@@ -136,7 +136,7 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, pos
       const commentsCountResult = await client.execute(fetchCommentsCountQuery, [post.post_id], { prepare: true });
       const commentCount = commentsCountResult.first()['comment_count'] || 0;
 
-      if (postsCache[post.post_id]) {
+      if (categoryInPostsCache[post.post_id]) {
   
      //   console.log('post already exists! ' + post.post_id);
       } else {
@@ -145,8 +145,8 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, pos
       }
 
 
-      // Update the in-memory postsCache object
-      postsCache[post.post_id] = {
+      // Update the in-memory categoryInPostsCache object
+      categoryInPostsCache[post.post_id] = {
         ...post,
         upvotes: upvotes,
         downvotes: downvotes,
@@ -170,7 +170,7 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, pos
     console.error(`Error fetching posts and calculating votes for category: ${category}`, error);
   }
 
-  return postsCache;
+  return categoryInPostsCache;
 }
 
 
