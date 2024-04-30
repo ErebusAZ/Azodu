@@ -136,6 +136,15 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, pos
       const commentsCountResult = await client.execute(fetchCommentsCountQuery, [post.post_id], { prepare: true });
       const commentCount = commentsCountResult.first()['comment_count'] || 0;
 
+      if (postsCache[post.post_id]) {
+  
+     //   console.log('post already exists! ' + post.post_id);
+      } else {
+
+      //  console.log(post.post_id + ' does not exist'); 
+      }
+
+
       // Update the in-memory postsCache object
       postsCache[post.post_id] = {
         ...post,

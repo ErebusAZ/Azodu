@@ -358,7 +358,7 @@ async function processCategoriesPeriodically() {
 
     const currentCategory = categoryKeys[currentCategoryIndex];
     try {
-      const newSummary = await fetchPostsAndCalculateVotesAndCommentCounts(client, currentCategory, {}, true, NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS);
+      const newSummary = await fetchPostsAndCalculateVotesAndCommentCounts(client, currentCategory, postsCache[currentCategory] ? postsCache[currentCategory] : {}, true, NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS);
       updatePinnedPostsInCache(newSummary, currentCategory);
       // You may want to consider whether you need to keep this assignment or adjust the design
       // to better handle updates.
