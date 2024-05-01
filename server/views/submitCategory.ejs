@@ -222,7 +222,7 @@
                                     showNotification(data.message, data.error ? 'error' : 'success', 4000, () => {
                                         if (!data.error) {
                                             // Redirect only on success
-                                            window.location.href = "/";
+                                            window.location.href = "/c/" + permalinkFromClient;
                                         }
                                     });
                                 }
