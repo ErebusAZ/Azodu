@@ -96,14 +96,18 @@ async function fetchPostByPostID(client, category, post_id) {
 }
 
 
-async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, categoryInPostsCache, updateDb = true, postLimit) {
+async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, categoryInPostsCache, updateDb = true, postLimit,numDaysPostsExpire) {
   try {
 
     const maxCacheSize = postLimit * 2; 
     // Fetch the latest posts within the category. Adjust the limit as needed.
     const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT ` + postLimit;
     const posts = await client.execute(fetchPostsQuery, [category], { prepare: true });
+    const fiveDaysAgo = new Date(Date.now() - numDaysPostsExpire * 24 * 60 * 60 * 1000);
 
+    posts.rows = posts.rows.filter(post => new Date(post.timestamp) > fiveDaysAgo);
+
+    
     // Check and manage cache size
     let cacheKeys = Object.keys(categoryInPostsCache);
     if (cacheKeys.length >= maxCacheSize) {
@@ -172,6 +176,7 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, cat
 
   return categoryInPostsCache;
 }
+
 
 
 async function getCommentDetails(client, post_id, comment_id) {

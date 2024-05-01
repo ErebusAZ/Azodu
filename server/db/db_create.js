@@ -292,12 +292,14 @@ async function createVotesTable(client) {
       post_id timeuuid,
       ip text,
       vote_value int,
+      timestamp timestamp,
       PRIMARY KEY ((post_id), ip)
-    );
+    ) WITH default_time_to_live = 518400;  // TTL set to 6 days in seconds
   `;
   await client.execute(query);
   console.log('Table `votes` created or already exists in `my_keyspace`');
 }
+
 
 
 async function createDefaultCategories(client, defaultCategories) {

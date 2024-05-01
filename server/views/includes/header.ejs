@@ -580,6 +580,8 @@
                     error: function (error) {
                         console.error('Failed to record vote:', error);
                         // Optionally handle rollback of UI changes here
+                        showNotification(error.responseText, type = 'error', duration = 5000);
+
                     }
                 });
 

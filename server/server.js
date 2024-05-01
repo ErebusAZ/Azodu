@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cassandra = require('cassandra-driver');
+const { types } = require('cassandra-driver');
 const uuid = require('uuid');
 const path = require('path');
 const jwt = require('jsonwebtoken');
@@ -133,6 +134,8 @@ const NUM_POSTS_CACHED = 2500; // num of posts to go back via api/posts. multipl
 const COMMENT_GENERATION_INTERVAL_MS = 60000; // 1 min
 const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
 const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 10; // 10 min
+
+const DAYS_TILL_POST_ARCHIVED = 5; 
 
 // Dedicated blacklist for posts to skip commenting
 const postsCommentBlacklist = {};
@@ -358,7 +361,7 @@ async function processCategoriesPeriodically() {
 
     const currentCategory = categoryKeys[currentCategoryIndex];
     try {
-      const newSummary = await fetchPostsAndCalculateVotesAndCommentCounts(client, currentCategory, postsCache[currentCategory] ? postsCache[currentCategory] : {}, true, NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS);
+      const newSummary = await fetchPostsAndCalculateVotesAndCommentCounts(client, currentCategory, postsCache[currentCategory] ? postsCache[currentCategory] : {}, true, NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS,DAYS_TILL_POST_ARCHIVED);
       updatePinnedPostsInCache(newSummary, currentCategory);
       // You may want to consider whether you need to keep this assignment or adjust the design
       // to better handle updates.
@@ -1031,10 +1034,23 @@ app.get('/api/categories/:permalink', async (req, res) => {
 
 
 
-app.post('/api/vote',authenticateToken, async (req, res) => {
+app.post('/api/vote', authenticateToken, async (req, res) => {
   const { post_id, voteValue, root_post_id } = req.body;  // Changed to receive `voteValue` as an integer
   const ip = req.ip;
-  const voter = req.user.username; 
+  const voter = req.user.username;
+
+
+  // Extract timestamp from post_id (timeuuid)
+  const postTimestamp = types.TimeUuid.fromString(post_id).getDate();
+  const postAgeDays = (Date.now() - postTimestamp) / (1000 * 60 * 60 * 24);
+
+  // Check if the post is older than 5 days
+  if (postAgeDays > DAYS_TILL_POST_ARCHIVED) {
+    return res.status(403).send('The post is archived. Voting is disabled.');
+  }
+
+
+
   try {
     await insertOrUpdateVote(client, post_id, voteValue, ip);  // Using the modified function that handles integers
 
@@ -1091,6 +1107,18 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
     }
     return;
   }
+
+
+  // Extract timestamp from post_id (timeuuid)
+  const postTimestamp = types.TimeUuid.fromString(post_id).getDate();
+  const postAgeDays = (Date.now() - postTimestamp) / (1000 * 60 * 60 * 24);
+
+  // Check if the post is older than 5 days
+  if (postAgeDays > DAYS_TILL_POST_ARCHIVED) {
+    return res.status(403).send('The post is archived. Commenting is disabled.');
+  }
+
+
 
   // Check if user is currently timed out
   const timeoutSeconds = checkTimeout(author);
