@@ -1,3 +1,4 @@
+const { types } = require('cassandra-driver');
 
 
 
@@ -94,6 +95,13 @@ async function fetchPostByPostID(client, category, post_id) {
     throw error;
   }
 }
+
+function isPostOlderThanDays(postId, days) {
+  const postTimestamp = types.TimeUuid.fromString(postId).getDate();
+  const postAgeDays = (Date.now() - postTimestamp) / (1000 * 60 * 60 * 24);
+  return postAgeDays > days;
+}
+
 
 
 async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, categoryInPostsCache, updateDb = true, postLimit,numDaysPostsExpire) {
@@ -197,4 +205,4 @@ async function getCommentDetails(client, post_id, comment_id) {
 
 
 
-module.exports = { queryAndLogUserData,fetchPostByPostID,fetchPostsAndCalculateVotesAndCommentCounts,getCommentDetails,fetchCategoryByName};
+module.exports = { queryAndLogUserData,fetchPostByPostID,fetchPostsAndCalculateVotesAndCommentCounts,getCommentDetails,fetchCategoryByName,isPostOlderThanDays};

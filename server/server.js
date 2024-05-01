@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cassandra = require('cassandra-driver');
-const { types } = require('cassandra-driver');
 const uuid = require('uuid');
 const path = require('path');
 const jwt = require('jsonwebtoken');
@@ -28,7 +27,7 @@ jwtSecret = secrets.JWT_SECRET;
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable,createUserSavedCommentsTable,createUserEmailsTable,createPinnedPostsTable } = require('./db/db_create');
 const { insertPostData, populateTestData, insertCommentData,generateCommentUUID,generateContentId,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink,savePostForUser,saveCommentForUser,unsaveCommentForUser,insertOrUpdateVote } = require('./db/db_insert');
-const { fetchPostByPostID, fetchPostsAndCalculateVotesAndCommentCounts, getCommentDetails,fetchCategoryByName } = require('./db/db_query');
+const { fetchPostByPostID, fetchPostsAndCalculateVotesAndCommentCounts, getCommentDetails,fetchCategoryByName,isPostOlderThanDays } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink,fetchURLAndParseForThumb,extractRelevantText } = require('./utils/util');
 const { generateAIComment,generateSummary,moderateContent,checkCategoryRelevancy } = require('./utils/ai');
@@ -1061,11 +1060,6 @@ app.post('/api/vote', authenticateToken, async (req, res) => {
 
 
 
-function isPostOlderThanDays(postId, days) {
-  const postTimestamp = types.TimeUuid.fromString(postId).getDate();
-  const postAgeDays = (Date.now() - postTimestamp) / (1000 * 60 * 60 * 24);
-  return postAgeDays > days;
-}
 
 
 
