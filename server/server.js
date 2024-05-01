@@ -1649,7 +1649,7 @@ async function main() {
       "azodu",                 // author
       "azodu",                 // category
       "text",                  // postType
-      ` <p>Welcome to Azodu! Our platform is dedicated to fostering a vibrant community where members can share ideas, engage in discussions, and contribute content in a variety of forms. To ensure a positive experience for everyone, we have established the following content guidelines that all users must follow.</p>
+      `<h1>Azodu Content Policy</h1><p>Welcome to Azodu! Our platform is dedicated to fostering a vibrant community where members can share ideas, engage in discussions, and contribute content in a variety of forms. To ensure a positive experience for everyone, we have established the following content guidelines that all users must follow.</p>
   
       <h2>1. Respect for Others</h2>
       <ul>
