@@ -52,7 +52,7 @@
         <div class="container submitCategoryPage">
             <div class="submission-form">
                 <form id="submit_category_form" action="/submitCategory" method="POST">
-                    <h2>Create a new category</h2>
+                    <h2 id="create_edit_category_heading">Create a new category</h2>
 
                     <input type="text" id="categoryName" name="name" placeholder="Enter category name" required>
 
@@ -137,7 +137,13 @@
                 $(document).ready(function () {
 
                     const permalink = getCategoryPermalinkFromUrl();
-                    if (permalink) {
+                    
+
+
+
+                    if (permalink) { // editing a category
+
+                        $('#create_edit_category_heading').text('Edit ' + permalink + ' category'); 
                         fetch(`/api/categories/${permalink}`, {
                             method: 'GET',
                             headers: {
