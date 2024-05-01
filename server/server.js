@@ -27,7 +27,7 @@ jwtSecret = secrets.JWT_SECRET;
 
 const { createKeyspace, createUsersTable, createPostsTable, createCommentsTable, flushAllTables, dropAllTables, createVotesTable,createCategoriesTable,createDefaultCategories,createLinksTable,emptyCommentsTable,createMaterializedViews,insertFakeUsers,createPostIdCounterTable,createUserSavedPostsTable,createUserSavedCommentsTable,createUserEmailsTable,createPinnedPostsTable } = require('./db/db_create');
 const { insertPostData, populateTestData, insertCommentData,generateCommentUUID,generateContentId,insertCategoryData,updateCommentData,tallyVotesForComment,deleteCommentData,generatePermalink,savePostForUser,saveCommentForUser,unsaveCommentForUser,insertOrUpdateVote } = require('./db/db_insert');
-const { fetchPostByPostID, fetchPostsAndCalculateVotesAndCommentCounts, getCommentDetails,fetchCategoryByName,isPostOlderThanDays } = require('./db/db_query');
+const { fetchPostByPostID, fetchPostsAndCalculateVotesAndCommentCounts, getCommentDetails,fetchCategoryByName,isPostOlderThanDays,isCacheValid } = require('./db/db_query');
 const { validateComment, processHTMLFromUsers, validateUsername } = require('./utils/inputValidation');
 const { generateCategoryPermalink,fetchURLAndParseForThumb,extractRelevantText } = require('./utils/util');
 const { generateAIComment,generateSummary,moderateContent,checkCategoryRelevancy } = require('./utils/ai');
@@ -999,11 +999,28 @@ app.get('/c/:category/:uniqueId/:title', async (req, res) => {
 
 app.get('/api/categories', async (req, res) => {
   try {
-    const query = 'SELECT * FROM my_keyspace.categories';
-    const result = await client.execute(query);
+    // Check if the entire category cache is valid
+    if (cache.category.lastFetched && isCacheValid(cache.category.lastFetched, cache.category.ttl)) {
+      // If cache is valid, convert cached category data to array format and return
+      const categories = Object.values(cache.category.permalinks).map(item => item.data);
+      res.json(categories);
+    } else {
+      // If cache is invalid or empty, fetch from database
+      const query = 'SELECT * FROM my_keyspace.categories';
+      const result = await client.execute(query);
+      const freshCategories = result.rows;
 
-    // Send the result rows back as the response
-    res.json(result.rows);
+      // Clear old cache and update with new data
+      cache.category.permalinks = {};
+      freshCategories.forEach(cat => {
+        cache.category.permalinks[cat.permalink] = { data: cat };
+      });
+
+      // Update the last fetched timestamp for the entire cache
+      cache.category.lastFetched = new Date();
+
+      res.json(freshCategories);
+    }
   } catch (error) {
     console.error('Failed to fetch categories:', error);
     res.status(500).send('Failed to fetch categories');
@@ -1011,25 +1028,36 @@ app.get('/api/categories', async (req, res) => {
 });
 
 
+
 app.get('/api/categories/:permalink', async (req, res) => {
   const { permalink } = req.params;
-  
-  try {
-    const query = 'SELECT * FROM my_keyspace.categories WHERE permalink = ?';
-    const result = await client.execute(query, [permalink], { prepare: true });
 
-    if (result.rowLength > 0) {
-      // Category found, send its details back as the response
-      res.json({ category: result.first() });
+  try {
+    // Check if category is available in cache
+    if (cache.category.permalinks[permalink]) {
+      res.json({ category: cache.category.permalinks[permalink].data });
     } else {
-      // No category found with the provided permalink
-      res.status(404).json({ message: 'Category not found' });
+      // Fetch from the database if not available in cache
+      const query = 'SELECT * FROM my_keyspace.categories WHERE permalink = ?';
+      const result = await client.execute(query, [permalink], { prepare: true });
+
+      if (result.rowLength > 0) {
+        const category = result.first();
+
+        // Update cache with new data
+        cache.category.permalinks[permalink] = { data: category, lastFetched: new Date() };
+
+        res.json({ category: category });
+      } else {
+        res.status(404).json({ message: 'Category not found' });
+      }
     }
   } catch (error) {
     console.error('Failed to fetch category:', error);
     res.status(500).send('Failed to fetch category');
   }
 });
+
 
 
 

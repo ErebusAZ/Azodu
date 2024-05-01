@@ -205,4 +205,4 @@ async function getCommentDetails(client, post_id, comment_id) {
 
 
 
-module.exports = { queryAndLogUserData,fetchPostByPostID,fetchPostsAndCalculateVotesAndCommentCounts,getCommentDetails,fetchCategoryByName,isPostOlderThanDays};
+module.exports = { queryAndLogUserData,fetchPostByPostID,fetchPostsAndCalculateVotesAndCommentCounts,getCommentDetails,fetchCategoryByName,isPostOlderThanDays,isCacheValid};
