@@ -112,7 +112,7 @@ const userTimeouts = {};
 let postsCache = {};
 let pinnedPostsCache = {}; 
 const cache = {
-  category: { 'ttl': 10 * 60 * 1000, 'permalinks': {}  },
+  category: { 'ttl': 2 * 60 * 1000, 'permalinks': {}  },
   // You can add more categories here in the future, e.g., posts: {}, users: {}, etc.
 };
 
