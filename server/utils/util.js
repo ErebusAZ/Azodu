@@ -1,11 +1,10 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-
 function generateCategoryPermalink(title) {
   const basePath = "";
   const cleanedTitle = title
-    .replace(/[^\w\s]/gi, '') // Remove non-alphanumeric characters except spaces
+    .replace(/[^\w\s-]/gi, '') // Allow letters, digits, underscores, spaces, and hyphens
     .trim() // Remove leading and trailing spaces
     .replace(/\s+/g, '-') // Replace spaces with hyphens
     .toLowerCase(); // Convert to lowercase
