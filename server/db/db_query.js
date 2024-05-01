@@ -105,7 +105,8 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, cat
     const posts = await client.execute(fetchPostsQuery, [category], { prepare: true });
     const fiveDaysAgo = new Date(Date.now() - numDaysPostsExpire * 24 * 60 * 60 * 1000);
 
-    posts.rows = posts.rows.filter(post => new Date(post.timestamp) > fiveDaysAgo);
+    // Filter posts based on the timeuuid and specified days
+    posts.rows = posts.rows.filter(post => !isPostOlderThanDays(post.post_id.toString(), numDaysPostsExpire));
 
     
     // Check and manage cache size

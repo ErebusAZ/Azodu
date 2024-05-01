@@ -1040,15 +1040,9 @@ app.post('/api/vote', authenticateToken, async (req, res) => {
   const voter = req.user.username;
 
 
-  // Extract timestamp from post_id (timeuuid)
-  const postTimestamp = types.TimeUuid.fromString(post_id).getDate();
-  const postAgeDays = (Date.now() - postTimestamp) / (1000 * 60 * 60 * 24);
-
-  // Check if the post is older than 5 days
-  if (postAgeDays > DAYS_TILL_POST_ARCHIVED) {
+  if (isPostOlderThanDays(post_id, 5)) {
     return res.status(403).send('The post is archived. Voting is disabled.');
   }
-
 
 
   try {
@@ -1067,7 +1061,11 @@ app.post('/api/vote', authenticateToken, async (req, res) => {
 
 
 
-
+function isPostOlderThanDays(postId, days) {
+  const postTimestamp = types.TimeUuid.fromString(postId).getDate();
+  const postAgeDays = (Date.now() - postTimestamp) / (1000 * 60 * 60 * 24);
+  return postAgeDays > days;
+}
 
 
 
@@ -1109,13 +1107,8 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
   }
 
 
-  // Extract timestamp from post_id (timeuuid)
-  const postTimestamp = types.TimeUuid.fromString(post_id).getDate();
-  const postAgeDays = (Date.now() - postTimestamp) / (1000 * 60 * 60 * 24);
-
-  // Check if the post is older than 5 days
-  if (postAgeDays > DAYS_TILL_POST_ARCHIVED) {
-    return res.status(403).send('The post is archived. Commenting is disabled.');
+  if (isPostOlderThanDays(post_id, 5)) {
+    return res.status(403).send('The post is archived. Voting is disabled.');
   }
 
 
