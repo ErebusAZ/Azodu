@@ -123,7 +123,7 @@ const fullPostsCache = new NodeCache({ stdTTL: 200, checkperiod: 120 });
 const loginExpires = 86400 * 30; // how long till login expires
 const updateInterval = 10 * 1000; // how quickly to fetch all posts and update votes
 
-const defaultCategories = ["anything","Books"];
+const defaultCategories = ["anything","Books","azodu"];
 
 
 const NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS = 50; // the # of posts to go back in a category on an interval to calculate votes and comments
@@ -1598,18 +1598,22 @@ async function initializeAllCategoriesCache(client,cache) {
 
 
 
+
+
+
+
 async function main() {
   try {
 
     //   await flushAllTables(client,'my_keyspace','comments'); 
-  //  await dropAllTables(client, 'my_keyspace'); 
+    //  await dropAllTables(client, 'my_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
 
     await createUsersTable(client);
     await createUserEmailsTable(client);
-    await insertFakeUsers(client,usernames); 
+    await insertFakeUsers(client, usernames);
     await createCommentsTable(client);
     await createPostsTable(client);
     await createPinnedPostsTable(client);
@@ -1622,18 +1626,72 @@ async function main() {
     await createVotesTable(client);
     await createCategoriesTable(client);
 
- //   await populateTestData(client, 10);
-    await createLinksTable(client); 
+    //   await populateTestData(client, 10);
+    await createLinksTable(client);
 
     await createDefaultCategories(client, defaultCategories);
-   //  await emptyCommentsTable(client);
+    //  await emptyCommentsTable(client);
     await createMaterializedViews(client);
-    
 
-  //  await populateTestData(client, 10);
-  await initializeAllCategoriesCache(client,cache);
 
-  processCategoriesPeriodically(); 
+    //  await populateTestData(client, 10);
+    await initializeAllCategoriesCache(client, cache);
+
+    processCategoriesPeriodically();
+
+
+
+
+    const defaultPostID = '123e4567-e89b-12d3-a456-426614174000';  // A consistent UUID for the default post
+    await insertPostData(
+      client,
+      "Azodu Content Policy",  // title
+      "azodu",                 // author
+      "azodu",                 // category
+      "text",                  // postType
+      ` <p>Welcome to Azodu! Our platform is dedicated to fostering a vibrant community where members can share ideas, engage in discussions, and contribute content in a variety of forms. To ensure a positive experience for everyone, we have established the following content guidelines that all users must follow.</p>
+  
+      <h2>1. Respect for Others</h2>
+      <ul>
+          <li><strong>Harassment and Bullying:</strong> Do not engage in harassment, bullying, or threats of violence. Content that directly or indirectly threatens, harasses, or bullies individuals or groups is not allowed.</li>
+          <li><strong>Racism:</strong> Content that promotes, supports, or condones violence against individuals or groups based on race, ethnicity, religion, gender, sexual orientation, disability, or national origin is not permitted. Expressions of hate or derogatory terms meant to disparage any racial group or ethnicity are prohibited.</li>
+          <li><strong>Personal Information:</strong> Sharing private or personal information about other users without explicit consent is strictly prohibited. This includes any non-public personal data such as physical addresses, phone numbers, and private photos.</li>
+      </ul>
+  
+      <h2>2. Prohibited Content</h2>
+      <ul>
+          <li><strong>Illegal Activities:</strong> Do not post content that promotes or facilitates illegal activities. This includes, but is not limited to, the sale or trade of substances that are illegal in many jurisdictions, such as drugs and weapons.</li>
+          <li><strong>Sexually Explicit Content:</strong> Pornography and sexually explicit material are not permitted on the platform. Nude or sexual images that have been shared without the subject's consent are strictly forbidden.</li>
+          <li><strong>Violence and Gore:</strong> Content that glorifies violence or celebrates the suffering or humiliation of others is not allowed. Graphic images or videos involving accidents, deaths, or serious injuries must be marked with an appropriate warning if shared for informational or educational purposes.</li>
+      </ul>
+  
+      <h2>3. Policy on Paid and Sponsored Content</h2>
+      <p>At Azodu, we strive to maintain a transparent and authentic community environment. To ensure this, we strictly prohibit the following:</p>
+      <ul>
+          <li><strong>Paid or Sponsored Content:</strong> Any content that has been paid for or sponsored by any entity, whether directly or indirectly, is not allowed, unless it is explicitly marked as an advertisement or paid promotion. This includes but is not limited to content promoting products, services, political agendas, or other initiatives that involve financial transactions aimed at gaining visibility or influence on our platform.</li>
+          <li><strong>Political Campaign Content:</strong> Content that is part of a political spending campaign, including advocacy for specific political causes or candidates, funded by political groups or their affiliates, is strictly prohibited. This policy is in place to prevent the possibility of influencing our community members through financially backed promotions.</li>
+          <li><strong>Astroturfing:</strong> Any attempt to create a false impression of grassroots support, commonly known as "astroturfing," where the true financial backers behind the support are hidden, is banned. This includes organized efforts to manipulate community discourse or opinion, masquerading paid operatives as independent community members.</li>
+      </ul>
+  
+      <h2>4. Intellectual Property</h2>
+      <p>Do not post content that infringes on others' intellectual property rights. This includes unauthorized sharing of copyrighted materials such as movies, music, games, and software.</p>
+  
+      <h2>5. Spam and Manipulative Content</h2>
+      <p>Avoid posting unsolicited promotional or commercial content. The repetitive posting of similar messages or excessive posting of the same content across various threads or communities is considered spam.</p>
+      <p>Manipulating or interfering with site features to artificially inflate the popularity of certain content is prohibited.</p>
+  
+      <h2>6. Respecting User Privacy</h2>
+      <p>Content or actions that violate user privacy or data protection rights are not permitted. This includes any attempt to collect or disseminate personal data without authorization.</p>
+  
+      <h2>7. Changes to the Policy</h2>
+      <p>Azodu reserves the right to modify these guidelines at any time. We encourage users to review the policy periodically to stay informed of any changes.</p>
+  
+  `,  // content
+      undefined,               // thumbnail
+      '',                      // aiSummary
+      true,                    // skipLinkCheck
+      defaultPostID            // explicitly passing a postID
+    );
 
 
   } catch (error) {

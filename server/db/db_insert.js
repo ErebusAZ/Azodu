@@ -92,7 +92,7 @@ async function getNextPostId(client) {
   }
 }
 
-async function insertPostData(client, title, author, category, postType, content, thumbnail, aiSummary = '', skipLinkCheck) {
+async function insertPostData(client, title, author, category, postType, content, thumbnail, aiSummary = '', skipLinkCheck,postID = null) {
 
   if (!title || !author || !category || !postType || (postType === 'url' && !content)) {
     throw new Error('Missing required post data.');
@@ -102,7 +102,7 @@ async function insertPostData(client, title, author, category, postType, content
   const upvotes = 0;
   const downvotes = 0;
   const commentCount = 0;
-  const postID = generateContentId(); // Adjusted to use the counter
+  postID = postID || generateContentId();
   const permalink = generatePermalink(title, category, postID);
   const timestamp = new Date();
 
@@ -137,6 +137,7 @@ async function insertPostData(client, title, author, category, postType, content
     console.error('Failed to insert post data with optional ai_summary', error);
   }
 }
+
 
 
 async function savePostForUser(client, username, post_id) {
