@@ -28,6 +28,10 @@
             let postsHtml = '';
             for (let i = 0; i < posts.length; i++) {
                 if (!shownPinnedPosts.has(posts[i].post_id)) {
+
+                    if(posts[i].title.includes("[deleted by"))
+                    continue; 
+
                     postsHtml += generatePostHtml(posts[i], isSaved);
                     if (posts[i].isPinned) {
                         shownPinnedPosts.add(posts[i].post_id); // Track shown pinned posts
