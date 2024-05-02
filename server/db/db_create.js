@@ -327,11 +327,14 @@ async function createDefaultCategories(client, defaultCategories) {
 
     // Using Lorem Ipsum text for default values where needed
     const creator = "azodu";
-    const description = "The category for anything and everything! Post anything you'd like here.";
+    let description = "The category for anything and everything! Post anything you'd like here.";
     const moderators = "azodu"; // Adjust based on your application's moderator representation
     const isDefault = true;
     const subscribers = 0; // Initializing subscribers count to 0
     const additional_info = ""; // Initialize additional_info with an empty string
+
+    if (categoryName == "azodu")
+      description = "The place for official Azodu docs and communications.";
 
     try {
       await client.execute(queryInsertCategory, [permalink, categoryName, creator, description, moderators, isDefault, subscribers, additional_info], { prepare: true });
