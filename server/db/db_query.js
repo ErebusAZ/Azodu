@@ -19,13 +19,13 @@ async function fetchCategoryByName(client, permalink,cache) {
    // console.log('serving cat not from cache');
   }
 
-  const categoryQuery = 'SELECT * FROM my_keyspace.categories WHERE permalink = ?';
+  const categoryQuery = 'SELECT * FROM azodu_keyspace.categories WHERE permalink = ?';
   try {
       const categoryResult = await client.execute(categoryQuery, [permalink], { prepare: true });
 
       if (categoryResult.rowLength > 0) {
           const category = categoryResult.first();
-          const postsQuery = 'SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT 30';
+          const postsQuery = 'SELECT * FROM azodu_keyspace.posts WHERE category = ? LIMIT 30';
           const postsResult = await client.execute(postsQuery, [permalink], { prepare: true });
           category.posts = postsResult.rows;
 
@@ -53,7 +53,7 @@ async function fetchCategoryByName(client, permalink,cache) {
 
 
 async function queryAndLogUserData() {
-  const query = 'SELECT * FROM my_keyspace.users';
+  const query = 'SELECT * FROM azodu_keyspace.users';
 
   try {
     const result = await client.execute(query);
@@ -68,10 +68,10 @@ async function queryAndLogUserData() {
 
 async function fetchPostByPostID(client, category, post_id) {
   // Adjusted to include the category in the query for posts
-  const postQuery = 'SELECT * FROM my_keyspace.posts WHERE category = ? AND post_id = ?';
+  const postQuery = 'SELECT * FROM azodu_keyspace.posts WHERE category = ? AND post_id = ?';
   
   // Assuming comments are also stored by post_id and do not require category for retrieval
-  const commentsQuery = 'SELECT * FROM my_keyspace.comments WHERE post_id = ?';
+  const commentsQuery = 'SELECT * FROM azodu_keyspace.comments WHERE post_id = ?';
   
   try {
     // Fetch the post using both category and post_id
@@ -109,7 +109,7 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, cat
 
     const maxCacheSize = postLimit * 2; 
     // Fetch the latest posts within the category. Adjust the limit as needed.
-    const fetchPostsQuery = `SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT ` + postLimit;
+    const fetchPostsQuery = `SELECT * FROM azodu_keyspace.posts WHERE category = ? LIMIT ` + postLimit;
     const posts = await client.execute(fetchPostsQuery, [category], { prepare: true });
     const fiveDaysAgo = new Date(Date.now() - numDaysPostsExpire * 24 * 60 * 60 * 1000);
 
@@ -133,7 +133,7 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, cat
 
     for (const post of posts.rows) {
       // Fetch votes and calculate upvotes and downvotes
-      const fetchVotesQuery = `SELECT vote_value FROM my_keyspace.votes WHERE post_id = ?`;
+      const fetchVotesQuery = `SELECT vote_value FROM azodu_keyspace.votes WHERE post_id = ?`;
       const votes = await client.execute(fetchVotesQuery, [post.post_id], { prepare: true });
 
       let upvotes = 0;
@@ -145,7 +145,7 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, cat
       });
 
       // Fetch comments count for the post
-      const fetchCommentsCountQuery = `SELECT COUNT(*) AS comment_count FROM my_keyspace.comments WHERE post_id = ?`;
+      const fetchCommentsCountQuery = `SELECT COUNT(*) AS comment_count FROM azodu_keyspace.comments WHERE post_id = ?`;
       const commentsCountResult = await client.execute(fetchCommentsCountQuery, [post.post_id], { prepare: true });
       const commentCount = commentsCountResult.first()['comment_count'] || 0;
 
@@ -170,7 +170,7 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, cat
       // Optionally update the database
       if (updateDb) {
         const updatePostQuery = `
-          UPDATE my_keyspace.posts
+          UPDATE azodu_keyspace.posts
           SET upvotes = ?, downvotes = ?, comment_count = ?
           WHERE category = ? AND post_id = ?;
         `;
@@ -191,7 +191,7 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, cat
 async function getCommentDetails(client, post_id, comment_id) {
   // Use both post_id and comment_id to uniquely identify the comment
   const query = `
-    SELECT * FROM my_keyspace.comments
+    SELECT * FROM azodu_keyspace.comments
     WHERE post_id = ? AND comment_id = ?`;
   const result = await client.execute(query, [post_id.toString(), comment_id.toString()], { prepare: true });
 

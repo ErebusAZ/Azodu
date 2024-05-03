@@ -71,8 +71,8 @@ function sanitizeLink(link) {
 }
 
 async function getNextPostId(client) {
-  const updateQuery = `UPDATE my_keyspace.post_id_counter SET id_counter = id_counter + 1 WHERE id_name = 'postID'`;
-  const selectQuery = `SELECT id_counter FROM my_keyspace.post_id_counter WHERE id_name = 'postID'`;
+  const updateQuery = `UPDATE azodu_keyspace.post_id_counter SET id_counter = id_counter + 1 WHERE id_name = 'postID'`;
+  const selectQuery = `SELECT id_counter FROM azodu_keyspace.post_id_counter WHERE id_name = 'postID'`;
 
   try {
     // Increment the counter
@@ -109,7 +109,7 @@ async function insertPostData(client, title, author, category, postType, content
   if (postType === 'url') {
 
     if (!skipLinkCheck) {
-      const linkExistsQuery = 'SELECT link FROM my_keyspace.links WHERE link = ? AND category = ?';
+      const linkExistsQuery = 'SELECT link FROM azodu_keyspace.links WHERE link = ? AND category = ?';
       const linkExistsResult = await client.execute(linkExistsQuery, [sanitizedLink, category], { prepare: true });
 
       if (linkExistsResult.rowLength > 0) {
@@ -118,12 +118,12 @@ async function insertPostData(client, title, author, category, postType, content
     }
 
     // Insert the link into the links table if it does not exist
-    const insertLinkQuery = 'INSERT INTO my_keyspace.links (link, category, post_id, timestamp) VALUES (?, ?, ?, ?)';
+    const insertLinkQuery = 'INSERT INTO azodu_keyspace.links (link, category, post_id, timestamp) VALUES (?, ?, ?, ?)';
     await client.execute(insertLinkQuery, [sanitizedLink, category, postID, timestamp], { prepare: true });
   }
 
   const query = `
-    INSERT INTO my_keyspace.posts (
+    INSERT INTO azodu_keyspace.posts (
       post_id, title, author, category, post_type, content, ai_summary, upvotes, downvotes, comment_count, permalink, thumbnail, timestamp
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, toTimestamp(now()));
   `;
@@ -142,7 +142,7 @@ async function insertPostData(client, title, author, category, postType, content
 
 async function savePostForUser(client, username, post_id) {
   const query = `
-    INSERT INTO my_keyspace.user_saved_posts (
+    INSERT INTO azodu_keyspace.user_saved_posts (
       username, post_id, saved_timestamp
     ) VALUES (?, ?, toTimestamp(now()));
   `;
@@ -162,7 +162,7 @@ async function savePostForUser(client, username, post_id) {
 
 async function saveCommentForUser(client, username, commentId, postId) {
   const query = `
-    INSERT INTO my_keyspace.user_saved_comments (username, comment_id, post_id, saved_timestamp)
+    INSERT INTO azodu_keyspace.user_saved_comments (username, comment_id, post_id, saved_timestamp)
     VALUES (?, ?, ?, toTimestamp(now()));
   `;
   await client.execute(query, [username, commentId, postId], { prepare: true });
@@ -171,7 +171,7 @@ async function saveCommentForUser(client, username, commentId, postId) {
 
 async function unsaveCommentForUser(client, username, commentId) {
   const query = `
-    DELETE FROM my_keyspace.user_saved_comments
+    DELETE FROM azodu_keyspace.user_saved_comments
     WHERE username = ? AND comment_id = ?;
   `;
   try {
@@ -187,7 +187,7 @@ async function unsaveCommentForUser(client, username, commentId) {
 async function insertCategoryData(client, name, creator, description, permalink, dateCreated, moderators) {
   // Include the `subscribers` field in your INSERT query and set it to 0 initially
   const query = `
-    INSERT INTO my_keyspace.categories (
+    INSERT INTO azodu_keyspace.categories (
       name, creator, description, permalink, date_created, moderators, subscribers
     ) VALUES (?, ?, ?, ?, ?, ?, ?); // Include the subscribers placeholder
   `;
@@ -207,7 +207,7 @@ async function insertCategoryData(client, name, creator, description, permalink,
 
 async function insertCommentData(client, comment_id, post_id, author, parent_id, post_type, content, upvotes, downvotes, permalink, timestamp) {
   const query = `
-    INSERT INTO my_keyspace.comments (comment_id, post_id, author, parent_id, post_type, content, upvotes, downvotes, permalink, timestamp)
+    INSERT INTO azodu_keyspace.comments (comment_id, post_id, author, parent_id, post_type, content, upvotes, downvotes, permalink, timestamp)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
   await client.execute(query, [comment_id, post_id, author, parent_id, post_type, content, upvotes, downvotes, permalink, timestamp], { prepare: true });
 
@@ -216,7 +216,7 @@ async function insertCommentData(client, comment_id, post_id, author, parent_id,
 
 async function updateCommentData(client, comment_id, newContent, post_id) {
   const query = `
-    UPDATE my_keyspace.comments
+    UPDATE azodu_keyspace.comments
     SET content = ?
     WHERE comment_id = ? AND post_id = ?`;
   await client.execute(query, [newContent, comment_id.toString(), post_id.toString()], { prepare: true });
@@ -226,7 +226,7 @@ async function updateCommentData(client, comment_id, newContent, post_id) {
 
 async function deleteCommentData(client, comment_id, post_id) {
   const query = `
-      DELETE FROM my_keyspace.comments
+      DELETE FROM azodu_keyspace.comments
       WHERE comment_id = ? AND post_id = ?`;
   await client.execute(query, [comment_id.toString(), post_id.toString()], { prepare: true });
 
@@ -257,7 +257,7 @@ async function populateTestData(client, numberOfPosts = 100) {
 
 async function insertOrUpdateVote(client, post_id, voteValue, ip) {
   const query = `
-    INSERT INTO my_keyspace.votes (post_id, ip, vote_value)
+    INSERT INTO azodu_keyspace.votes (post_id, ip, vote_value)
     VALUES (?, ?, ?)
   `;
 
@@ -275,7 +275,7 @@ async function insertOrUpdateVote(client, post_id, voteValue, ip) {
 
 async function tallyVotesForComment(client, post_id, comment_id) {
   // Fetch the vote values for the specified comment_id
-  const votesQuery = `SELECT vote_value FROM my_keyspace.votes WHERE post_id = ?`;
+  const votesQuery = `SELECT vote_value FROM azodu_keyspace.votes WHERE post_id = ?`;
   const votesResult = await client.execute(votesQuery, [comment_id], { prepare: true });
   const votes = votesResult.rows;
 
@@ -292,7 +292,7 @@ async function tallyVotesForComment(client, post_id, comment_id) {
   console.log(upvotes,downvotes); 
 
   // Update the comment's upvote and downvote counts in the database
-  const updateQuery = `UPDATE my_keyspace.comments SET upvotes = ?, downvotes = ? WHERE post_id = ? AND comment_id = ?`;
+  const updateQuery = `UPDATE azodu_keyspace.comments SET upvotes = ?, downvotes = ? WHERE post_id = ? AND comment_id = ?`;
   await client.execute(updateQuery, [upvotes, downvotes, post_id, comment_id], { prepare: true });
 
   console.log(`Updated votes for comment ${comment_id}: ${upvotes} upvotes, ${downvotes} downvotes`);

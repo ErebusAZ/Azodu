@@ -1,7 +1,7 @@
 
 async function createKeyspace(client) {
   const query = `
-    CREATE KEYSPACE IF NOT EXISTS my_keyspace
+    CREATE KEYSPACE IF NOT EXISTS azodu_keyspace
     WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
   `;
   await client.execute(query);
@@ -16,7 +16,7 @@ async function createTables(client) {
 
 async function createUsersTable(client) {
   const query = `
-    CREATE TABLE IF NOT EXISTS my_keyspace.users (
+    CREATE TABLE IF NOT EXISTS azodu_keyspace.users (
       username text PRIMARY KEY,
       password text,
       email text,
@@ -29,7 +29,7 @@ async function createUsersTable(client) {
   `;
   try {
     await client.execute(query);
-    console.log('Table `users` created or already exists in `my_keyspace`');
+    console.log('Table `users` created or already exists in `azodu_keyspace`');
   } catch (error) {
     console.error('Error creating users table:', error);
   }
@@ -37,14 +37,14 @@ async function createUsersTable(client) {
 
 async function createUserEmailsTable(client) {
   const query = `
-    CREATE TABLE IF NOT EXISTS my_keyspace.user_emails (
+    CREATE TABLE IF NOT EXISTS azodu_keyspace.user_emails (
       email text PRIMARY KEY,
       username text
     );
   `;
   try {
     await client.execute(query);
-    console.log('Table `user_emails` created or already exists in `my_keyspace`');
+    console.log('Table `user_emails` created or already exists in `azodu_keyspace`');
   } catch (error) {
     console.error('Error creating table `user_emails`:', error);
   }
@@ -59,7 +59,7 @@ function getRandomDate(startDate, endDate) {
 
 async function createUserSavedPostsTable(client) {
   const query = `
-    CREATE TABLE IF NOT EXISTS my_keyspace.user_saved_posts (
+    CREATE TABLE IF NOT EXISTS azodu_keyspace.user_saved_posts (
       username text,
       post_id timeuuid,
       saved_timestamp timestamp,
@@ -69,7 +69,7 @@ async function createUserSavedPostsTable(client) {
 
   try {
     await client.execute(query);
-    console.log('Table `user_saved_posts` created or already exists in `my_keyspace`');
+    console.log('Table `user_saved_posts` created or already exists in `azodu_keyspace`');
   } catch (error) {
     console.error('Error creating table `user_saved_posts`:', error);
     throw error; // Rethrow the error to be caught by the calling function
@@ -78,7 +78,7 @@ async function createUserSavedPostsTable(client) {
 
 async function createUserSavedCommentsTable(client) {
   const query = `
-  CREATE TABLE IF NOT EXISTS my_keyspace.user_saved_comments (
+  CREATE TABLE IF NOT EXISTS azodu_keyspace.user_saved_comments (
     username text,
     comment_id text,
     post_id timeuuid,
@@ -89,7 +89,7 @@ async function createUserSavedCommentsTable(client) {
 
   try {
     await client.execute(query);
-    console.log('Table `user_saved_comments` created or already exists in `my_keyspace`');
+    console.log('Table `user_saved_comments` created or already exists in `azodu_keyspace`');
   } catch (error) {
     console.error('Error creating table `user_saved_comments`:', error);
     throw error; // Rethrow the error to be caught by the calling function
@@ -112,7 +112,7 @@ async function insertFakeUsers(client, usernames) {
     const randomDate = getRandomDate(startDate, endDate).toISOString();
 
     const query = `
-      INSERT INTO my_keyspace.users (username, password, email, date_registered, subscriptions, roles, last_ip)
+      INSERT INTO azodu_keyspace.users (username, password, email, date_registered, subscriptions, roles, last_ip)
       VALUES (?, ?, ?, ?, {'default'}, {'user'}, '127.0.0.1');
     `;
 
@@ -130,7 +130,7 @@ async function insertFakeUsers(client, usernames) {
 
 async function createCommentsTable(client) {
   const query = `
-  CREATE TABLE IF NOT EXISTS my_keyspace.comments (
+  CREATE TABLE IF NOT EXISTS azodu_keyspace.comments (
     comment_id text,
     post_id timeuuid,
     author text,
@@ -146,7 +146,7 @@ async function createCommentsTable(client) {
   
   `;
   await client.execute(query);
-  console.log('Table `comments` created or already exists in `my_keyspace`');
+  console.log('Table `comments` created or already exists in `azodu_keyspace`');
 }
 
 
@@ -157,9 +157,9 @@ async function createMaterializedViews(client) {
 
 async function createCommentsByAuthorView(client) {
   const query = `
-  CREATE MATERIALIZED VIEW IF NOT EXISTS my_keyspace.comments_by_author AS
+  CREATE MATERIALIZED VIEW IF NOT EXISTS azodu_keyspace.comments_by_author AS
   SELECT *
-  FROM my_keyspace.comments
+  FROM azodu_keyspace.comments
   WHERE author IS NOT NULL AND comment_id IS NOT NULL AND post_id IS NOT NULL
   PRIMARY KEY ((author), comment_id, post_id)
   WITH CLUSTERING ORDER BY (comment_id DESC, post_id DESC);
@@ -176,9 +176,9 @@ async function createCommentsByAuthorView(client) {
 
 async function createPostsByAuthorView(client) {
   const query = `
-  CREATE MATERIALIZED VIEW IF NOT EXISTS my_keyspace.posts_by_author AS
+  CREATE MATERIALIZED VIEW IF NOT EXISTS azodu_keyspace.posts_by_author AS
   SELECT *
-  FROM my_keyspace.posts
+  FROM azodu_keyspace.posts
   WHERE author IS NOT NULL AND post_id IS NOT NULL AND category IS NOT NULL
   PRIMARY KEY ((author), category, post_id)
   WITH CLUSTERING ORDER BY (category ASC, post_id DESC);
@@ -196,7 +196,7 @@ async function createPostsByAuthorView(client) {
 
 async function createPostsTable(client) {
   const query = `
-  CREATE TABLE IF NOT EXISTS my_keyspace.posts (
+  CREATE TABLE IF NOT EXISTS azodu_keyspace.posts (
     category text,
     post_id timeuuid,
     title text,
@@ -214,12 +214,12 @@ async function createPostsTable(client) {
   ) WITH CLUSTERING ORDER BY (post_id DESC);  
   `;
   await client.execute(query);
-  console.log('Table `posts` created or already exists in `my_keyspace`');
+  console.log('Table `posts` created or already exists in `azodu_keyspace`');
 }
 
 async function createPinnedPostsTable(client) {
   const query = `
-  CREATE TABLE IF NOT EXISTS my_keyspace.pinned_posts (
+  CREATE TABLE IF NOT EXISTS azodu_keyspace.pinned_posts (
     category text,
     post_id timeuuid,
     PRIMARY KEY (category, post_id)
@@ -238,7 +238,7 @@ async function createPinnedPostsTable(client) {
 
 async function createPostIdCounterTable(client) {
   const query = `
-    CREATE TABLE IF NOT EXISTS my_keyspace.post_id_counter (
+    CREATE TABLE IF NOT EXISTS azodu_keyspace.post_id_counter (
       id_name text PRIMARY KEY,
       id_counter counter
     );
@@ -254,7 +254,7 @@ async function createPostIdCounterTable(client) {
 
 async function createLinksTable(client) {
   const query = `
-    CREATE TABLE IF NOT EXISTS my_keyspace.links (
+    CREATE TABLE IF NOT EXISTS azodu_keyspace.links (
       link text,
       category text,
       post_id timeuuid,
@@ -263,13 +263,13 @@ async function createLinksTable(client) {
     );
   `;
   await client.execute(query);
-  console.log('Table `links` updated in `my_keyspace` with `link` and `category` as primary keys and including a `timestamp`.');
+  console.log('Table `links` updated in `azodu_keyspace` with `link` and `category` as primary keys and including a `timestamp`.');
 }
 
 
 async function createCategoriesTable(client) {
   const query = `
-CREATE TABLE IF NOT EXISTS my_keyspace.categories (
+CREATE TABLE IF NOT EXISTS azodu_keyspace.categories (
   permalink text PRIMARY KEY,
   name text,
   creator text,
@@ -283,12 +283,12 @@ CREATE TABLE IF NOT EXISTS my_keyspace.categories (
 
   `;
   await client.execute(query);
-  console.log('Table `posts` created or already exists in `my_keyspace`');
+  console.log('Table `posts` created or already exists in `azodu_keyspace`');
 }
 
 async function createVotesTable(client) {
   const query = `
-    CREATE TABLE IF NOT EXISTS my_keyspace.votes (
+    CREATE TABLE IF NOT EXISTS azodu_keyspace.votes (
       post_id timeuuid,
       ip text,
       vote_value int,
@@ -297,7 +297,7 @@ async function createVotesTable(client) {
     ) WITH default_time_to_live = 518400;  // TTL set to 6 days in seconds
   `;
   await client.execute(query);
-  console.log('Table `votes` created or already exists in `my_keyspace`');
+  console.log('Table `votes` created or already exists in `azodu_keyspace`');
 }
 
 
@@ -305,12 +305,12 @@ async function createVotesTable(client) {
 async function createDefaultCategories(client, defaultCategories) {
   // Query to check if a category with the same permalink already exists
   const queryCheckExists = `
-    SELECT permalink FROM my_keyspace.categories WHERE permalink = ? LIMIT 1;
+    SELECT permalink FROM azodu_keyspace.categories WHERE permalink = ? LIMIT 1;
   `;
 
   // Updated INSERT query to include the 'additional_info' field
   const queryInsertCategory = `
-    INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created, moderators, isDefault, subscribers, additional_info)
+    INSERT INTO azodu_keyspace.categories (permalink, name, creator, description, date_created, moderators, isDefault, subscribers, additional_info)
     VALUES (?, ?, ?, ?, toTimestamp(now()), ?, ?, ?, ?) IF NOT EXISTS;
   `;
 
@@ -380,6 +380,7 @@ async function flushAllTables(client, keyspace, tableNameOptional = null) {
 
 async function dropAllMaterializedViews(client, keyspace) {
   try {
+    console.log('dropping ' + keyspace);
     const queryGetViews = `SELECT view_name FROM system_schema.views WHERE keyspace_name = '${keyspace}'`;
     const resultViews = await client.execute(queryGetViews);
 
@@ -422,7 +423,7 @@ async function dropAllTables(client, keyspace) {
 
 async function emptyCommentsTable(client) {
   try {
-    const query = 'TRUNCATE my_keyspace.comments;';
+    const query = 'TRUNCATE azodu_keyspace.comments;';
     await client.execute(query);
     console.log('`comments` table has been emptied successfully.');
   } catch (error) {

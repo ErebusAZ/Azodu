@@ -100,7 +100,7 @@ app.post('/*', postLimiter);
 const client = new cassandra.Client({
   contactPoints: ['149.28.231.86', '45.77.101.209'],
   localDataCenter: 'datacenter1',
-  keyspace: 'my_keyspace',
+ // keyspace: 'azodu_keyspace',
   authProvider: new cassandra.auth.PlainTextAuthProvider('cassandra', secrets.CASSANDRA_PW)
 
 });
@@ -310,7 +310,7 @@ async function fetchFromExternalAndCreatePosts() {
       author = usernames[randomIndex]; 
 
 
-      const checkQuery = 'SELECT link FROM my_keyspace.links WHERE link = ? AND category = ?';
+      const checkQuery = 'SELECT link FROM azodu_keyspace.links WHERE link = ? AND category = ?';
       const checkResult = await client.execute(checkQuery, [url, 'anything'], { prepare: true });
 
       if (checkResult.rowLength === 0) {
@@ -418,13 +418,13 @@ async function updatePinnedPostsCache(category) {
     const categories = [category]; // Dynamic categories as per your setup
 
     for (const category of categories) {
-      const queryPinnedIds = 'SELECT post_id FROM my_keyspace.pinned_posts WHERE category = ? LIMIT 3';
+      const queryPinnedIds = 'SELECT post_id FROM azodu_keyspace.pinned_posts WHERE category = ? LIMIT 3';
       const resultPinnedIds = await client.execute(queryPinnedIds, [category], { prepare: true });
       const pinnedPostIds = resultPinnedIds.rows.map(row => row.post_id);
 
       const pinnedPostsDetails = await Promise.all(
         pinnedPostIds.map(async (post_id) => {
-          const queryPostDetails = 'SELECT * FROM my_keyspace.posts WHERE category = ? AND post_id = ?';
+          const queryPostDetails = 'SELECT * FROM azodu_keyspace.posts WHERE category = ? AND post_id = ?';
           const resultPostDetails = await client.execute(queryPostDetails, [category, post_id], { prepare: true });
           return resultPostDetails.rows[0]; // Assuming each ID returns exactly one post
         })
@@ -516,7 +516,7 @@ app.post('/api/register', async (req, res) => {
   const dateRegistered = new Date();
 
   try {
-    const insertEmailQuery = `INSERT INTO my_keyspace.user_emails (email, username) VALUES (?, ?) IF NOT EXISTS;`;
+    const insertEmailQuery = `INSERT INTO azodu_keyspace.user_emails (email, username) VALUES (?, ?) IF NOT EXISTS;`;
     const emailInsertResult = await client.execute(insertEmailQuery, [email, username], { prepare: true });
 
     if (emailInsertResult && emailInsertResult.rows && emailInsertResult.rows[0] && !emailInsertResult.rows[0]['[applied]']) {
@@ -524,13 +524,13 @@ app.post('/api/register', async (req, res) => {
     }
 
     const insertUserQuery = `
-      INSERT INTO my_keyspace.users (username, password, email, date_registered, last_ip)
+      INSERT INTO azodu_keyspace.users (username, password, email, date_registered, last_ip)
       VALUES (?, ?, ?, ?, ?) IF NOT EXISTS;
     `;
     const userInsertResult = await client.execute(insertUserQuery, [username, hashedPassword, email, dateRegistered, clientIp], { prepare: true });
 
     if (userInsertResult && userInsertResult.rows && userInsertResult.rows[0] && !userInsertResult.rows[0]['[applied]']) {
-      const deleteEmailQuery = `DELETE FROM my_keyspace.user_emails WHERE email = ?`;
+      const deleteEmailQuery = `DELETE FROM azodu_keyspace.user_emails WHERE email = ?`;
       await client.execute(deleteEmailQuery, [email], { prepare: true });
 
       return res.status(409).json({ message: 'Username already exists.' });
@@ -554,7 +554,7 @@ app.post('/api/login', async (req, res) => {
   const clientIp = req.headers['cf-connecting-ip'] || req.ip;
 
   try {
-    const queryUser = 'SELECT * FROM my_keyspace.users WHERE username = ?';
+    const queryUser = 'SELECT * FROM azodu_keyspace.users WHERE username = ?';
     const result = await client.execute(queryUser, [username], { prepare: true });
 
     if (result.rowLength > 0) {
@@ -566,7 +566,7 @@ app.post('/api/login', async (req, res) => {
       }
 
       // Update last_ip field in the database
-      const updateIpQuery = 'UPDATE my_keyspace.users SET last_ip = ? WHERE username = ?';
+      const updateIpQuery = 'UPDATE azodu_keyspace.users SET last_ip = ? WHERE username = ?';
       await client.execute(updateIpQuery, [clientIp, username], { prepare: true });
 
       const token = jwt.sign({ username: user.username, roles: user.roles }, jwtSecret, { expiresIn: loginExpires });
@@ -589,14 +589,14 @@ app.post('/api/subscribe', authenticateToken, async (req, res) => {
   try {
     // Add the permalink to the user's subscriptions if it's not already present
     const updateQuery = `
-      UPDATE my_keyspace.users
+      UPDATE azodu_keyspace.users
       SET subscriptions = subscriptions + ?
       WHERE username = ?;
     `;
     await client.execute(updateQuery, [[permalink], username], { prepare: true });
 
     // Fetch the current number of subscribers
-    const selectQuery = 'SELECT subscribers FROM my_keyspace.categories WHERE permalink = ?';
+    const selectQuery = 'SELECT subscribers FROM azodu_keyspace.categories WHERE permalink = ?';
     const { rows } = await client.execute(selectQuery, [permalink], { prepare: true });
    // console.log(rows[0]); 
     // Assuming 'subscribers' can be undefined, default to 0
@@ -605,7 +605,7 @@ app.post('/api/subscribe', authenticateToken, async (req, res) => {
 
     // Increment the subscribers
     const newSubscribers = currentSubscribers + 1;
-    const updateQueryB = 'UPDATE my_keyspace.categories SET subscribers = ? WHERE permalink = ?';
+    const updateQueryB = 'UPDATE azodu_keyspace.categories SET subscribers = ? WHERE permalink = ?';
     await client.execute(updateQueryB, [newSubscribers, permalink], { prepare: true });
 
 
@@ -625,7 +625,7 @@ app.post('/api/unsubscribe', authenticateToken, async (req, res) => {
   try {
     // Remove the permalink from the user's subscriptions
     const updateQuery = `
-      UPDATE my_keyspace.users
+      UPDATE azodu_keyspace.users
       SET subscriptions = subscriptions - ?
       WHERE username = ?;
     `;
@@ -633,7 +633,7 @@ app.post('/api/unsubscribe', authenticateToken, async (req, res) => {
 
 
     // Fetch the current number of subscribers
-    const selectQuery = 'SELECT subscribers FROM my_keyspace.categories WHERE permalink = ?';
+    const selectQuery = 'SELECT subscribers FROM azodu_keyspace.categories WHERE permalink = ?';
     const { rows } = await client.execute(selectQuery, [permalink], { prepare: true });
 
     // Assuming 'subscribers' can be undefined, default to 0
@@ -641,7 +641,7 @@ app.post('/api/unsubscribe', authenticateToken, async (req, res) => {
 
     // Decrement the subscribers, ensuring it doesn't go below 0
     const newSubscribers = Math.max(currentSubscribers - 1, 0);
-    const updateQueryB = 'UPDATE my_keyspace.categories SET subscribers = ? WHERE permalink = ?';
+    const updateQueryB = 'UPDATE azodu_keyspace.categories SET subscribers = ? WHERE permalink = ?';
     await client.execute(updateQueryB, [newSubscribers, permalink], { prepare: true });
 
 
@@ -797,7 +797,7 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
   const azoCost = getAzoCostForCategory(permalink);
 
   // Fetch user's current Azo balance
-  const userResult = await client.execute('SELECT azo_spent FROM my_keyspace.users WHERE username = ?', [creator], { prepare: true });
+  const userResult = await client.execute('SELECT azo_spent FROM azodu_keyspace.users WHERE username = ?', [creator], { prepare: true });
   const user = userResult.rows[0];
   const totalAzoEarned = await calculateAzoForUser(creator);
 
@@ -812,7 +812,7 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
 
   // Deduct the Azo cost from user's balance
   const newAzoSpent = user.azo_spent + azoCost;
-  await client.execute('UPDATE my_keyspace.users SET azo_spent = ? WHERE username = ?', [newAzoSpent, creator], { prepare: true });
+  await client.execute('UPDATE azodu_keyspace.users SET azo_spent = ? WHERE username = ?', [newAzoSpent, creator], { prepare: true });
 
 
 
@@ -833,7 +833,7 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
   }
 
   try {
-    const permalinkCheckQuery = 'SELECT permalink, creator FROM my_keyspace.categories WHERE permalink = ?';
+    const permalinkCheckQuery = 'SELECT permalink, creator FROM azodu_keyspace.categories WHERE permalink = ?';
     const permalinkResult = await client.execute(permalinkCheckQuery, [permalink], { prepare: true });
 
     if (permalinkResult.rowLength > 0) {
@@ -842,7 +842,7 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
       if (category.creator === creator) {
         // Authorized to update the category
         const updateQuery = `
-          UPDATE my_keyspace.categories 
+          UPDATE azodu_keyspace.categories 
           SET name = ?, description = ?, additional_info = ?
           WHERE permalink = ?;
         `;
@@ -856,7 +856,7 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
     } else {
       // Permalink does not exist, creating a new category
       const insertQuery = `
-        INSERT INTO my_keyspace.categories (permalink, name, creator, description, date_created, additional_info)
+        INSERT INTO azodu_keyspace.categories (permalink, name, creator, description, date_created, additional_info)
         VALUES (?, ?, ?, ?, toTimestamp(now()), ?);
       `;
       await client.execute(insertQuery, [permalink, name, creator, description, additional_info], { prepare: true });
@@ -895,14 +895,14 @@ app.get('/u/:username', async (req, res) => {
   const username = req.params.username;
 
   try {
-    const userResult = await client.execute('SELECT * FROM my_keyspace.users WHERE username = ?', [username], { prepare: true });
+    const userResult = await client.execute('SELECT * FROM azodu_keyspace.users WHERE username = ?', [username], { prepare: true });
     if (userResult.rows.length === 0) {
       return res.status(404).json({ message: `User ${username} not found.` });
     }
     const user = userResult.rows[0];
 
-    const postsResult = await client.execute('SELECT * FROM my_keyspace.posts_by_author WHERE author = ?', [username], { prepare: true });
-    const commentsResult = await client.execute('SELECT * FROM my_keyspace.comments_by_author WHERE author = ?', [username], { prepare: true });
+    const postsResult = await client.execute('SELECT * FROM azodu_keyspace.posts_by_author WHERE author = ?', [username], { prepare: true });
+    const commentsResult = await client.execute('SELECT * FROM azodu_keyspace.comments_by_author WHERE author = ?', [username], { prepare: true });
 
     const totalAzoEarned = calculateAzo(postsResult.rows, commentsResult.rows);
     const azoBalance = totalAzoEarned - user.azo_spent;
@@ -931,8 +931,8 @@ function calculateAzo(posts, comments) {
 
 
 async function calculateAzoForUser(username) {
-  const postsResult = await client.execute('SELECT upvotes FROM my_keyspace.posts_by_author WHERE author = ?', [username], { prepare: true });
-  const commentsResult = await client.execute('SELECT upvotes FROM my_keyspace.comments_by_author WHERE author = ?', [username], { prepare: true });
+  const postsResult = await client.execute('SELECT upvotes FROM azodu_keyspace.posts_by_author WHERE author = ?', [username], { prepare: true });
+  const commentsResult = await client.execute('SELECT upvotes FROM azodu_keyspace.comments_by_author WHERE author = ?', [username], { prepare: true });
   
   let totalAzo = 0;
   postsResult.rows.forEach(post => totalAzo += post.upvotes);
@@ -1006,7 +1006,7 @@ app.get('/api/categories', async (req, res) => {
       res.json(categories);
     } else {
       // If cache is invalid or empty, fetch from database
-      const query = 'SELECT * FROM my_keyspace.categories';
+      const query = 'SELECT * FROM azodu_keyspace.categories';
       const result = await client.execute(query);
       const freshCategories = result.rows;
 
@@ -1038,7 +1038,7 @@ app.get('/api/categories/:permalink', async (req, res) => {
       res.json({ category: cache.category.permalinks[permalink].data });
     } else {
       // Fetch from the database if not available in cache
-      const query = 'SELECT * FROM my_keyspace.categories WHERE permalink = ?';
+      const query = 'SELECT * FROM azodu_keyspace.categories WHERE permalink = ?';
       const result = await client.execute(query, [permalink], { prepare: true });
 
       if (result.rowLength > 0) {
@@ -1114,7 +1114,7 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
 
       // Update the comment content and set author as 'deleted'
       const updateQuery = `
-        UPDATE my_keyspace.comments
+        UPDATE azodu_keyspace.comments
         SET content = ?, author = ?
         WHERE post_id = ? AND comment_id = ?`;
 
@@ -1204,11 +1204,11 @@ app.post('/api/pinPost', authenticateToken, async (req, res) => {
   const username = req.user.username;
 
   try {
-    const userQuery = 'SELECT roles, username FROM my_keyspace.users WHERE username = ?';
+    const userQuery = 'SELECT roles, username FROM azodu_keyspace.users WHERE username = ?';
     const userResult = await client.execute(userQuery, [username], { prepare: true });
     const user = userResult.rows[0];
     
-    const categoryQuery = 'SELECT creator FROM my_keyspace.categories WHERE permalink = ?';
+    const categoryQuery = 'SELECT creator FROM azodu_keyspace.categories WHERE permalink = ?';
     const categoryResult = await client.execute(categoryQuery, [category], { prepare: true });
     const categoryCreator = categoryResult.rows[0]?.creator;
 
@@ -1219,7 +1219,7 @@ app.post('/api/pinPost', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to pin posts in this category.' });
     }
 
-    const pinPostQuery = 'INSERT INTO my_keyspace.pinned_posts (category, post_id) VALUES (?, ?)';
+    const pinPostQuery = 'INSERT INTO azodu_keyspace.pinned_posts (category, post_id) VALUES (?, ?)';
     await client.execute(pinPostQuery, [category, post_id], { prepare: true });
     updatePinnedPostsCache(category);
     res.status(200).json({ message: 'Post pinned successfully.' });
@@ -1234,11 +1234,11 @@ app.post('/api/unpinPost', authenticateToken, async (req, res) => {
   const username = req.user.username;
 
   try {
-    const userQuery = 'SELECT roles FROM my_keyspace.users WHERE username = ?';
+    const userQuery = 'SELECT roles FROM azodu_keyspace.users WHERE username = ?';
     const userResult = await client.execute(userQuery, [username], { prepare: true });
     const user = userResult.rows[0];
 
-    const categoryQuery = 'SELECT creator FROM my_keyspace.categories WHERE permalink = ?';
+    const categoryQuery = 'SELECT creator FROM azodu_keyspace.categories WHERE permalink = ?';
     const categoryResult = await client.execute(categoryQuery, [category], { prepare: true });
     const categoryCreator = categoryResult.rows[0]?.creator;
 
@@ -1249,7 +1249,7 @@ app.post('/api/unpinPost', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to unpin posts in this category.' });
     }
 
-    const unpinPostQuery = 'DELETE FROM my_keyspace.pinned_posts WHERE category = ? AND post_id = ?';
+    const unpinPostQuery = 'DELETE FROM azodu_keyspace.pinned_posts WHERE category = ? AND post_id = ?';
     await client.execute(unpinPostQuery, [category, post_id], { prepare: true });
     updatePinnedPostsCache(category);
     res.status(200).json({ message: 'Post unpinned successfully.' });
@@ -1283,7 +1283,7 @@ app.post('/api/deletePost', authenticateToken, async (req, res) => {
   }
 
   try {
-    const postQuery = 'SELECT author FROM my_keyspace.posts WHERE post_id = ? AND category = ?';
+    const postQuery = 'SELECT author FROM azodu_keyspace.posts WHERE post_id = ? AND category = ?';
     const postResult = await client.execute(postQuery, [postId, category], { prepare: true });
 
     if (postResult.rowLength === 0) {
@@ -1303,7 +1303,7 @@ app.post('/api/deletePost', authenticateToken, async (req, res) => {
 
     // Update post with deletion messages and set author as 'deleted'
     const updateQuery = `
-  UPDATE my_keyspace.posts
+  UPDATE azodu_keyspace.posts
   SET title = ?, content = ?, ai_summary = '', thumbnail = '', author = ?
   WHERE post_id = ? AND category = ?`;
 
@@ -1327,7 +1327,7 @@ app.post('/api/savePost', authenticateToken, async (req, res) => {
 
   try {
     // Verify that the post exists by including category in the query
-    const postQuery = 'SELECT * FROM my_keyspace.posts WHERE post_id = ? AND category = ?';
+    const postQuery = 'SELECT * FROM azodu_keyspace.posts WHERE post_id = ? AND category = ?';
     const postResult = await client.execute(postQuery, [postId, category], { prepare: true });
 
     if (postResult.rowLength === 0) {
@@ -1355,7 +1355,7 @@ app.post('/api/unsavePost', authenticateToken, async (req, res) => {
 
   try {
     // Verify that the post is actually saved by the user
-    const savedPostQuery = 'SELECT * FROM my_keyspace.user_saved_posts WHERE username = ? AND post_id = ?';
+    const savedPostQuery = 'SELECT * FROM azodu_keyspace.user_saved_posts WHERE username = ? AND post_id = ?';
     const savedPostResult = await client.execute(savedPostQuery, [username, postId], { prepare: true });
 
     if (savedPostResult.rowLength === 0) {
@@ -1363,7 +1363,7 @@ app.post('/api/unsavePost', authenticateToken, async (req, res) => {
     }
 
     // Remove the post from the user's saved posts
-    const unsavePostQuery = 'DELETE FROM my_keyspace.user_saved_posts WHERE username = ? AND post_id = ?';
+    const unsavePostQuery = 'DELETE FROM azodu_keyspace.user_saved_posts WHERE username = ? AND post_id = ?';
     await client.execute(unsavePostQuery, [username, postId], { prepare: true });
 
     res.json({ message: 'Post unsaved successfully.' });
@@ -1431,7 +1431,7 @@ app.get('/api/posts', async (req, res) => {
     let allSortedPosts = fullPostsCache.get(cacheKey);
     if (!allSortedPosts) {
       // Cache miss, need to fetch and sort all posts from the database
-      let query = 'SELECT * FROM my_keyspace.posts WHERE category = ? LIMIT ?';
+      let query = 'SELECT * FROM azodu_keyspace.posts WHERE category = ? LIMIT ?';
       let params = [category,NUM_POSTS_CACHED];
       const result = await client.execute(query, params, { prepare: true });
       let posts = result.rows;
@@ -1525,7 +1525,7 @@ app.get('/api/mySavedPosts', authenticateToken, async (req, res) => {
     // Query to fetch saved posts for the authenticated user
     const savedPostsQuery = `
       SELECT post_id, saved_timestamp 
-      FROM my_keyspace.user_saved_posts 
+      FROM azodu_keyspace.user_saved_posts 
       WHERE username = ?;
     `;
     const savedPostsResult = await client.execute(savedPostsQuery, [username], { prepare: true });
@@ -1536,7 +1536,7 @@ app.get('/api/mySavedPosts', authenticateToken, async (req, res) => {
 
       // Fetch each post's details. Note: For efficiency, consider batching these queries or adjusting your data model.
       const postsDetailsPromises = savedPostsIds.map(postId =>
-        client.execute('SELECT * FROM my_keyspace.posts WHERE post_id = ? AND category = ?', [postId,'anything'], { prepare: true })
+        client.execute('SELECT * FROM azodu_keyspace.posts WHERE post_id = ? AND category = ?', [postId,'anything'], { prepare: true })
       );
       const postsDetailsResults = await Promise.all(postsDetailsPromises);
       const posts = postsDetailsResults.map(result => result.rows[0]); // Assuming each query returns exactly one post
@@ -1560,7 +1560,7 @@ app.get('/api/mySavedComments', authenticateToken, async (req, res) => {
     // Query to fetch saved comments for the authenticated user
     const savedCommentsQuery = `
       SELECT comment_id, post_id 
-      FROM my_keyspace.user_saved_comments 
+      FROM azodu_keyspace.user_saved_comments 
       WHERE username = ?
       ORDER BY comment_id DESC;
     `;
@@ -1571,7 +1571,7 @@ app.get('/api/mySavedComments', authenticateToken, async (req, res) => {
       // Fetch each comment's detailed information from the comments table
       const commentsDetailsPromises = savedCommentsResult.rows.map(row => {
         // Assuming your comments table is keyed by (post_id, comment_id)
-        return client.execute('SELECT * FROM my_keyspace.comments WHERE post_id = ? AND comment_id = ?', [row.post_id, row.comment_id], { prepare: true });
+        return client.execute('SELECT * FROM azodu_keyspace.comments WHERE post_id = ? AND comment_id = ?', [row.post_id, row.comment_id], { prepare: true });
       });
 
       // Await all promises and collect results
@@ -1600,7 +1600,7 @@ app.get('/api/mySavedComments', authenticateToken, async (req, res) => {
     // Query to fetch saved comments for the authenticated user
     const savedCommentsQuery = `
       SELECT comment_id, post_id, saved_timestamp 
-      FROM my_keyspace.user_saved_comments 
+      FROM azodu_keyspace.user_saved_comments 
       WHERE username = ?
       ORDER BY comment_id DESC;
     `;
@@ -1617,7 +1617,7 @@ app.get('/api/mySavedComments', authenticateToken, async (req, res) => {
 
 
 async function initializeAllCategoriesCache(client,cache) {
-  const query = 'SELECT * FROM my_keyspace.categories';
+  const query = 'SELECT * FROM azodu_keyspace.categories';
   try {
       const result = await client.execute(query);
       const categories = result.rows;
@@ -1648,12 +1648,11 @@ async function initializeAllCategoriesCache(client,cache) {
 async function main() {
   try {
 
-    //   await flushAllTables(client,'my_keyspace','comments'); 
-    //  await dropAllTables(client, 'my_keyspace'); 
+    //   await flushAllTables(client,'azodu_keyspace','comments'); 
+    //  await dropAllTables(client, 'azodu_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
-
     await createUsersTable(client);
     await createUserEmailsTable(client);
     await insertFakeUsers(client, usernames);
