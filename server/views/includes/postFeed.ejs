@@ -11,6 +11,7 @@
 
 <script>
     $(document).ready(function () {
+        showSkeletonPosts(30); 
         let currentSort = 'latest'; // Default sort
 
         const totalNumberOfPosts = 400; // Max posts to generate
@@ -58,7 +59,10 @@
                         renderPosts(posts, false);
                     } else {
                         allPostsLoaded = true;
+
                     }
+                    $('.skeleton').remove(); 
+
                 },
                 error: function (error) {
                     console.error('Failed to fetch posts:', error);
