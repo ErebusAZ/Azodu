@@ -124,7 +124,6 @@ $(document).ready(function () {
                 // Successful login or registration
                 localStorage.setItem('authToken', data.token || '');
                 localStorage.setItem('username', data.username || '');
-                updateUIBasedOnAuthStatus();
     
                 if (data.token) {
                     const decodedToken = parseJwt(data.token);
@@ -132,7 +131,9 @@ $(document).ready(function () {
                     localStorage.setItem('userSubscriptions', JSON.stringify(data.subscriptions || []));
                     console.log('Roles:', localStorage.getItem('userRoles'));
                 }
-    
+                updateUIBasedOnAuthStatus();
+
+                
                 formMessage.textContent = data.message || 'Action successful. Redirecting...';
                 formMessage.style.color = 'limegreen';
                 setTimeout(() => { loginRegisterForm.style.display = 'none'; }, 1000);
