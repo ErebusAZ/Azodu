@@ -518,8 +518,8 @@
 
 
             // disallow voting on user page
-            if($('#user_page').length > 0)
-            return; 
+            if ($('#user_page').length > 0)
+                return;
 
 
 
@@ -580,7 +580,14 @@
                     error: function (error) {
                         console.error('Failed to record vote:', error);
                         // Optionally handle rollback of UI changes here
-                        showNotification(error.responseText, type = 'error', duration = 5000);
+                        try {
+                            const errorResponse = JSON.parse(error.responseText);
+                            const errorMessage = errorResponse.message;
+                            showNotification(errorMessage, 'error', 5000);
+                        } catch (e) {
+                            // If parsing fails, show the original responseText
+                            showNotification(error.responseText, 'error', 5000);
+                        }
 
                     }
                 });
