@@ -1756,16 +1756,20 @@ async function main() {
               <strong>Impartial Moderation:</strong> At Azodu, all content moderation is handled by AI, not humans. Our mods never sleep and don't have political biases. Our AI evaluates content based on its adherence to our <a target="_blank" href="/c/azodu/123e4567-e89b-12d3-a456-426614174000/azodu-content-policy">content policy</a> and its relevance to the respective category. There is no human interpretation involved.
           </li>
           <li>
-              <strong>Clean and Focused UI:</strong> We pride ourselves on a minimalist design that emphasizes readability and interaction. Our interface promotes discussions around content rather than the content itself. Azodu is more a platform to discuss content than to consume content.  
+          <strong>No shadowbanning</strong>: We believe that silencing someone while keeping them unaware they\’ve been silenced is a violation of human rights unique to the digital age. We therefore, do not perform shadowbans or any form of censorship that is not open to public scrutiny.
+          </li>
+
+          <li>
+              <strong>Freedom of Information:</strong> Our AI moderators do not evaluate truthfullness. We believe in the right of individuals to determine truth for themselves. Our AI does not judge content based on concepts like "misinformation," "disinformation" or "malinformation." That is, we do not seek to "protect" people from "harmful" ideas. Nor do we believe that withholding information is done in the service of protecting people. More often, it is done under the guise of protecting people, but with the effect of blinding them. Our goal is maximum information to the extent of the law, and our content policy is grounded in basic human decency.
           </li>
           <li>
-              <strong>AI-Summarized Link Submissions:</strong> To enhance user convenience, all link submissions are succinctly summarized by AI. 
+              <strong>Clean and Focused UI:</strong> We pride ourselves on a minimalist design that emphasizes readability and interaction. Our interface promotes discussions around content rather than the content itself. Azodu is more a platform to discuss content than to consume content.
+          </li>
+          <li>
+              <strong>AI-Summarized Link Submissions:</strong> To enhance user convenience, all link submissions are succinctly summarized by AI.
           </li>
           <li>
               <strong>Earn Azo:</strong> Interaction on Azodu earns you Azo, our platform's currency. Azo is awarded for upvotes and can be used to create new categories, which function like mini-communities around particular topics. This system makes it impossible for a small number of users to reserve and control the best categories.
-          </li>
-          <li>
-              <strong>Freedom of Information:</strong> Our AI moderators do not evaluate truthfullness. We believe in the right of individuals to determine truth for themselves. Our AI does not judge content based on concepts like "misinformation," "disinformation" or "malinformation." That is, we do not seek to "protect" people from "harmful" ideas. Nor do we believe that withholding information is done in the service of protecting people. More often, it is done under the guise of protecting people, but with the effect of blinding them. Our goal is maximum information to the extent of the law, and our content policy is grounded in basic human decency.  
           </li>
           <li>
               <strong>Combating Astroturfing and Big Money:</strong> Unlike many platforms, Azodu actively combats the undue influence of large corporations and deceptive practices in online discourse. We enforce this through robust software protections and strict terms of service.
