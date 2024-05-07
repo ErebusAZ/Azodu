@@ -1792,6 +1792,76 @@ async function main() {
 
 
 
+    const defaultPostIDC = '123e4567-e89b-12d3-a456-426614174002';  // A consistent UUID for the default post
+    await insertPostData(
+      client,
+      "Azodu Terms of Service",  // title
+      "azodu",                 // author
+      "azodu",                 // category
+      "text",                  // postType
+      `<h2>Azodu Terms of Service (TOS)</h2>
+
+      <p>Welcome to Azodu!</p>
+      
+      <p>These Terms of Service ("Terms") govern your use of Azodu (the "Platform"), including any content, features, and services offered by Azodu ("we," "us," or "our").</p>
+      
+      <h3>1. Account Registration and User Conduct</h3>
+      
+      <p><strong>1.1 Account Creation:</strong> To access certain features of the Platform, you may be required to register for an account. You must provide accurate and complete information when creating your account and keep your login credentials secure.</p>
+      
+      <p><strong>1.2 User Conduct:</strong> You agree to use the Platform in compliance with applicable laws and regulations and refrain from engaging in any conduct that:
+      <ul>
+        <li>Violates these Terms, our <a target="_blank" href="/c/azodu/123e4567-e89b-12d3-a456-426614174000/azodu-content-policy">Content Policy</a>, or any other posted guidelines;</li>
+        <li>Infringes upon the rights of others, including intellectual property rights;</li>
+        <li>Harasses, threatens, or intimidates others;</li>
+        <li>Promotes hate speech, violence, or discrimination based on race, ethnicity, religion, gender, sexual orientation, disability, or other protected characteristics;</li>
+        <li>Impersonates another person or entity, or misrepresents your affiliation with a person or entity;</li>
+        <li>Attempts to gain unauthorized access to the Platform or interfere with its operation.</li>
+      </ul></p>
+      
+      <h3>2. Content Ownership and Licensing</h3>
+      
+      <p><strong>2.1 User Content:</strong> You retain ownership of any content you submit or post on the Platform ("User Content"). By posting User Content, you grant us a non-exclusive, royalty-free, perpetual, irrevocable, and sublicensable license to use, reproduce, modify, adapt, publish, translate, distribute, perform, and display such User Content in connection with the Platform.</p>
+      
+      <p><strong>2.2 Our Content:</strong> All content available on the Platform, including text, graphics, logos, images, audio clips, and software, is owned or licensed by us and is protected by copyright, trademark, and other intellectual property laws.</p>
+      
+      <h3>3. Platform Use and Modifications</h3>
+      
+      <p><strong>3.1 Availability:</strong> We strive to provide a reliable and uninterrupted service, but we do not guarantee that the Platform will be available at all times or free from errors or interruptions.</p>
+      
+      <p><strong>3.2 Modifications:</strong> We reserve the right to modify or discontinue any aspect of the Platform at any time without prior notice. We may also update these Terms periodically, and your continued use of the Platform after any changes indicates your acceptance of the revised Terms.</p>
+      
+      <h3>4. Limitation of Liability</h3>
+      
+      <p><strong>4.1 Disclaimer:</strong> The Platform is provided on an "as is" and "as available" basis, without warranties of any kind, express or implied. We disclaim all warranties, including but not limited to merchantability, fitness for a particular purpose, and non-infringement.</p>
+      
+      <p><strong>4.2 Limitation of Liability:</strong> In no event shall we be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or in connection with your use of the Platform, even if we have been advised of the possibility of such damages. Our total liability to you for any claim arising out of or related to the Platform shall not exceed the total amount paid by you, if any, for accessing the Platform.</p>
+      
+      <h3>5. Governing Law and Dispute Resolution</h3>
+      
+      <p><strong>5.1 Governing Law:</strong> These Terms shall be governed by and construed in accordance with the laws of the United States of America, without regard to its conflict of law principles.</p>
+      
+     
+      <h3>6. Miscellaneous</h3>
+      
+      <p><strong>6.1 Severability:</strong> If any provision of these Terms is held to be invalid or unenforceable, the remaining provisions shall continue to be valid and enforceable to the fullest extent permitted by law.</p>
+      
+      <p><strong>6.2 Entire Agreement:</strong> These Terms constitute the entire agreement between you and us regarding your use of the Platform and supersede all prior agreements and understandings.</p>
+      
+      <p>Thank you for using Azodu! If you have any questions or concerns about these Terms, please contact us at contact@azodu.com.</p>
+      
+      `,  // content
+      undefined,               // thumbnail
+      '',                      // aiSummary
+      true,                    // skipLinkCheck
+      defaultPostIDC            // explicitly passing a postID
+    );
+
+
+    
+
+
+
 
   } catch (error) {
     console.error('Error:', error);
