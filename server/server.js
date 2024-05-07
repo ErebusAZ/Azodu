@@ -1694,11 +1694,11 @@ async function main() {
     const defaultPostID = '123e4567-e89b-12d3-a456-426614174000';  // A consistent UUID for the default post
     await insertPostData(
       client,
-      "Azodu content policy",  // title
+      "Azodu Content Policy",  // title
       "azodu",                 // author
       "azodu",                 // category
       "text",                  // postType
-      `<h1>Azodu content policy</h1><p>Welcome to Azodu! Our platform is dedicated to fostering a vibrant community where members can share ideas, engage in discussions, and contribute content in a variety of forms. To ensure a positive experience for everyone, we have established the following content guidelines that all users must follow.</p>
+      `<h1>Azodu Content Policy</h1><p>Welcome to Azodu! Our platform is dedicated to fostering a vibrant community where members can share ideas, engage in discussions, and contribute content in a variety of forms. To ensure a positive experience for everyone, we have established the following content guidelines that all users must follow.</p>
   
       <h2>1. Respect for Others</h2>
       <ul>
@@ -1865,7 +1865,7 @@ async function main() {
       "azodu",                 // author
       "azodu",                 // category
       "text",                  // postType
-      `
+      `<h1>Azodu Privacy Policy</h1>
       <p>Azodu ("we," "us," or "our") operates the azodu.com website (the "Site"). This page informs you of our policies regarding the collection, use, and disclosure of Personal Information we receive from users of the Site.</p>
   
       <h3>1. Information Collection and Use</h3>
