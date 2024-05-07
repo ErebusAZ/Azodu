@@ -1524,7 +1524,7 @@ app.get('/api/mySavedPosts', authenticateToken, async (req, res) => {
   try {
     // Query to fetch saved posts for the authenticated user with category information
     const savedPostsQuery = `
-      SELECT post_id, category
+      SELECT post_id, category, saved_timestamp
       FROM azodu_keyspace.user_saved_posts 
       WHERE username = ?;
     `;
@@ -1534,11 +1534,16 @@ app.get('/api/mySavedPosts', authenticateToken, async (req, res) => {
     if (savedPostsResult.rowLength > 0) {
       const savedPostsData = savedPostsResult.rows;
 
+      // Sort saved posts by saved timestamp in descending order
+      savedPostsData.sort((a, b) => b.saved_timestamp.getTime() - a.saved_timestamp.getTime());
+
       // Fetch each post's details based on category and post_id
       const postsDetailsPromises = savedPostsData.map(({ post_id, category }) =>
         client.execute('SELECT * FROM azodu_keyspace.posts WHERE post_id = ? AND category = ?', [post_id, category], { prepare: true })
       );
       const postsDetailsResults = await Promise.all(postsDetailsPromises);
+
+      // Extract posts from results
       const posts = postsDetailsResults.map(result => result.rows[0]); // Assuming each query returns exactly one post
 
       res.json(posts);
@@ -1551,6 +1556,8 @@ app.get('/api/mySavedPosts', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Error fetching saved posts.' });
   }
 });
+
+
 
 
 app.get('/api/mySavedComments', authenticateToken, async (req, res) => {
