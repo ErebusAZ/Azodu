@@ -62,8 +62,9 @@ async function createUserSavedPostsTable(client) {
     CREATE TABLE IF NOT EXISTS azodu_keyspace.user_saved_posts (
       username text,
       post_id timeuuid,
+      category text, // New column for storing category
       saved_timestamp timestamp,
-      PRIMARY KEY ((username), post_id)
+      PRIMARY KEY (username, post_id)
     ) WITH CLUSTERING ORDER BY (post_id DESC);
   `;
 

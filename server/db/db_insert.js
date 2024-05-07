@@ -140,14 +140,14 @@ async function insertPostData(client, title, author, category, postType, content
 
 
 
-async function savePostForUser(client, username, post_id) {
+async function savePostForUser(client, username, post_id, category) {
   const query = `
     INSERT INTO azodu_keyspace.user_saved_posts (
-      username, post_id, saved_timestamp
-    ) VALUES (?, ?, toTimestamp(now()));
+      username, post_id, category, saved_timestamp
+    ) VALUES (?, ?, ?, toTimestamp(now()));
   `;
 
-  const params = [username, post_id];
+  const params = [username, post_id, category];
 
   try {
     await client.execute(query, params, { prepare: true });

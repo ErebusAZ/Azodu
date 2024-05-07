@@ -1522,9 +1522,9 @@ app.get('/api/mySavedPosts', authenticateToken, async (req, res) => {
   const username = req.user.username; // Username from JWT after authentication
 
   try {
-    // Query to fetch saved posts for the authenticated user
+    // Query to fetch saved posts for the authenticated user with category information
     const savedPostsQuery = `
-      SELECT post_id, saved_timestamp 
+      SELECT post_id, category
       FROM azodu_keyspace.user_saved_posts 
       WHERE username = ?;
     `;
@@ -1532,11 +1532,11 @@ app.get('/api/mySavedPosts', authenticateToken, async (req, res) => {
 
     // If the user has saved posts, fetch details of those posts
     if (savedPostsResult.rowLength > 0) {
-      const savedPostsIds = savedPostsResult.rows.map(row => row.post_id);
+      const savedPostsData = savedPostsResult.rows;
 
-      // Fetch each post's details. Note: For efficiency, consider batching these queries or adjusting your data model.
-      const postsDetailsPromises = savedPostsIds.map(postId =>
-        client.execute('SELECT * FROM azodu_keyspace.posts WHERE post_id = ? AND category = ?', [postId,'anything'], { prepare: true })
+      // Fetch each post's details based on category and post_id
+      const postsDetailsPromises = savedPostsData.map(({ post_id, category }) =>
+        client.execute('SELECT * FROM azodu_keyspace.posts WHERE post_id = ? AND category = ?', [post_id, category], { prepare: true })
       );
       const postsDetailsResults = await Promise.all(postsDetailsPromises);
       const posts = postsDetailsResults.map(result => result.rows[0]); // Assuming each query returns exactly one post
