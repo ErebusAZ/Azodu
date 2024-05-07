@@ -1858,7 +1858,44 @@ async function main() {
     );
 
 
-    
+    const defaultPostIDD = '123e4567-e89b-12d3-a456-426614174003';  // A consistent UUID for the default post
+    await insertPostData(
+      client,
+      "Azodu Privacy Policy",  // title
+      "azodu",                 // author
+      "azodu",                 // category
+      "text",                  // postType
+      `
+      <p>Azodu ("we," "us," or "our") operates the azodu.com website (the "Site"). This page informs you of our policies regarding the collection, use, and disclosure of Personal Information we receive from users of the Site.</p>
+  
+      <h3>1. Information Collection and Use</h3>
+  
+      <p><strong>1.1 Information Collected:</strong> While using our Site, we may ask you to provide us with certain personally identifiable information that can be used to contact or identify you. Personally identifiable information may include, but is not limited to, your name, email address, and phone number ("Personal Information").</p>
+  
+      <p><strong>1.2 Log Data:</strong> Like many site operators, we collect information that your browser sends whenever you visit our Site ("Log Data"). This Log Data may include information such as your computer's Internet Protocol ("IP") address, browser type, browser version, the pages of our Site that you visit, the time and date of your visit, the time spent on those pages, and other statistics.</p>
+  
+      <p><strong>1.3 Google Analytics:</strong> We use Google Analytics to collect, monitor, and analyze data about user activity on our Site. Google Analytics is a web analytics service provided by Google that tracks and reports website traffic. For more information on how Google collects and processes data, please see Google's Privacy Policy: <a href="https://policies.google.com/privacy">Google Privacy Policy</a>.</p>
+  
+      <h3>2. Cookies</h3>
+  
+      <p><strong>2.1 Cookies:</strong> Cookies are files with a small amount of data, which may include an anonymous unique identifier. Cookies are sent to your browser from a web site and stored on your computer's hard drive.</p>
+  
+      <p><strong>2.2 Use of Cookies:</strong> We use cookies to collect information and improve our Site. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our Site.</p>
+  
+      <h3>3. Data Security</h3>
+  
+      <p><strong>3.1 Data Security:</strong> The security of your Personal Information is important to us, but remember that no method of transmission over the Internet, or method of electronic storage, is 100% secure. While we strive to use commercially acceptable means to protect your Personal Information, we cannot guarantee its absolute security.</p>
+  
+      <h3>5. Contact Us</h3>
+  
+      <p><strong>5.1 Contact:</strong> If you have any questions about this Privacy Policy, please contact us at contact@azodu.com.</p>
+  
+      `,  // content
+      undefined,               // thumbnail
+      '',                      // aiSummary
+      true,                    // skipLinkCheck
+      defaultPostIDD            // explicitly passing a postID
+    );
 
 
 
