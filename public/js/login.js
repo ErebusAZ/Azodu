@@ -106,7 +106,7 @@ $(document).ready(function () {
             });
         } else {
             // Login does not require reCAPTCHA
-            const payload = { username, password };
+            const payload = { username, password,honeypot };
             submitFormData(actionUrl, payload);
         }
     }
@@ -261,7 +261,7 @@ $(document).ready(function () {
             }
         }
     
-        console.log(username, password, isLoginMode);
+
         handleFormSubmission(isLoginMode, username, password, email,hp);
     });
     
