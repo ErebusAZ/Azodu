@@ -288,7 +288,8 @@ $(document).ready(function () {
             document.getElementById('tosCheckbox')?.parentNode.remove();
             document.getElementById('privacyCheckbox')?.parentNode.remove();
     
-            $('.grecaptcha-badge').css({ 'visibility': 'hidden','display': 'none'}); 
+            $('.grecaptcha-badge').css({ 'visibility': 'hidden', 'display': 'none' }); 
+            $('.form-group-agree-terms').remove(); 
         } else {
             formTitle.textContent = 'Register';
             submitAuthButton.value = 'Register';
@@ -310,29 +311,33 @@ $(document).ready(function () {
         }
     }
     function addCheckboxes() {
-        const submitButton = document.getElementById('submitAuth'); // Get the submit button
+        const $submitButton = $('#submitAuth'); // Get the submit button using jQuery
     
-        const tosCheckboxDiv = document.createElement('div');
-        tosCheckboxDiv.className = 'form-group-agree-terms';
-        tosCheckboxDiv.innerHTML = `
-            <label>
-                <input type="checkbox" id="tosCheckbox" name="tos" required>
-                I agree to the <a href="/c/azodu/123e4567-e89b-12d3-a456-426614174002/azodu-terms-of-service" target="_blank">Terms of Service</a>
-            </label>
-        `;
-        // Insert the TOS checkbox before the submit button
-        submitButton.parentNode.insertBefore(tosCheckboxDiv, submitButton);
+        // Remove existing checkboxes if they exist
+        $('.form-group-agree-terms').remove();
     
-        const privacyCheckboxDiv = document.createElement('div');
-        privacyCheckboxDiv.className = 'form-group-agree-terms';
-        privacyCheckboxDiv.innerHTML = `
-            <label>
-                <input type="checkbox" id="privacyCheckbox" name="privacy" required>
-                I agree to the <a href="/c/azodu/123e4567-e89b-12d3-a456-426614174003/azodu-privacy-policy" target="_blank">Privacy Policy</a>
-            </label>
+        // HTML for the Terms of Service checkbox
+        const tosCheckboxHtml = `
+            <div class="form-group-agree-terms">
+                <label>
+                    <input type="checkbox" id="tosCheckbox" name="tos" required>
+                    I agree to the <a href="/c/azodu/123e4567-e89b-12d3-a456-426614174002/azodu-terms-of-service" target="_blank">Terms of Service</a>
+                </label>
+            </div>
         `;
-        // Insert the Privacy Policy checkbox before the submit button
-        submitButton.parentNode.insertBefore(privacyCheckboxDiv, submitButton);
+    
+        // HTML for the Privacy Policy checkbox
+        const privacyCheckboxHtml = `
+            <div class="form-group-agree-terms">
+                <label>
+                    <input type="checkbox" id="privacyCheckbox" name="privacy" required>
+                    I agree to the <a href="/c/azodu/123e4567-e89b-12d3-a456-426614174003/azodu-privacy-policy" target="_blank">Privacy Policy</a>
+                </label>
+            </div>
+        `;
+    
+        // Insert the TOS and Privacy Policy checkboxes before the submit button using jQuery
+        $submitButton.before(tosCheckboxHtml + privacyCheckboxHtml);
     }
     
     
