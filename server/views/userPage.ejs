@@ -11,9 +11,9 @@
     <ul class="tabs">
       <li class="tab-link current" data-tab="tab-info">Info</li>
       <li class="tab-link" data-tab="tab-comments">Comments</li>
-      <li class="tab-link" data-tab="tab-posts">Saved Posts</li>
+      <li class="tab-link" data-tab="tab-my-posts">Posts</li> <!-- New tab for user's posts -->
+      <li class="tab-link" data-tab="tab-saved-posts">Saved Posts</li>
       <li class="tab-link" data-tab="tab-saved-comments">Saved Comments</li>
-
     </ul>
     <h1 id="username_user_page"><i class="fa fa-user-circle"></i>
       <%= user.username %>
@@ -29,12 +29,16 @@
     <div id="tab-comments" class="tab-content">
       <div id="user-comments"></div>
     </div>
-    <div id="tab-posts" class="tab-content">
+    <div id="tab-saved-posts" class="tab-content">
       <div id="user-posts"></div>
+    </div>
+    <div id="tab-my-posts" class="tab-content">
+      <div id="user-my-posts"></div>
     </div>
     <div id="tab-saved-comments" class="tab-content">
       <div id="user-saved-comments"></div>
     </div>
+    
     
   </div>
 </div>
@@ -46,6 +50,8 @@
 var pageUsername = "<%= user.username %>"; 
 var currentUser = localStorage.getItem('username'); 
 var comments = <%- JSON.stringify(comments) %>;
+var posts = <%- JSON.stringify(posts) %>;
+
 
 
 $(document).ready(function () {
@@ -57,10 +63,10 @@ $(document).ready(function () {
 
     // Initially hide the "Saved Posts" and "Saved Comments" tabs if the user page being viewed is not the logged-in user
     if (pageUsername !== currentUser) {
-      $('li[data-tab="tab-posts"], li[data-tab="tab-saved-comments"]').hide();
+      $('li[data-tab="tab-saved-posts"], li[data-tab="tab-saved-comments"]').hide();
     } else {
       // Show the tabs if it's the current user
-      $('li[data-tab="tab-posts"], li[data-tab="tab-saved-comments"]').show();
+      $('li[data-tab="tab-saved-posts"], li[data-tab="tab-saved-comments"]').show();
     }
 
 
@@ -72,13 +78,17 @@ $(document).ready(function () {
       $(this).addClass('current');
       $("#" + tabId).addClass('current');
 
-      if (tabId === "tab-posts" && $('#user-posts').is(':empty') && pageUsername === currentUser) {
+      if (tabId === "tab-saved-posts" && $('#user-posts').is(':empty') && pageUsername === currentUser) {
         fetchAndRenderSavedPosts();
       }
 
       if (tabId === "tab-saved-comments" && $('#user-saved-comments').is(':empty') && pageUsername === currentUser) {
         fetchAndRenderSavedComments();
       }
+
+      if (tabId === "tab-my-posts" && $('#user-my-posts').is(':empty')) {
+      renderMyPosts();
+    }
     });
 
 
@@ -101,6 +111,15 @@ $(document).ready(function () {
         $('#user-comments').append(commentHtml);
       });
     }
+
+    function renderMyPosts() {
+    if (posts.length > 0) {
+      const postsHtml = posts.map(post => generatePostHtml(post, false)).join('');
+      $('#user-my-posts').html(postsHtml);
+    } else {
+      $('#user-my-posts').html(`<p style="color: gray;">No posts found.</p>`);
+    }
+  }
 
 
 
