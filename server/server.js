@@ -490,7 +490,7 @@ app.post('/api/register', async (req, res) => {
   const clientIp = req.headers['cf-connecting-ip'] || req.ip;
 
   if (honeypot) {
-    console.log('Honeypot field was triggered.');
+    console.log('Honeypot field was triggered on register.');
     return res.status(400).json({ message: 'Spam detected.' });
   }
 
@@ -562,7 +562,7 @@ app.post('/api/login', async (req, res) => {
   const clientIp = req.headers['cf-connecting-ip'] || req.ip;
 
   if (honeypot) {
-    console.log('Honeypot field was triggered.');
+    console.log('Honeypot field was triggered on login.');
     return res.status(400).json({ message: 'Spam detected.' });
   }
 
