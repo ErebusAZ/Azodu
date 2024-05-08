@@ -3863,6 +3863,17 @@ blockquote {
 /* Login & Register */
 
 
+.form-group-agree-terms {
+    padding-bottom: 10px;
+}
+
+
+.form-group-agree-terms input {
+    position: relative;
+    top: 1px;
+}
+
+
 div#loginRegisterForm {
     font-size: 14px;
 }

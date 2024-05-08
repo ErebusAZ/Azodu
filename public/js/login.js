@@ -240,17 +240,29 @@ $(document).ready(function () {
 
 
 
-
     document.getElementById('authForm').addEventListener('submit', function (e) {
         e.preventDefault();
+    
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        const emailField = document.getElementById('email'); // Get the email input element
-        const email = emailField ? emailField.value : ''; // Check if the email field exists
+        const emailField = document.getElementById('email');
+        const email = emailField ? emailField.value : '';
+    
+        if (!isLoginMode) {
+            const tosChecked = document.getElementById('tosCheckbox')?.checked;
+            const privacyChecked = document.getElementById('privacyCheckbox')?.checked;
+    
+            // Validate checkboxes
+            if (!tosChecked || !privacyChecked) {
+                alert('You must agree to the Terms of Service and Privacy Policy to register.');
+                return;
+            }
+        }
     
         console.log(username, password, isLoginMode);
         handleFormSubmission(isLoginMode, username, password, email);
     });
+    
     
     
     // Close the form lightbox when clicking outside of it
@@ -269,12 +281,17 @@ $(document).ready(function () {
             submitAuthButton.value = 'Login';
             switchAuthMode.innerHTML = 'Don\'t have an account? <a href="#" id="switchForm">Register here.</a>';
             document.getElementById('email')?.remove();
+    
+            // Remove checkboxes if they exist
+            document.getElementById('tosCheckbox')?.parentNode.remove();
+            document.getElementById('privacyCheckbox')?.parentNode.remove();
+    
             $('.grecaptcha-badge').css({ 'visibility': 'hidden','display': 'none'}); 
-
         } else {
             formTitle.textContent = 'Register';
             submitAuthButton.value = 'Register';
             switchAuthMode.innerHTML = 'Already have an account? <a href="#" id="switchForm">Login here.</a>';
+            
             if (!document.getElementById('email')) {
                 const emailInput = document.createElement('input');
                 emailInput.type = 'email';
@@ -283,9 +300,40 @@ $(document).ready(function () {
                 emailInput.required = true;
                 submitAuthButton.before(emailInput);
             }
+    
+            // Add checkboxes for TOS and Privacy Policy
+            addCheckboxes();
+    
             $('.grecaptcha-badge').css({ 'visibility': 'initial','display': 'block'}); 
         }
     }
+    function addCheckboxes() {
+        const submitButton = document.getElementById('submitAuth'); // Get the submit button
+    
+        const tosCheckboxDiv = document.createElement('div');
+        tosCheckboxDiv.className = 'form-group-agree-terms';
+        tosCheckboxDiv.innerHTML = `
+            <label>
+                <input type="checkbox" id="tosCheckbox" name="tos" required>
+                I agree to the <a href="/c/azodu/123e4567-e89b-12d3-a456-426614174002/azodu-terms-of-service" target="_blank">Terms of Service</a>
+            </label>
+        `;
+        // Insert the TOS checkbox before the submit button
+        submitButton.parentNode.insertBefore(tosCheckboxDiv, submitButton);
+    
+        const privacyCheckboxDiv = document.createElement('div');
+        privacyCheckboxDiv.className = 'form-group-agree-terms';
+        privacyCheckboxDiv.innerHTML = `
+            <label>
+                <input type="checkbox" id="privacyCheckbox" name="privacy" required>
+                I agree to the <a href="/c/azodu/123e4567-e89b-12d3-a456-426614174003/azodu-privacy-policy" target="_blank">Privacy Policy</a>
+            </label>
+        `;
+        // Insert the Privacy Policy checkbox before the submit button
+        submitButton.parentNode.insertBefore(privacyCheckboxDiv, submitButton);
+    }
+    
+    
 
     // Function to decode JWT from the local storage
     function parseJwt(token) {
