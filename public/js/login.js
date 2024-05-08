@@ -79,7 +79,7 @@ $(document).ready(function () {
     });
 
 
-    function handleFormSubmission(isLoginMode, username, password, email) {
+    function handleFormSubmission(isLoginMode, username, password, email,honeypot) {
         const actionUrl = isLoginMode ? '/api/login' : '/api/register';
         const formMessage = document.getElementById('formMessage');
     
@@ -99,7 +99,8 @@ $(document).ready(function () {
             grecaptcha.ready(function() {
                 grecaptcha.execute('6Lfh2sApAAAAAB_-Xt310RQ5kYgu_wOSPA2sEfu2', { action: 'register' }).then(function(token) {
                     // Include reCAPTCHA token in the registration payload
-                    const payload = { username, password, email, recaptchaToken: token };
+                    console.log(honeypot); 
+                    const payload = { username, password, email, recaptchaToken: token,honeypot:honeypot };
                     submitFormData(actionUrl, payload);
                 });
             });
@@ -247,7 +248,8 @@ $(document).ready(function () {
         const password = document.getElementById('password').value;
         const emailField = document.getElementById('email');
         const email = emailField ? emailField.value : '';
-    
+        const hp = document.getElementById('hpCheckbox').checked;
+
         if (!isLoginMode) {
             const tosChecked = document.getElementById('tosCheckbox')?.checked;
             const privacyChecked = document.getElementById('privacyCheckbox')?.checked;
@@ -260,7 +262,7 @@ $(document).ready(function () {
         }
     
         console.log(username, password, isLoginMode);
-        handleFormSubmission(isLoginMode, username, password, email);
+        handleFormSubmission(isLoginMode, username, password, email,hp);
     });
     
     

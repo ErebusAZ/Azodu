@@ -44,6 +44,18 @@
 }
 
 
+.unselectable {
+    -webkit-user-select: none;
+    /* Safari */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently supported by Chrome, Opera and Edge */
+}
+
+
 body {
     background-color: #1a1a1a;
     color: #d7dadc;
@@ -1720,6 +1732,18 @@ button#loginRegisterButton {
 }
 
 
+
+#hpCheckbox {
+    position: relative;
+    bottom: 20px;
+    z-index: -1;
+}
+
+#tos_cont {
+    color: #2d2d2d;
+}
+
+
 p#switchAuthMode {
     font-size: 14px;
 }
@@ -2195,32 +2219,38 @@ ul.tabs li.current {
 }
 
 .red-orb {
-    width: 15px; /* Size of the orb */
-    height: 15px; /* Size of the orb */
+    width: 15px;
+    /* Size of the orb */
+    height: 15px;
+    /* Size of the orb */
     background: radial-gradient(circle, rgb(255 113 113) 0%, rgb(249 51 51 / 80%) 70%, rgba(255, 0, 0, 0) 100%);
-    border-radius: 50%; /* Makes the div circular */
-    box-shadow: 0 0 8px 3px rgb(255 73 73 / 50%); /* Creates the outer glow */
+    border-radius: 50%;
+    /* Makes the div circular */
+    box-shadow: 0 0 8px 3px rgb(255 73 73 / 50%);
+    /* Creates the outer glow */
     display: block;
-     /* Centering the orb */
+    /* Centering the orb */
     float: left;
     margin-top: 2px;
     margin-right: 8px;
     /* animation: glow 2s infinite ease-in-out; */
-  }
+}
 
-  @keyframes glow {
+@keyframes glow {
     0%, 100% {
-      box-shadow: 0 0 20px 4px rgba(255,0,0,0.7);
+        box-shadow: 0 0 20px 4px rgba(255, 0, 0, 0.7);
     }
+
     50% {
-      box-shadow: 0 0 20px 5px rgba(255,0,0,.7);
+        box-shadow: 0 0 20px 5px rgba(255, 0, 0, .7);
     }
-  }
+}
 
 
 div#user-posts {
     margin-top: 3px;
 }
+
 #logo {
     width: 59px;
     height: auto;
@@ -4433,5 +4463,3 @@ ul.tabs li.current {
 div#user-posts {
     margin-top: 3px;
 }
-
-

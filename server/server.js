@@ -486,8 +486,16 @@ function authenticateToken(req, res, next) {
 
 
 app.post('/api/register', async (req, res) => {
-  const { username, password, email, recaptchaToken } = req.body; // Include recaptchaToken in the body
+  const { username, password, email, recaptchaToken, honeypot } = req.body; // Include recaptchaToken in the body
   const clientIp = req.headers['cf-connecting-ip'] || req.ip;
+
+  if (honeypot) {
+    console.log('Honeypot field was triggered.');
+    return res.status(400).json({ message: 'Spam detected.' });
+  }
+
+
+
 
   // reCAPTCHA Verification
   const secretKey = secrets.RECAPTCHA_KEY; 
@@ -550,8 +558,14 @@ app.post('/api/register', async (req, res) => {
 
 
 app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password,honeypot } = req.body;
   const clientIp = req.headers['cf-connecting-ip'] || req.ip;
+
+  if (honeypot) {
+    console.log('Honeypot field was triggered.');
+    return res.status(400).json({ message: 'Spam detected.' });
+  }
+
 
   try {
     const queryUser = 'SELECT * FROM azodu_keyspace.users WHERE username = ?';

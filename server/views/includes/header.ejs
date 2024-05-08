@@ -751,7 +751,9 @@
                 <input type="password" id="password" placeholder="Password" required>
                 <input type="submit" id="submitAuth" value="Login">
                 <input type="hidden" id="recaptchaResponse" name="recaptchaResponse">
-
+                <div id="tos_cont" class="unselectable">
+                <input type="checkbox" id="hpCheckbox" name="honeypot" value="1">I agree to the TOS
+            </div>
                 <div id="formMessage" style="color: #d7dadc; margin-top: 10px;"></div> <!-- Message placeholder -->
                 <p id="switchAuthMode">Don't have an account? <a href="#" id="switchForm">Register here.</a></p>
             </form>
