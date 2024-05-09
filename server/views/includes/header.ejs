@@ -275,29 +275,29 @@
     }
 
     function generatePostHtml(post, isSaved) {
-        if(!post)
-        return ''; 
-    if(!post.isPinned)
-        post.isPinned = false; 
-    let isTwitterUrl = post.content && post.content.includes("twitter.com");
-    const postTitleHref = post.post_type === 'url' ? post.content : post.permalink;
+        if (!post)
+            return '';
+        if (!post.isPinned)
+            post.isPinned = false;
+        let isTwitterUrl = post.content && post.content.includes("twitter.com");
+        const postTitleHref = post.post_type === 'url' ? post.content : post.permalink;
 
-    let contentDisplay = post.post_type === 'url' && post.ai_summary ?
-        `<div style="display:none;" class="post-text">${post.ai_summary}<span class="ai_summary_heading">AI-generated summary</span></div>` :
-        `<div style="display:none;" class="post-text">${post.content}</div>`;
+        let contentDisplay = post.post_type === 'url' && post.ai_summary ?
+            `<div style="display:none;" class="post-text">${post.ai_summary}<span class="ai_summary_heading">AI-generated summary</span></div>` :
+            `<div style="display:none;" class="post-text">${post.content}</div>`;
 
-    contentDisplay = isTwitterUrl ?
-        `<div style="display:none;" class="post-text"><div class="twitter-placeholder" data-twitter-url="${post.content}" style="display:none;">Loading tweet...</div></div>` :
-        contentDisplay;
+        contentDisplay = isTwitterUrl ?
+            `<div style="display:none;" class="post-text"><div class="twitter-placeholder" data-twitter-url="${post.content}" style="display:none;">Loading tweet...</div></div>` :
+            contentDisplay;
 
-    const pinnedIcon = post.isPinned ? `<i title="pinned" style="font-size: 12px;" class="fas fa-thumbtack"></i> ` : '';
-    const link = post.post_type === 'url' ?
-        `<a href="${postTitleHref}" class="post-title single-line" target="_blank">${pinnedIcon}${post.title}<i class="fas fa-external-link-alt"></i></a><i class="fas fa-plus open-content" style="float:left;"></i>` :
-        `<a href="${postTitleHref}" class="post-title single-line">${pinnedIcon}${post.title}</a><i class="fas fa-plus open-content" style="float:left;"></i>`;
+        const pinnedIcon = post.isPinned ? `<i title="pinned" style="font-size: 12px;" class="fas fa-thumbtack"></i> ` : '';
+        const link = post.post_type === 'url' ?
+            `<a href="${postTitleHref}" class="post-title single-line" target="_blank">${pinnedIcon}${post.title}<i class="fas fa-external-link-alt"></i></a><i class="fas fa-plus open-content" style="float:left;"></i>` :
+            `<a href="${postTitleHref}" class="post-title single-line">${pinnedIcon}${post.title}</a><i class="fas fa-plus open-content" style="float:left;"></i>`;
 
-    const thumbnailHtml = post.thumbnail ? `<img src="${post.thumbnail}" alt="Post Thumbnail">` : `<i class="fas fa-${post.post_type === 'url' ? 'link' : 'pencil-alt'}"></i>`;
+        const thumbnailHtml = post.thumbnail ? `<img src="${post.thumbnail}" alt="Post Thumbnail">` : `<i class="fas fa-${post.post_type === 'url' ? 'link' : 'pencil-alt'}"></i>`;
 
-    return `
+        return `
 <div class="post" data-postId="${post.post_id}" data-postcat="${post.category}" data-pinned="${post.isPinned}">
     <div class="post-left">
         <div class="voting">
@@ -322,7 +322,7 @@
     </div>
     <i class="fas fa-cog admin-actions-gear admin-ui" style="float:right; cursor:pointer;" data-postid="${post.post_id}" data-pinned="${post.isPinned}"></i>
 </div>`;
-}
+    }
 
 
     $(document).on('click', '.delete', function (e) {
@@ -723,6 +723,66 @@
 
 
 
+
+        // Handler for "save" button click
+        $('.container').on('click', '.save_post', function (event) {
+            event.preventDefault(); // Prevent default action
+            console.log('Button clicked');
+
+            const $button = $(this);
+
+            // Initialize postId and cat from the button's data attributes
+            let postId = $button.data('postid');
+            let cat = $button.data('postcat');
+
+            // If the button does not have the data directly (e.g., save_post_post_page scenario), try to get it from the closest .post element
+            if (!postId || !cat) {
+                const $post = $button.closest('.post');
+                postId = $post.data('postid');
+                cat = $post.data('postcat');
+            }
+
+            // Retrieve the username from localStorage
+            const username = localStorage.getItem('username');
+            if (!username) {
+                console.error('User is not logged in.');
+                return; // Exit if no user is logged in
+            }
+
+            const authToken = localStorage.getItem('authToken'); // Assuming the auth token is saved in localStorage
+
+            // Check if postId and cat are still undefined
+            if (!postId || !cat) {
+                console.error('Post ID or category data is missing');
+                return; // Exit if necessary data is missing
+            }
+
+            // Make an AJAX request to save the post
+            $.ajax({
+                url: '/api/savePost', // Endpoint for saving a post
+                type: 'POST',
+                contentType: 'application/json',
+                headers: {
+                    'Authorization': `Bearer ${authToken}` // Use the authToken for authorization
+                },
+                data: JSON.stringify({ postId: postId, category: cat }), // Send the postId and category in the request body
+                success: function (response) {
+                    console.log('Post saved successfully:', response);
+                    $button.text('saved')
+                    $button.css({ 'color': 'gray' });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Failed to save post:', error);
+                    showNotification('Failed to save post: ' + error, 'error', 3000);
+                }
+            });
+        });
+
+
+
+
+
+
     });
 
 </script>
@@ -752,8 +812,8 @@
                 <input type="submit" id="submitAuth" value="Login">
                 <input type="hidden" id="recaptchaResponse" name="recaptchaResponse">
                 <div id="tos_cont" class="unselectable">
-                <input type="checkbox" id="hpCheckbox" name="honeypot" value="1">I agree to the TOS
-            </div>
+                    <input type="checkbox" id="hpCheckbox" name="honeypot" value="1">I agree to the TOS
+                </div>
                 <div id="formMessage" style="color: #d7dadc; margin-top: 10px;"></div> <!-- Message placeholder -->
                 <p id="switchAuthMode">Don't have an account? <a href="#" id="switchForm">Register here.</a></p>
             </form>
