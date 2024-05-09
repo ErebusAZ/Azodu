@@ -275,10 +275,14 @@
                 });
 
 
- 
+                // Check if the logged-in user is the post's author
+                var loggedInUser = localStorage.getItem('username');
+                var postAuthor = '<%= post.author %>'; // EJS rendered server-side
 
-
-
+                if (loggedInUser === postAuthor) {
+                    // Append the edit button to the actions list
+                    $('#actions_post_page').append('<li><span class="edit_post" data-postid="<%= post.post_id %>">edit</span></li>');
+                }
 
 
 
@@ -348,7 +352,7 @@
                       
 
                 </div>
-                <ul id="actions_post_page"><li><span class="save_post save_post_post_page" data-postid="<%= post.post_id %>" data-postcat="<%= post.category %>">save</span></li><li>edit</li></ul>
+                <ul id="actions_post_page"><li><span class="save_post save_post_post_page" data-postid="<%= post.post_id %>" data-postcat="<%= post.category %>">save</span></li></ul>
 <div style="clear: both; "></div>
 
 
