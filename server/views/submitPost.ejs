@@ -227,34 +227,35 @@
           // Get the authToken from local storage
           var authToken = localStorage.getItem('authToken');
 
-          // Make the Fetch API request to submit the post data
-          fetch('/submitPost', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + authToken  // Include the auth token in the request headers
-            },
-            body: JSON.stringify(formData)
-          })
-            .then(response => response.json()) // Always parse JSON, regardless of the response status
-            .then(data => {
-              if (data.status == "error") {
-                throw new Error(data.message); // Use the server-provided error message
-                console.log('data error');
-              } else {
-                $('button[type="submit"]').text('Success!');
-                showNotification(data.message, 'success', 4000, function () { window.location.href = "/"; });
-
-              }
-
-            })
-            .catch(error => {
-              console.log(error);
-              showNotification(error.message || 'There was an error submitting your post.', 'error', 10000);
-              $('button[type="submit"]').prop('disabled', false).text('Submit');
-
-            })
-        });
+         
+    fetch('/submitPost', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + authToken
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status == "error") {
+            throw new Error(data.message);
+        } else {
+            $('button[type="submit"]').text('Success!');
+            // Construct the URL based on the response data
+            const postUrl = data.permalink;
+            console.log(postUrl); 
+            showNotification(data.message, 'success', 4000, function () { 
+                window.location.href = postUrl;  // Redirect to the new post page
+            });
+        }
+    })
+    .catch(error => {
+        console.log(error);
+        showNotification(error.message || 'There was an error submitting your post.', 'error', 10000);
+        $('button[type="submit"]').prop('disabled', false).text('Submit');
+    });
+});
 
 
 

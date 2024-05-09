@@ -676,15 +676,15 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
   const creator = req.user.username;
   let { title, category, postType, contentText, contentUrl } = req.body;
 
-   // Check if user is currently timed out
-   const timeoutSeconds = checkTimeout(creator);
-   if (timeoutSeconds) {
-       return res.status(429).json({
-           status: 'error',
-           message: `You must wait ${timeoutSeconds} more seconds before submitting again.`,
-           error: true
-       });
-   }
+  // Check if user is currently timed out
+  const timeoutSeconds = checkTimeout(creator);
+  if (timeoutSeconds) {
+    return res.status(429).json({
+      status: 'error',
+      message: `You must wait ${timeoutSeconds} more seconds before submitting again.`,
+      error: true
+    });
+  }
 
 
 
@@ -784,11 +784,17 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
   }
 
   try {
-    await insertPostData(client, title, creator, category, postType, content, thumbnail, summary);
-    res.status(200).json({ message: 'Success! Your post will appear in a few minutes. Redirecting ...', summary: summary });
+    const postDetails = await insertPostData(client, title, creator, category, postType, content, thumbnail, summary);
+    res.status(200).json({
+      message: 'Success! You will be redirected to your new post ...',
+      summary: summary,
+      post_id: postDetails.post_id,  // Assuming insertPostData returns an object with post_id
+      permalink: postDetails.permalink  // Assuming insertPostData returns an object with permalink
+    });
   } catch (error) {
     res.status(500).json({ message: '' + error, error: true });
   }
+
 });
 
 

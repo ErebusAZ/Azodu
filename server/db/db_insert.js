@@ -92,8 +92,7 @@ async function getNextPostId(client) {
   }
 }
 
-async function insertPostData(client, title, author, category, postType, content, thumbnail, aiSummary = '', skipLinkCheck,postID = null) {
-
+async function insertPostData(client, title, author, category, postType, content, thumbnail, aiSummary = '', skipLinkCheck, postID = null) {
   if (!title || !author || !category || !postType || (postType === 'url' && !content)) {
     throw new Error('Missing required post data.');
   }
@@ -106,18 +105,13 @@ async function insertPostData(client, title, author, category, postType, content
   const permalink = generatePermalink(title, category, postID);
   const timestamp = new Date();
 
-  if (postType === 'url') {
-
-    if (!skipLinkCheck) {
-      const linkExistsQuery = 'SELECT link FROM azodu_keyspace.links WHERE link = ? AND category = ?';
-      const linkExistsResult = await client.execute(linkExistsQuery, [sanitizedLink, category], { prepare: true });
-
-      if (linkExistsResult.rowLength > 0) {
-        throw new Error('The link was already posted to this category.');
-      }
+  if (postType === 'url' && !skipLinkCheck) {
+    const linkExistsQuery = 'SELECT link FROM azodu_keyspace.links WHERE link = ? AND category = ?';
+    const linkExistsResult = await client.execute(linkExistsQuery, [sanitizedLink, category], { prepare: true });
+    if (linkExistsResult.rowLength > 0) {
+      throw new Error('The link was already posted to this category.');
     }
 
-    // Insert the link into the links table if it does not exist
     const insertLinkQuery = 'INSERT INTO azodu_keyspace.links (link, category, post_id, timestamp) VALUES (?, ?, ?, ?)';
     await client.execute(insertLinkQuery, [sanitizedLink, category, postID, timestamp], { prepare: true });
   }
@@ -129,14 +123,16 @@ async function insertPostData(client, title, author, category, postType, content
   `;
 
   const params = [postID, title, author, category, postType, sanitizedLink, aiSummary, upvotes, downvotes, commentCount, permalink, thumbnail];
-
+  
   try {
     await client.execute(query, params, { prepare: true });
-  //  console.log('Post data inserted successfully with optional ai_summary for URLs.');
+    return { postID, permalink };  // Return postID and permalink after successful insertion
   } catch (error) {
     console.error('Failed to insert post data with optional ai_summary', error);
+    throw new Error('Database insertion failed.'); // Rethrow to handle in calling code
   }
 }
+
 
 
 
