@@ -225,6 +225,10 @@ label {
     padding-top: 4px;
 }
 
+a.post-title:visited {
+    color: #989898;
+}
+
 .post-title:hover {
     text-decoration: underline !important;
 }
@@ -1150,7 +1154,7 @@ button#submit-comment {
 
 
 #actions_post_page {
-padding-left: 0;
+    padding-left: 0;
     font-size: 12px;
     color: gray;
     margin-top: 0;
@@ -1164,7 +1168,7 @@ padding-left: 0;
     float: left;
     padding-left: 10px;
     list-style-type: none;
-    cursor: pointer; 
+    cursor: pointer;
 }
 
 
