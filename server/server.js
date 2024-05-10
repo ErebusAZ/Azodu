@@ -674,7 +674,7 @@ async function getTwitterEmbedCode(url) {
 
 app.post('/submitPost', authenticateToken, async (req, res) => {
   const creator = req.user.username;
-  let { title, category, postType, contentText, contentUrl } = req.body;
+  let { title, category, postType, contentText, contentUrl,postID,isEdit } = req.body;
 
   // Check if user is currently timed out
   const timeoutSeconds = checkTimeout(creator);
@@ -687,14 +687,17 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
   }
 
 
+  if (!isEdit) {
 
-  // Validate title length for both post types
-  if (title.length < 10 || title.length > 150) {
-    return res.status(400).json({
-      status: 'error',
-      message: 'Title must be between 10 and 150 characters.',
-      error: true
-    });
+    // Validate title length for both post types
+    if (title.length < 10 || title.length > 150) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Title must be between 10 and 150 characters.',
+        error: true
+      });
+    }
+    
   }
 
   // Initialize variables
@@ -772,19 +775,22 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
     console.log("Cache miss: category description not found in cache."); // Log for debugging
   }
 
-  let relevancyScore = await checkCategoryRelevancy(title, content, category, categoryDescription, summary, postType);
-  if (relevancyScore < 30) {
-    const nextTimeoutDuration = setTimeoutForUser(creator);
 
-    return res.status(400).json({
-      status: 'error',
-      message: `Post is not relevant to the selected category. Wait ${nextTimeoutDuration / 1000} seconds before submitting again.`
-    });
+  if (!isEdit) {
+    let relevancyScore = await checkCategoryRelevancy(title, content, category, categoryDescription, summary, postType);
+    if (relevancyScore < 30) {
+      const nextTimeoutDuration = setTimeoutForUser(creator);
 
+      return res.status(400).json({
+        status: 'error',
+        message: `Post is not relevant to the selected category. Wait ${nextTimeoutDuration / 1000} seconds before submitting again.`
+      });
+
+    }
   }
-
+  console.log('category is ' + category); 
   try {
-    const postDetails = await insertPostData(client, title, creator, category, postType, content, thumbnail, summary);
+    const postDetails = await insertPostData(client, title, creator, category, postType, content, thumbnail, summary,undefined,isEdit? postID : null,isEdit);
     res.status(200).json({
       message: 'Success! You will be redirected to your new post ...',
       summary: summary,

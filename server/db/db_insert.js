@@ -92,46 +92,65 @@ async function getNextPostId(client) {
   }
 }
 
-async function insertPostData(client, title, author, category, postType, content, thumbnail, aiSummary = '', skipLinkCheck, postID = null) {
+async function insertPostData(client, title, author, category, postType, content, thumbnail, aiSummary = '', skipLinkCheck, postID = null, isEdit = false) {
   if (!title || !author || !category || !postType || (postType === 'url' && !content)) {
     throw new Error('Missing required post data.');
   }
 
   const sanitizedLink = postType === 'url' ? sanitizeLink(content) : content;
-  const upvotes = 0;
-  const downvotes = 0;
-  const commentCount = 0;
-  postID = postID || generateContentId();
-  const permalink = generatePermalink(title, category, postID);
   const timestamp = new Date();
+
+  if (!postID) postID = generateContentId();  // Generate new postID if not editing
+  const permalink = generatePermalink(title, category, postID);
 
   if (postType === 'url' && !skipLinkCheck) {
     const linkExistsQuery = 'SELECT link FROM azodu_keyspace.links WHERE link = ? AND category = ?';
     const linkExistsResult = await client.execute(linkExistsQuery, [sanitizedLink, category], { prepare: true });
-    if (linkExistsResult.rowLength > 0) {
+    if (linkExistsResult.rowLength > 0 && !isEdit) {
       throw new Error('The link was already posted to this category.');
     }
 
-    const insertLinkQuery = 'INSERT INTO azodu_keyspace.links (link, category, post_id, timestamp) VALUES (?, ?, ?, ?)';
-    await client.execute(insertLinkQuery, [sanitizedLink, category, postID, timestamp], { prepare: true });
+    if (!isEdit) {
+      const insertLinkQuery = 'INSERT INTO azodu_keyspace.links (link, category, post_id, timestamp) VALUES (?, ?, ?, ?)';
+      await client.execute(insertLinkQuery, [sanitizedLink, category, postID, timestamp], { prepare: true });
+    }
   }
 
-  const query = `
-    INSERT INTO azodu_keyspace.posts (
-      post_id, title, author, category, post_type, content, ai_summary, upvotes, downvotes, comment_count, permalink, thumbnail, timestamp
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, toTimestamp(now()));
-  `;
+  if (!isEdit) {
+    // Insert new post
+    const query = `
+      INSERT INTO azodu_keyspace.posts (
+        post_id, title, author, category, post_type, content, ai_summary, permalink, thumbnail, timestamp
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, toTimestamp(now()));
+    `;
+    const params = [postID, title, author, category, postType, sanitizedLink, aiSummary, permalink, thumbnail];
+    
+    try {
+      await client.execute(query, params, { prepare: true });
+    } catch (error) {
+      console.error('Failed to insert new post data', error);
+      throw new Error('Database insertion failed.');
+    }
+  } else {
+    // Update existing post
+    const updateQuery = `
+      UPDATE azodu_keyspace.posts
+      SET content = ?
+      WHERE post_id = ? AND category = ?;
+    `;
+    const updateParams = [content, postID,category];
 
-  const params = [postID, title, author, category, postType, sanitizedLink, aiSummary, upvotes, downvotes, commentCount, permalink, thumbnail];
-  
-  try {
-    await client.execute(query, params, { prepare: true });
-    return { postID, permalink };  // Return postID and permalink after successful insertion
-  } catch (error) {
-    console.error('Failed to insert post data with optional ai_summary', error);
-    throw new Error('Database insertion failed.'); // Rethrow to handle in calling code
+    try {
+      await client.execute(updateQuery, updateParams, { prepare: true });
+    } catch (error) {
+      console.error('Failed to update post data', error);
+      throw new Error('Database update failed.');
+    }
   }
+
+  return { postID, permalink };  // Return postID and permalink after successful operation
 }
+
 
 
 

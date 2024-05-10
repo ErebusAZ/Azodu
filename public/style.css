@@ -1172,6 +1172,23 @@ button#submit-comment {
 }
 
 
+/* Edit post */
+
+#post_text .ql-snow .ql-stroke {
+
+    stroke: #727272;
+}
+
+#editor-container .ql-editor {
+
+    background-color: #1a1a1a;
+}
+
+#editor-container .ql-editor, #editor-container textarea {
+    width: 100%;
+}
+
+
 /* Twitter embed */
 
 .twitter-loading {
@@ -1189,13 +1206,19 @@ button#submit-comment {
     top: 0;
     height: 100%;
     width: 100%;
-    background-color: #1DA1F2; /* Twitter's brand color */
+    background-color: #1DA1F2;
+    /* Twitter's brand color */
     animation: load 2s linear infinite;
 }
 
 @keyframes load {
-    0%, 100% { transform: scaleX(0); }
-    50% { transform: scaleX(1); }
+    0%, 100% {
+        transform: scaleX(0);
+    }
+
+    50% {
+        transform: scaleX(1);
+    }
 }
 
 
@@ -3185,7 +3208,7 @@ div#op_comment_form {
 }
 
 
-#submit-comment, .submit-reply, .cancel-reply {
+#submit-comment, .submit-reply, .cancel-reply, #submit-edit, #cancel-edit {
     background-color: #4c4c4c;
     border: none;
     color: white;
@@ -3196,7 +3219,7 @@ div#op_comment_form {
     border-radius: 5px;
 }
 
-.submit-reply:hover, .cancel-reply:hover {
+.submit-reply:hover, .cancel-reply:hover, #submit-edit:hover, #cancel-edit:hover {
     text-decoration: underline;
 }
 
@@ -4522,4 +4545,3 @@ ul.tabs li.current {
 div#user-posts {
     margin-top: 3px;
 }
-

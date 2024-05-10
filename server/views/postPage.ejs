@@ -499,7 +499,100 @@
                         }
                     }
 
-                    
+
+
+
+                    // Edit post
+
+                    var quillEditorEditPost; // This will hold the Quill instance for editing posts.
+
+                    // Event listener for the edit button
+                    $(document).on('click', '.edit_post', function () {
+                        var postId = $(this).data('postid');
+                        console.log(postId);
+
+                        if (!quillEditorEditPost) {
+                            var postContentElement = $('#post_text');
+                            var content = $('#post_text .post-content').html().trim();
+                            console.log(content);
+
+                            postContentElement.html('<div id="editor-container"></div>');
+
+                            quillEditorEditPost = new Quill('#editor-container', {
+                                modules: {
+                                    toolbar: [
+                                        ['bold', 'italic', 'underline', 'strike'],        // formatting options
+                                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],    // lists
+                                        ['link']                                          // links
+                                    ]
+                                },
+                                theme: 'snow',
+                                placeholder: 'Edit your post...'
+                            });
+
+                            quillEditorEditPost.root.innerHTML = content;
+
+                            // Append the submit and cancel buttons
+                            postContentElement.append(`
+                        <button id="submit-edit" class="btn btn-primary">Submit</button>
+                        <button id="cancel-edit" class="btn btn-secondary">Cancel</button>
+                    `);
+
+                            $('#submit-edit').on('click', async function () {
+                                var editedContent = quillEditorEditPost.root.innerHTML; // Get edited content from Quill
+                                var postTitle = $('#post-title').text(); // Get the current title of the post
+                                var postType = 'text'; // Since we're only editing text posts
+                                var postId = $(this).data('postid'); // Ensure this data attribute is available on the button
+
+                                // Validate and process the content similar to the server-side function if possible
+                                var processedContent = processHTMLFromUsers(editedContent); // Assuming you have a similar client-side function
+
+                                // Construct the request body
+                                var dataToSend = {
+                                    title: postTitle,
+                                    category: '<%= post.category %>', // You might need to ensure this value is available
+                                    postType: postType,
+                                    contentText: processedContent,
+                                    contentUrl: '', // Empty since it's a text post
+                                    postID: '<%= post.post_id %>',
+                                    isEdit: true
+                                };
+
+
+                                // Send the AJAX request
+                                $.ajax({
+                                    url: '/submitPost',
+                                    type: 'POST',
+                                    contentType: 'application/json',
+                                    data: JSON.stringify(dataToSend),
+                                    headers: {
+                                        'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Include the auth token in the request headers
+                                    },
+                                    success: function (response) {
+                                        console.log('Success:', response);
+                                        showNotification('Post updated successfully.', type = 'success', duration = 2000);
+                                        setTimeout(function () {
+                                            window.location.href = response.permalink; // Redirect to the new post page
+
+                                        }, 2000);
+                                    },
+                                    error: function (xhr, status, error) {
+                                        showNotification('Error updating post:', error, 'error', 5000);
+
+                                    }
+                                });
+                            });
+
+
+                            // Set up the cancel button event handler
+                            $('#cancel-edit').on('click', function () {
+                                postContentElement.html(`<div class="post-content">${content}</div>`); // Restore original content
+                                quillEditorEditPost = null; // Destroy the Quill instance
+                            });
+                        }
+                    });
+
+
 
                 });
 
