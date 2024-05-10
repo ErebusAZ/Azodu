@@ -461,6 +461,47 @@
                             dropdownList.style.display = 'none';
                         }
                     }, true);
+
+
+                    // load twitter embeds
+
+
+                    const twitterEmbeds = document.querySelectorAll('.twitter-tweet');
+
+                    twitterEmbeds.forEach(function (embed) {
+                        // Create and insert the loading indicator
+                        const loader = document.createElement('div');
+                        loader.className = 'twitter-loading';
+                        embed.parentNode.insertBefore(loader, embed);
+
+                        // Ensure loading animation is visible
+                        loader.style.display = 'block';
+                    });
+
+                    if (twitterEmbeds.length > 0) {
+                        // Check if the Twitter widgets script has already been loaded
+                        if (!window.twttr) {
+                            console.log('load new script');
+                            const script = document.createElement('script');
+                            script.setAttribute('src', 'https://platform.twitter.com/widgets.js');
+                            script.async = true;
+                            script.onload = function () {
+                                // Initialize the widget and remove the loading animation once loaded
+                                twttr.widgets.load(document.body).then(function () {
+                                    document.querySelectorAll('.twitter-loading').forEach(loader => loader.remove());
+                                });
+                            };
+                            document.body.appendChild(script);
+                        } else {
+                            // If the script is already loaded, just reload the widgets
+                            twttr.widgets.load(document.body).then(function () {
+                                document.querySelectorAll('.twitter-loading').forEach(loader => loader.remove());
+                            });
+                        }
+                    }
+
+                    
+
                 });
 
 

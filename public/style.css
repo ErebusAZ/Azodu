@@ -1172,6 +1172,34 @@ button#submit-comment {
 }
 
 
+/* Twitter embed */
+
+.twitter-loading {
+    height: 4px;
+    width: 100%;
+    background-color: #ddd;
+    position: relative;
+    overflow: hidden;
+}
+
+.twitter-loading::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #1DA1F2; /* Twitter's brand color */
+    animation: load 2s linear infinite;
+}
+
+@keyframes load {
+    0%, 100% { transform: scaleX(0); }
+    50% { transform: scaleX(1); }
+}
+
+
+
 
 
 /* Comment Sorting */
@@ -4494,3 +4522,4 @@ ul.tabs li.current {
 div#user-posts {
     margin-top: 3px;
 }
+
