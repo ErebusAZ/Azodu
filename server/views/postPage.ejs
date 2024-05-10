@@ -481,9 +481,8 @@
                     if (twitterEmbeds.length > 0) {
                         // Check if the Twitter widgets script has already been loaded
                         if (!window.twttr) {
-                            console.log('load new script');
                             const script = document.createElement('script');
-                            script.setAttribute('src', 'https://platform.twitter.com/widgets.js');
+                            script.setAttribute('src', '/js/libs/twitter-widgets.js');
                             script.async = true;
                             script.onload = function () {
                                 // Initialize the widget and remove the loading animation once loaded
