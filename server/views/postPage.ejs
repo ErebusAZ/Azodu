@@ -577,7 +577,12 @@
                                         }, 2000);
                                     },
                                     error: function (xhr, status, error) {
-                                        showNotification('Error updating post: ' +  error, 'error', 5000);
+                                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                                            showNotification(xhr.responseJSON.message, 'error', 10000);
+
+                                        } else {
+                                            showNotification('Error updating post: ' + error, 'error', 5000);
+                                        }
 
                                     }
                                 });
