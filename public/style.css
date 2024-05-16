@@ -119,9 +119,7 @@ ul {
     line-height: 20px;
 }
 
-li {
-    padding-bottom: 15px;
-}
+
 
 /*
 button {
@@ -176,6 +174,10 @@ label {
     /* Prevent wrapping around the floated element */
 }
 
+
+.post-content li {
+    padding-bottom: 15px;
+}
 
 
 /*
