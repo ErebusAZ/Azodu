@@ -119,6 +119,10 @@ ul {
     line-height: 20px;
 }
 
+li {
+    padding-bottom: 15px;
+}
+
 /*
 button {
     font-weight: bold;
