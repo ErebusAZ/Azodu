@@ -33,7 +33,7 @@ const { generateCategoryPermalink,fetchURLAndParseForThumb,extractRelevantText }
 const { generateAIComment,generateSummary,moderateContent,checkCategoryRelevancy } = require('./utils/ai');
 
 const app = express();
-const port = 3000; // Use any port that suits your setup
+const port = 80; // Use any port that suits your setup
 
 app.set('trust proxy', true); // necessary when behind cloudflare even with just gray cloud
 app.set('view engine', 'ejs');
