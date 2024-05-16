@@ -284,6 +284,9 @@
                     $('#actions_post_page').append('<li><span class="edit_post" data-postid="<%= post.post_id %>">edit</span></li>');
                 }
 
+                if(loggedInUser) 
+                $('.save_post.save_post_post_page').show(); 
+
 
 
 
@@ -352,7 +355,7 @@
                       
 
                 </div>
-                <ul id="actions_post_page"><li><span class="save_post save_post_post_page" data-postid="<%= post.post_id %>" data-postcat="<%= post.category %>">save</span></li></ul>
+                <ul id="actions_post_page"><li><span style="display: none;" class="save_post save_post_post_page" data-postid="<%= post.post_id %>" data-postcat="<%= post.category %>">save</span></li></ul>
 <div style="clear: both; "></div>
 
 

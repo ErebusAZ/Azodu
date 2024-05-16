@@ -210,6 +210,7 @@ $(document).ready(function () {
                 $userDisplayElement.show();
                 $loginRegisterButton.hide();
                 $logoutButton.show(); // Show the logout button using jQuery
+                $('.save_post.save_post_post_page').show(); // show save post button
             }
         } else {
             // No token, or it is expired
