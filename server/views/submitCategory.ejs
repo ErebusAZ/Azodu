@@ -143,6 +143,8 @@
 
                     if (permalink) { // editing a category
 
+                        $('#displayCost').hide(); 
+
                         $('#create_edit_category_heading').text('Edit ' + permalink + ' category'); 
                         fetch(`/api/categories/${permalink}`, {
                             method: 'GET',
