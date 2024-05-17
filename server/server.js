@@ -765,12 +765,7 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
 
   const azoBalance = totalAzoEarned - user.azo_spent;
 
-  if (azoBalance < azoCost) {
-    return res.status(400).json({
-      error: true,
-      message: `Insufficient Azo balance to create a category. Required: ${azoCost}, Your balance: ${azoBalance}`
-    });
-  }
+
 
   // Deduct the Azo cost from user's balance
   const newAzoSpent = user.azo_spent + azoCost;
@@ -816,6 +811,16 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
         res.status(403).json({ error: true, message: 'You are not authorized to edit this category.' });
       }
     } else {
+
+      if (azoBalance < azoCost) {
+        return res.status(400).json({
+          error: true,
+          message: `Insufficient Azo balance to create a category. Required: ${azoCost}, Your balance: ${azoBalance}`
+        });
+      }
+
+
+
       // Permalink does not exist, creating a new category
       const insertQuery = `
         INSERT INTO azodu_keyspace.categories (permalink, name, creator, description, date_created, additional_info)
