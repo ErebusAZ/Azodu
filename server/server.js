@@ -805,7 +805,7 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
         `;
         await client.execute(updateQuery, [name, description, additional_info, permalink], { prepare: true });
         console.log('Category updated successfully');
-        res.json({ error: false, message: 'Category updated successfully' });
+        res.json({ error: false, message: 'Category updated successfully. Your changes should appear in a few minutes.' });
       } else {
         // Not authorized to update the category
         res.status(403).json({ error: true, message: 'You are not authorized to edit this category.' });
