@@ -125,7 +125,7 @@ const fullPostsCache = new NodeCache({ stdTTL: 200, checkperiod: 120 });
 const loginExpires = 86400 * 30; // how long till login expires
 const updateInterval = 10 * 1000; // how quickly to fetch all posts and update votes
 
-const defaultCategories = ["anything","Books","azodu"];
+const defaultCategories = ["anything","azodu"];
 
 
 const NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS = 50; // the # of posts to go back in a category on an interval to calculate votes and comments
