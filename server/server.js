@@ -120,28 +120,20 @@ const cache = {
 
 
 const fullPostsCache = new NodeCache({ stdTTL: 200, checkperiod: 120 });
-
-
+const defaultCategories = ["anything","azodu"];
 const loginExpires = 86400 * 30; // how long till login expires
 const updateInterval = 10 * 1000; // how quickly to fetch all posts and update votes
-
-const defaultCategories = ["anything","azodu"];
-
-
 const NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS = 50; // the # of posts to go back in a category on an interval to calculate votes and comments
-
 const NUM_POSTS_CACHED = 2500; // num of posts to go back via api/posts. multiplies in memory for each category and each sort: latest/top/controversial
-
 const COMMENT_GENERATION_INTERVAL_MS = 60000; // 1 min
 const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
 const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 10; // 10 min
-
 const DAYS_TILL_POST_ARCHIVED = 5; // WARNING default_time_to_live on votes table should be at least 1 day greater than this
+
+
 
 // Dedicated blacklist for posts to skip commenting
 const postsCommentBlacklist = {};
-
-
 
 
 const onlyAnythingCategory = true; // Set to false to comment on all categories
