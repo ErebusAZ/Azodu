@@ -49,7 +49,7 @@ app.use(express.json()); // This line is added to parse JSON request bodies
 
 // Default Cache-Control for all responses
 app.use((req, res, next) => {
-  res.set('Cache-Control', 'public, max-age=600'); // default to 10 min
+  res.set('Cache-Control', 'public, max-age=0'); // default cache-control
   next();
 });
 
@@ -852,7 +852,7 @@ app.post('/submitCategory', authenticateToken, async (req, res) => {
 
 
 
-app.get('/c/:permalink', async (req, res) => {
+app.get('/c/:permalink',cacheDuration(300), async (req, res) => {
   let { permalink } = req.params;
 
   try {
@@ -923,7 +923,7 @@ async function calculateAzoForUser(username) {
 
 
 
-app.get('/', async (req, res) => {
+app.get('/',cacheDuration(600), async (req, res) => {
 
 
 res.render('index', { category: {} });
@@ -932,7 +932,7 @@ res.render('index', { category: {} });
 }); 
 
 
-app.get('/submit-category/', async (req, res) => {
+app.get('/submit-category/', cacheDuration(3600),async (req, res) => {
 
 
   res.render('submitCategory',{ category: {} });
@@ -946,7 +946,7 @@ app.get('/submit-category/', async (req, res) => {
 
 
 
-app.get('/submit-post/', async (req, res) => {
+app.get('/submit-post/',cacheDuration(3600), async (req, res) => {
 
 
   res.render('submitPost',{ category: {} });
@@ -955,7 +955,8 @@ app.get('/submit-post/', async (req, res) => {
 }); 
 
 
-app.get('/c/:category/:uniqueId/:title', async (req, res) => {
+// post page
+app.get('/c/:category/:uniqueId/:title',cacheDuration(0), async (req, res) => {
   const { category, uniqueId } = req.params;
   try {
     const post = await fetchPostByPostID(client, category, uniqueId);
@@ -976,7 +977,7 @@ app.get('/c/:category/:uniqueId/:title', async (req, res) => {
 
 
 
-app.get('/api/categories', async (req, res) => {
+app.get('/api/categories',cacheDuration(600), async (req, res) => {
   try {
     // Check if the entire category cache is valid
     if (cache.category.lastFetched && isCacheValid(cache.category.lastFetched, cache.category.ttl)) {
@@ -1008,7 +1009,7 @@ app.get('/api/categories', async (req, res) => {
 
 
 
-app.get('/api/categories/:permalink', async (req, res) => {
+app.get('/api/categories/:permalink',cacheDuration(0), async (req, res) => {
   const { permalink } = req.params;
 
   try {
@@ -1399,7 +1400,7 @@ app.listen(port, () => {
 
 
 
-app.get('/api/posts',cacheDuration(60), async (req, res) => {
+app.get('/api/posts',cacheDuration(600), async (req, res) => {
   const { startPostId, category, sort = 'latest' } = req.query;
 
   try {
@@ -1497,7 +1498,7 @@ function isControversial(post) {
 
 
 
-app.get('/api/mySavedPosts', authenticateToken, async (req, res) => {
+app.get('/api/mySavedPosts', authenticateToken,cacheDuration(0), async (req, res) => {
   const username = req.user.username; // Username from JWT after authentication
 
   try {
@@ -1539,7 +1540,7 @@ app.get('/api/mySavedPosts', authenticateToken, async (req, res) => {
 
 
 
-app.get('/api/mySavedComments', authenticateToken, async (req, res) => {
+app.get('/api/mySavedComments', authenticateToken,cacheDuration(0), async (req, res) => {
   const username = req.user.username; // Extracted from JWT after authentication
   try {
     // Query to fetch saved comments for the authenticated user
