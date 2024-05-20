@@ -21,7 +21,16 @@
 
                     </p>
                     <button id="subscribe_button">Join</button>
-                    <span id="cat_subscribers_count"><%= category.subscribers %> members</span>
+                    <span id="cat_subscribers_count">
+                        <% if (category.permalink === "azodu") { %>
+                          <%= 145 + category.subscribers %> members
+                        <% } else if (category.permalink === "anything") { %>
+                          <%= 331 + category.subscribers %> members
+                        <% } else { %>
+                          <%= category.subscribers %> members
+                        <% } %>
+                      </span>
+                      
                     
                     <div id="r_prompt" class="tooltip">
                         <span class="help-icon">
