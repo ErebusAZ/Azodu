@@ -47,6 +47,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json()); // This line is added to parse JSON request bodies
 
+// Default Cache-Control for all responses
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'public, max-age=600'); // default to 10 min
+  next();
+});
+
 
 // Define a rate limit rule with a custom key generator
 const getRateLimiter = rateLimit({
