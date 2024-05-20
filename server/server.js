@@ -186,7 +186,7 @@ setInterval(async () => {
         const post = postsCache[category][postId];
         const model = "gpt-3.5-turbo";
         const comment = await generateAIComment(post.title, post.ai_summary, model, postId);
-        console.log('created comment for ' + post.title);
+     //   console.log('created comment for ' + post.title);
 
         if (comment == null || comment == 'null') {
           postsCommentBlacklist[postId] = true; // Mark the post in the dedicated blacklist
