@@ -53,6 +53,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// controls how long CF + browser cache content
+
+function cacheDuration(seconds) {
+  return function(req, res, next) {
+      res.setHeader('Cache-Control', `public, max-age=${seconds}`);
+      next();
+  };
+}
+
+
 
 // Define a rate limit rule with a custom key generator
 const getRateLimiter = rateLimit({
@@ -1389,7 +1399,7 @@ app.listen(port, () => {
 
 
 
-app.get('/api/posts', async (req, res) => {
+app.get('/api/posts',cacheDuration(60), async (req, res) => {
   const { startPostId, category, sort = 'latest' } = req.query;
 
   try {
