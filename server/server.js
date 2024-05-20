@@ -1541,7 +1541,6 @@ app.get('/api/mySavedPosts', authenticateToken, async (req, res) => {
 
 app.get('/api/mySavedComments', authenticateToken, async (req, res) => {
   const username = req.user.username; // Extracted from JWT after authentication
-
   try {
     // Query to fetch saved comments for the authenticated user
     const savedCommentsQuery = `
@@ -1579,26 +1578,6 @@ app.get('/api/mySavedComments', authenticateToken, async (req, res) => {
 });
 
 
-app.get('/api/mySavedComments', authenticateToken, async (req, res) => {
-  const username = req.user.username; // Username from JWT after authentication
-
-  try {
-    // Query to fetch saved comments for the authenticated user
-    const savedCommentsQuery = `
-      SELECT comment_id, post_id, saved_timestamp 
-      FROM azodu_keyspace.user_saved_comments 
-      WHERE username = ?
-      ORDER BY comment_id DESC;
-    `;
-    const savedCommentsResult = await client.execute(savedCommentsQuery, [username], { prepare: true });
-
-    // Directly return the fetched saved comments
-    res.json(savedCommentsResult.rows);
-  } catch (error) {
-    console.error('Error fetching saved comments:', error);
-    res.status(500).json({ message: 'Error fetching saved comments.' });
-  }
-});
 
 
 
