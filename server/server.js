@@ -753,7 +753,7 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
 
 
 function getAzoCostForCategory(permalink) {
-  const baseCost = 100; // Base cost in Azo
+  const baseCost = 10; // Base cost in Azo
   const minLength = 3;  // Minimum length for a category name
   const maxLength = 147; // Maximum length for a category name
   const length = Math.max(minLength, Math.min(permalink.length, maxLength));
