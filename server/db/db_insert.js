@@ -301,6 +301,9 @@ async function tallyVotesForComment(client, post_id, comment_id) {
       upvotes++;  // Increment for each upvote
     } else if (vote.vote_value === -1) {
       downvotes++;  // Increment for each downvote
+    } else if (vote.vote_value > 1) {
+      upvotes += vote.vote_value; 
+
     }
     // Note: vote_value of 0 does not affect counts
   });
