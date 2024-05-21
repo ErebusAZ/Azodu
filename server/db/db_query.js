@@ -141,7 +141,7 @@ async function fetchPostsAndCalculateVotesAndCommentCounts(client, category, cat
       votes.rows.forEach(vote => {
         if (vote.vote_value === 1) upvotes++;
         else if (vote.vote_value === -1) downvotes++;
-        // We ignore vote_value of 0 as they do not affect the count
+        else if (vote.vote_value > 1) upvotes += vote.vote_value;
       });
 
       // Fetch comments count for the post

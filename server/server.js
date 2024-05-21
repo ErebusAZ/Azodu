@@ -278,10 +278,9 @@ async function fetchFromExternalAndCreatePosts() {
         const result = await insertPostData(client, title, author, 'anything', 'url', url, thumbnail, summary, false);
         processedTitles.add(title); // Prevent future reposts of the same title
 
-
         // Add random upvotes
         const randomUpvotes = Math.floor(Math.random() * 16) + 5; // Random number between 5 and 20
-        const randomIP = Math.floor(Math.random() * 1000000); // Generate random IP for voting
+        const randomIP = (Math.floor(Math.random() * 1000000)).toString(); // Generate random IP for voting
         await insertOrUpdateVote(client, result.postID, randomUpvotes, randomIP); // Adding votes
 
 
