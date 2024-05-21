@@ -204,7 +204,7 @@ setInterval(async () => {
         // Add random upvotes
         const min = -1, max = 10, randomUpvotes = Math.floor(Math.random() * (max - min + 1)) + min;
         const randomIP = (Math.floor(Math.random() * 1000000)).toString(); // Generate random IP for voting
-        await insertOrUpdateVote(client, postId, randomUpvotes, randomIP); // Adding votes
+        await insertOrUpdateVote(client, generatedCommentId, randomUpvotes, randomIP); // Adding votes
 
 
 
