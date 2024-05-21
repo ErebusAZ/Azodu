@@ -215,10 +215,10 @@ async function fetchFromExternalAndCreatePosts() {
   try {
     const urls = [
       'https://old.reddit.com/r/news/top/.json',
-   //   'https://old.reddit.com/r/worldnews/top/.json',
+      //   'https://old.reddit.com/r/worldnews/top/.json',
       'https://old.reddit.com/r/technology/top/.json',
       'https://old.reddit.com/r/Conservative/top/.json',
-      'https://old.reddit.com/r/nottheonion/.json' 
+      'https://old.reddit.com/r/nottheonion/.json'
 
     ];
 
@@ -240,7 +240,7 @@ async function fetchFromExternalAndCreatePosts() {
       }
 
       if (url.includes('reddit.com') || url.includes('redd.it'))
-        continue; 
+        continue;
 
       // Skip processing if the title has already been processed
       if (processedTitles.has(title) || processedTitles.has(url)) {
@@ -248,14 +248,14 @@ async function fetchFromExternalAndCreatePosts() {
       }
 
       if (title.toLowerCase().includes('trump'))
-        continue; 
+        continue;
 
       if (postsDone > 0) break; // Process only one post for demonstration
       postsDone++;
 
       // pick a random author
       const randomIndex = Math.floor(Math.random() * usernames.length);
-      author = usernames[randomIndex]; 
+      author = usernames[randomIndex];
 
 
       const checkQuery = 'SELECT link FROM azodu_keyspace.links WHERE link = ? AND category = ?';
@@ -275,8 +275,17 @@ async function fetchFromExternalAndCreatePosts() {
           console.error('Error fetching URL content or generating summary from: ' + url);
         }
 
-        await insertPostData(client, title, author, 'anything', 'url', url, thumbnail, summary, false);
+        const result = await insertPostData(client, title, author, 'anything', 'url', url, thumbnail, summary, false);
         processedTitles.add(title); // Prevent future reposts of the same title
+
+
+        // Add random upvotes
+        const randomUpvotes = Math.floor(Math.random() * 16) + 5; // Random number between 5 and 20
+        const randomIP = Math.floor(Math.random() * 1000000); // Generate random IP for voting
+        await insertOrUpdateVote(client, result.postID, randomUpvotes, randomIP); // Adding votes
+
+
+
       } else {
         processedTitles.add(url); // Skip posts already in the database
         console.log('URL in links table, adding to ignore list: ' + url);
