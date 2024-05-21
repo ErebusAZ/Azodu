@@ -1272,7 +1272,7 @@ app.post('/api/deletePost', authenticateToken, async (req, res) => {
   }
 
   try {
-    const postQuery = 'SELECT author FROM azodu_keyspace.posts WHERE post_id = ? AND category = ?';
+    const postQuery = 'SELECT author, post_type, content FROM azodu_keyspace.posts WHERE post_id = ? AND category = ?';
     const postResult = await client.execute(postQuery, [postId, category], { prepare: true });
 
     if (postResult.rowLength === 0) {
@@ -1286,25 +1286,30 @@ app.post('/api/deletePost', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Access denied. Insufficient permissions.' });
     }
 
+    if (post.post_type === 'url') {
+      const linkToDelete = post.content;
+      const deleteLinkQuery = 'DELETE FROM azodu_keyspace.links WHERE link = ? AND category = ?';
+      await client.execute(deleteLinkQuery, [linkToDelete, category], { prepare: true });
+    }
+
     // Construct the deletion messages
     const deletedByMessage = post.author === username ? '[deleted by author]' : '[deleted by admin]';
     const deletedAuthor = 'deleted';
 
     // Update post with deletion messages and set author as 'deleted'
     const updateQuery = `
-  UPDATE azodu_keyspace.posts
-  SET title = ?, content = ?, ai_summary = '', thumbnail = '', author = ?
-  WHERE post_id = ? AND category = ?`;
+      UPDATE azodu_keyspace.posts
+      SET title = ?, content = ?, ai_summary = '', thumbnail = '', author = ?
+      WHERE post_id = ? AND category = ?`;
 
     await client.execute(updateQuery, [deletedByMessage, '<p>' + deletedByMessage + '</p>', deletedAuthor, postId, category], { prepare: true });
 
-    res.json({ message: 'Post deleted successfully.' });
+    res.json({ message: 'Post and associated link deleted successfully.' });
   } catch (error) {
     console.error('Error updating post as deleted:', error);
     res.status(500).json({ message: 'Error updating the post as deleted.' });
   }
 });
-
 
 app.post('/api/savePost', authenticateToken, async (req, res) => {
   const { postId, category } = req.body; // Now includes category
