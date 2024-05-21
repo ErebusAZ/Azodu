@@ -137,7 +137,7 @@ const cache = {
 
 
 // the following should probably be staggered if multiple servers are running
-const updateInterval = Math.floor(Math.random() * 51 + 10) * 1000; // how quickly to fetch all posts and update votes, random # between 10 and 50 sec
+const UPDATE_VOTES_AND_PINNED_CACHE_INTERVAL = Math.floor(Math.random() * 51 + 10) * 1000; // how quickly to fetch all posts and update votes, random # between 10 and 50 sec
 const COMMENT_GENERATION_INTERVAL_MS = Math.floor(Math.random() * (7 - 3 + 1) + 3) * 60000; // between 3 and 7 minutes
 const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 10; // 10 min
 
@@ -327,7 +327,7 @@ async function processCategoriesPeriodically() {
 
     // Update index for next iteration
     currentCategoryIndex = (currentCategoryIndex + 1) % categoryKeys.length;
-  }, updateInterval);
+  }, UPDATE_VOTES_AND_PINNED_CACHE_INTERVAL);
 }
 
 
