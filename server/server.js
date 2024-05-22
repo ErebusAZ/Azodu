@@ -34,6 +34,17 @@ const { generateAIComment,generateSummary,moderateContent,checkCategoryRelevancy
 const { initializePosts,usernames } = require('./initData'); // Adjust the path as needed
 
 
+
+const isMaster = process.argv.includes('master');
+
+if (isMaster) {
+    console.log('Running master');
+} else {
+    console.log('Running non-master');
+}
+
+
+
 const app = express();
 const port = 80; // Use any port that suits your setup
 
