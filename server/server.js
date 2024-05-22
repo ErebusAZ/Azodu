@@ -1098,6 +1098,7 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
 
   if (isDelete) {
     try {
+      const roles = req.user.roles || [];
       const commentDetails = await getCommentDetails(client, post_id, commentId);
       if (!commentDetails) {
         return res.status(404).send('Comment not found');

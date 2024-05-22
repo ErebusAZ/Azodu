@@ -235,6 +235,9 @@
 
         // Check if the currentUser is the author of the comment
         const isAuthor = currentUser === author;
+        var rolesString = localStorage.getItem('userRoles');
+    var roles = rolesString ? JSON.parse(rolesString) : [];
+
 
         // Function to check if a link should be displayed
         const shouldDisplayLink = (linkText) => {
@@ -260,7 +263,7 @@
             <a target="_blank" href="${postPermalink}#comment-${commentId}">link</a>` +
             (isSaved ? '<a href="#" class="unsave_comment">unsave</a>' : '<a href="#" class="save_comment">save</a>') + `
             ${isAuthor && shouldDisplayLink('edit') ? `<a href="#edit" class="edit">edit</a>` : ''}
-            ${isAuthor && shouldDisplayLink('delete') ? `<a href="#delete" class="delete">delete</a>` : ''}
+            ${(isAuthor || roles.includes('admin') || roles.includes('super_admin')) && shouldDisplayLink('delete') ? `<a href="#delete" class="delete">delete</a>` : ''}
             ${shouldDisplayLink('reply') ? `<a href="#reply" class="reply">reply</a>` : ''}
         </div>
         
