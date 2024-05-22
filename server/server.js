@@ -668,6 +668,24 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
   }
 
 
+
+  if (category == 'azodu') {
+    const roles = req.user.roles || [];
+
+    const hasPermission = roles.length > 0 && roles.includes('admin') || roles.includes('super_admin');
+    if (!hasPermission) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Only admins can post in c/azodu. Try posting in c/anything instead.',
+        error: true
+      });
+    }
+    
+  }
+
+
+
+
   if (!isEdit) {
 
     // Validate title length for both post types
