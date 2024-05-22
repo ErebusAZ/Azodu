@@ -168,65 +168,65 @@ const postsCommentBlacklist = {};
 
 
 const onlyAnythingCategory = true; // Set to false to comment on all categories
+if (isMaster) {
+  setInterval(async () => {
+    const now = new Date().getTime(); // Get current time in milliseconds
+    const categories = onlyAnythingCategory ? ['anything'] : Object.keys(postsCache); // Determine which categories to process
+    // etCacheSize();
 
-setInterval(async () => {
-  const now = new Date().getTime(); // Get current time in milliseconds
-  const categories = onlyAnythingCategory ? ['anything'] : Object.keys(postsCache); // Determine which categories to process
-  // etCacheSize();
+    categories.forEach(async (category) => {
+      if (postsCache[category] && Object.keys(postsCache[category]).length > 0) {
+        // Convert postIds into an array of objects with postId and its weight based on timestamp
+        const weightedPosts = Object.keys(postsCache[category])
+          .filter(id => !postsCommentBlacklist[id])
+          .map(id => {
+            const postAgeHours = (now - new Date(postsCache[category][id].timestamp).getTime()) / (1000 * 60 * 60); // Calculate post age in hours
+            const weight = 1 / (postAgeHours + 1); // Add 1 to avoid division by zero and invert age to weight
+            return { id, weight };
+          });
 
-  categories.forEach(async (category) => {
-    if (postsCache[category] && Object.keys(postsCache[category]).length > 0) {
-      // Convert postIds into an array of objects with postId and its weight based on timestamp
-      const weightedPosts = Object.keys(postsCache[category])
-        .filter(id => !postsCommentBlacklist[id])
-        .map(id => {
-          const postAgeHours = (now - new Date(postsCache[category][id].timestamp).getTime()) / (1000 * 60 * 60); // Calculate post age in hours
-          const weight = 1 / (postAgeHours + 1); // Add 1 to avoid division by zero and invert age to weight
-          return { id, weight };
-        });
+        // Calculate total weight
+        const totalWeight = weightedPosts.reduce((acc, { weight }) => acc + weight, 0);
 
-      // Calculate total weight
-      const totalWeight = weightedPosts.reduce((acc, { weight }) => acc + weight, 0);
+        // Choose a postId based on weights
+        let accumulator = 0;
+        const random = Math.random() * totalWeight;
+        const postId = weightedPosts.find(({ weight }) => (accumulator += weight) >= random)?.id;
 
-      // Choose a postId based on weights
-      let accumulator = 0;
-      const random = Math.random() * totalWeight;
-      const postId = weightedPosts.find(({ weight }) => (accumulator += weight) >= random)?.id;
+        if (postId && Math.random() <= COMMENT_POST_CHANCE && postsCache[category][postId].ai_summary && parseInt(postsCache[category][postId].comment_count) < 3) {
+          const post = postsCache[category][postId];
+          const model = "gpt-3.5-turbo";
+          const comment = await generateAIComment(post.title, post.ai_summary, model, postId);
+          //   console.log('created comment for ' + post.title);
 
-      if (postId && Math.random() <= COMMENT_POST_CHANCE && postsCache[category][postId].ai_summary && parseInt(postsCache[category][postId].comment_count) < 3) {
-        const post = postsCache[category][postId];
-        const model = "gpt-3.5-turbo";
-        const comment = await generateAIComment(post.title, post.ai_summary, model, postId);
-     //   console.log('created comment for ' + post.title);
+          if (comment == null || comment == 'null') {
+            postsCommentBlacklist[postId] = true; // Mark the post in the dedicated blacklist
+            return;
+          }
 
-        if (comment == null || comment == 'null') {
-          postsCommentBlacklist[postId] = true; // Mark the post in the dedicated blacklist
-          return;
+          const generatedCommentId = generateContentId(); // Generate a unique comment ID
+          const timestamp = new Date();
+          const randomIndex = Math.floor(Math.random() * usernames.length);
+          const author = usernames[randomIndex]; // Randomly picked author from the array
+
+          await insertCommentData(client, generatedCommentId, postId, author, postId, "text", comment, 0, 0, `${post.permalink}`, timestamp);
+
+
+          // Add random upvotes
+          const min = -1, max = 6, randomUpvotes = Math.floor(Math.random() * (max - min + 1)) + min;
+          const randomIP = (Math.floor(Math.random() * 1000000)).toString(); // Generate random IP for voting
+          await insertOrUpdateVote(client, generatedCommentId, randomUpvotes, randomIP); // Adding votes
+
+          await tallyVotesForComment(client, postId, generatedCommentId);
+
+
+
+
         }
-
-        const generatedCommentId = generateContentId(); // Generate a unique comment ID
-        const timestamp = new Date();
-        const randomIndex = Math.floor(Math.random() * usernames.length);
-        const author = usernames[randomIndex]; // Randomly picked author from the array
-
-        await insertCommentData(client, generatedCommentId, postId, author, postId, "text", comment, 0, 0, `${post.permalink}`, timestamp);
-
-
-        // Add random upvotes
-        const min = -1, max = 6, randomUpvotes = Math.floor(Math.random() * (max - min + 1)) + min;
-        const randomIP = (Math.floor(Math.random() * 1000000)).toString(); // Generate random IP for voting
-        await insertOrUpdateVote(client, generatedCommentId, randomUpvotes, randomIP); // Adding votes
-
-        await tallyVotesForComment(client, postId, generatedCommentId);
-
-
-
-
       }
-    }
-  });
-}, COMMENT_GENERATION_INTERVAL_MS);
-
+    });
+  }, COMMENT_GENERATION_INTERVAL_MS);
+}
 
 
 
@@ -323,9 +323,9 @@ async function fetchFromExternalAndCreatePosts() {
 }
 
 
-// Set the interval to run every minute
-setInterval(fetchFromExternalAndCreatePosts, FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH);
-
+if (isMaster) {
+  setInterval(fetchFromExternalAndCreatePosts, FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH);
+}
 
 
 
