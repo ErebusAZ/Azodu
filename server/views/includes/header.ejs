@@ -806,6 +806,30 @@ function toggleMenu() {
 
 
 
+        $('#browse_categories').click(function(e) {
+        e.preventDefault(); // Prevent the default link behavior
+
+        $.ajax({
+            url: '/api/categories',
+            type: 'GET',
+            dataType: 'json',
+            success: function(categories) {
+                var $ul = $('#menuOverlay > ul');
+                $ul.empty(); // Clear existing list items
+
+                // Iterate over each category and append new list items to the ul
+                $.each(categories, function(index, category) {
+                    $ul.append($('<li>').append(
+                        $('<a>').attr('href', '/c/' + category.permalink).text(category.name)
+                    ));
+                });
+            },
+            error: function() {
+                console.error('Error loading categories');
+            }
+        });
+    });
+
 
 
 
@@ -825,8 +849,10 @@ function toggleMenu() {
         <ul>
             <li><a href="/">Home</a></li>
           <!--  <li><a id="loginRegisterMobile" href="#">Login / Register</a></li> -->
+          <li><a href="#" id="browse_categories">Browse categories</a></li>
 
             <li><a href="/c/azodu/123e4567-e89b-12d3-a456-426614174001/how-it-works">How it works</a></li>
+            
             <li><a href="/c/azodu/123e4567-e89b-12d3-a456-426614174000/azodu-content-policy">Content policy</a></li>
             <li><a href="/submit-post">Create a post</a></li>
             <li><a href="/submit-category">Create a category</a></li>
