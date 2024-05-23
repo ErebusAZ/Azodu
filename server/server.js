@@ -152,7 +152,7 @@ const UPDATE_VOTES_AND_PINNED_CACHE_INTERVAL = Math.floor(Math.random() * 51 + 1
 
 // following only happens on master
 const COMMENT_GENERATION_INTERVAL_MS = 1 * 60000; // 1 min
-const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 3; // 3 min
+const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 6; // 6 min
 
 
 const fullPostsCache = new NodeCache({ stdTTL: 200, checkperiod: 120 });
