@@ -1498,7 +1498,7 @@ app.get('/api/posts',cacheDuration(600), async (req, res) => {
       allSortedPosts = posts;
     } else {
 
-      console.log(cacheKey + 'found in cache!');
+    //  console.log(cacheKey + 'found in cache!');
 
     }
 
