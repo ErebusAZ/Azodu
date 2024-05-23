@@ -820,7 +820,7 @@ function toggleMenu() {
                 // Iterate over each category and append new list items to the ul
                 $.each(categories, function(index, category) {
                     $ul.append($('<li>').append(
-                        $('<a>').attr('href', '/c/' + category.permalink).text(category.name)
+                        $('<a>').attr('href', '/c/' + category.permalink).text('/c/' + category.name)
                     ));
                 });
             },
