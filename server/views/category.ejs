@@ -21,7 +21,7 @@
     <script>
         $(document).ready(function() {
             var username = localStorage.getItem('username');
-            if (category.creator === username) {
+            if (username && category.creator === username) {
                 $('body').addClass('is_admin');
             }
         });
