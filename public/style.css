@@ -2046,6 +2046,10 @@ h4#ai_moderated {
 /* Mobile */
 
 
+.menu-icon, .menu-overlay {
+    display: none;
+}
+
 
 @media (max-width: 800px) {
 
@@ -2099,6 +2103,55 @@ h4#ai_moderated {
         width: 90%;
     }
 
+
+
+    .menu-icon, .menu-overlay {
+        display: block;
+    }
+
+
+    .menu-icon {
+        font-size: 30px;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        cursor: pointer;
+        z-index: 1001;
+        /* Ensures it's above the overlay */
+    }
+
+    .menu-overlay {
+        display: none;
+        /* Hidden by default */
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        color: white;
+        text-align: center;
+    }
+
+    .menu-overlay ul {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        list-style: none;
+        padding: 0;
+    }
+
+    .menu-overlay ul li {
+        padding: 15px 0;
+    }
+
+    .menu-overlay ul li a {
+        color: white;
+        text-decoration: none;
+        font-size: 24px;
+    }
 
 
 

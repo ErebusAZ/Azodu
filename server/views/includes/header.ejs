@@ -36,6 +36,17 @@
 </script>
 
 <script>
+
+function toggleMenu() {
+    var overlay = document.getElementById('menuOverlay');
+    if (overlay.style.display === 'block') {
+        overlay.style.display = 'none';
+    } else {
+        overlay.style.display = 'block';
+    }
+}
+
+
     function showNotification(message, type = 'info', duration = 3000, callback = null) {
         let baseClass = 'notificationBar';
         let typeClass = `notification-${type}`;
@@ -806,6 +817,22 @@
 </head>
 
 <body>
+    <div class="menu-icon" onclick="toggleMenu()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <ul>
+            <li><a href="/">Home</a></li>
+          <!--  <li><a id="loginRegisterMobile" href="#">Login / Register</a></li> -->
+
+            <li><a href="/c/azodu/123e4567-e89b-12d3-a456-426614174001/how-it-works">How it works</a></li>
+            <li><a href="/c/azodu/123e4567-e89b-12d3-a456-426614174000/azodu-content-policy">Content policy</a></li>
+            <li><a href="/submit-post">Create a post</a></li>
+            <li><a href="/submit-category">Create a category</a></li>
+
+        </ul>
+    </div>
 
     <div id="account_info">
         <div id="userDisplay" style="display: none;"></div>
