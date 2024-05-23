@@ -805,30 +805,36 @@ function toggleMenu() {
         });
 
 
+        var $menuOverlay = $('#menuOverlay');
+        var $ul = $menuOverlay.find('ul');
+        var originalMenuHTML = $ul.html(); // Store original menu HTML to restore later
 
-        $('#browse_categories').click(function(e) {
-        e.preventDefault(); // Prevent the default link behavior
+        $menuOverlay.on('click', '#browse_categories', function (e) {
+            e.preventDefault();
+            $('#backButton').show(); // Show the back button
 
-        $.ajax({
-            url: '/api/categories',
-            type: 'GET',
-            dataType: 'json',
-            success: function(categories) {
-                var $ul = $('#menuOverlay > ul');
-                $ul.empty(); // Clear existing list items
-
-                // Iterate over each category and append new list items to the ul
-                $.each(categories, function(index, category) {
-                    $ul.append($('<li>').append(
-                        $('<a>').attr('href', '/c/' + category.permalink).text('/c/' + category.name)
-                    ));
-                });
-            },
-            error: function() {
-                console.error('Error loading categories');
-            }
+            $.ajax({
+                url: '/api/categories',
+                type: 'GET',
+                dataType: 'json',
+                success: function (categories) {
+                    $ul.empty(); // Clear existing list items
+                    $.each(categories, function (index, category) {
+                        $ul.append($('<li>').append(
+                            $('<a>').attr('href', '/c/' + category.permalink).text(category.name)
+                        ));
+                    });
+                },
+                error: function () {
+                    console.error('Error loading categories');
+                }
+            });
         });
-    });
+
+        $('#backButton').click(function () {
+            $ul.html(originalMenuHTML); // Restore the original HTML
+            $(this).hide(); // Hide the back button
+        }).hide(); // Initially hide the back button
 
 
 
@@ -846,6 +852,8 @@ function toggleMenu() {
     </div>
 
     <div class="menu-overlay" id="menuOverlay">
+        <span id="backButton" style="position: absolute; top: 20px; left: 20px;">Back</span>
+
         <ul>
             <li><a href="/">Home</a></li>
           <!--  <li><a id="loginRegisterMobile" href="#">Login / Register</a></li> -->
