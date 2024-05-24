@@ -195,7 +195,7 @@ if (isMaster) {
         const random = Math.random() * totalWeight;
         const postId = weightedPosts.find(({ weight }) => (accumulator += weight) >= random)?.id;
 
-        if (postId && Math.random() <= COMMENT_POST_CHANCE && postsCache[category][postId].ai_summary && parseInt(postsCache[category][postId].comment_count) < 3) {
+        if (postId && Math.random() <= COMMENT_POST_CHANCE && postsCache[category][postId].ai_summary /* && parseInt(postsCache[category][postId].comment_count) < 11 */) {
           const post = postsCache[category][postId];
           const model = "gpt-3.5-turbo";
           const comment = await generateAIComment(post.title, post.ai_summary, model, postId);
