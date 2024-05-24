@@ -238,17 +238,17 @@
     })
     .then(response => response.json())
     .then(data => {
-        if (data.status == "error") {
+        if (data.status == "error" || data.error) {
             throw new Error(data.message);
         } else {
             $('button[type="submit"]').text('Success!');
             // Construct the URL based on the response data
             const postUrl = data.permalink;
-            console.log(postUrl); 
             showNotification(data.message, 'success', 4000, function () { 
                 window.location.href = postUrl;  // Redirect to the new post page
             });
         }
+      
     })
     .catch(error => {
         console.log(error);
