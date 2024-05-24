@@ -723,7 +723,6 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
     }
   }
 
-
   if (postType === 'text') {
     content = processHTMLFromUsers(contentText);
 
@@ -755,8 +754,14 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
         const { data } = await axios.get(contentUrl);
         // Extract relevant text to summarize (this step may vary based on content)
         const extractedText = extractRelevantText(data); // Implement this function based on your needs
-        // Generate a summary of the extracted text
-        summary = await generateSummary(extractedText);
+
+        if (extractedText.length > 10) {
+          // Generate a summary of the extracted text
+          summary = await generateSummary(extractedText);
+        
+        } else {
+          summary = ''; 
+        }
       } catch (fetchError) {
         console.error('Error fetching URL content for: ' + contentUrl);
         //  return res.status(500).json({ message: 'Failed to fetch URL content' });

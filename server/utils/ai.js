@@ -192,7 +192,7 @@ async function generateSummary(text) {
     return summary;
   } catch (error) {
     console.error('Error generating summary and/or title from OpenAI:', error);
-    return [null, null];
+    return '';
   }
 }
 
