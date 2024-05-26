@@ -1462,7 +1462,27 @@ app.listen(port, () => {
 
 
 
-app.get('/api/posts',cacheDuration(600), async (req, res) => {
+// Helper function to calculate controversial points
+function controversialScore(post) {
+  return Math.min(post.upvotes, post.downvotes);
+}
+
+// Helper function to determine if a post is controversial (updated sorting mechanism)
+function isControversial(post) {
+  return controversialScore(post) > 0; // only consider posts controversial if they have at least one "controversial point"
+}
+
+
+// Helper function to calculate top score
+function topScore(post) {
+  // Example score calculation, you can adjust as needed
+  return (post.upvotes - post.downvotes) / ((Date.now() - new Date(post.timestamp).getTime()) / 3600000 + 1);
+}
+
+
+
+// Adjust the API route to use the new sorting logic
+app.get('/api/posts', cacheDuration(600), async (req, res) => {
   const { startPostId, category, sort = 'latest' } = req.query;
 
   try {
@@ -1472,17 +1492,10 @@ app.get('/api/posts',cacheDuration(600), async (req, res) => {
     // Check for cached data of all sorted posts
     let allSortedPosts = fullPostsCache.get(cacheKey);
     if (!allSortedPosts) {
-      // Cache miss, need to fetch and sort all posts from the database
       let query = 'SELECT * FROM azodu_keyspace.posts WHERE category = ? LIMIT ?';
-      let params = [category,NUM_POSTS_CACHED];
+      let params = [category, NUM_POSTS_CACHED];
       const result = await client.execute(query, params, { prepare: true });
       let posts = result.rows;
-
-      // Count the number of posts
-      let numberOfPosts = posts.length;
-
-    //  console.log(`Number of posts returned: ${numberOfPosts}`);
-
 
       // Sort posts based on the sort parameter
       switch (sort) {
@@ -1490,7 +1503,7 @@ app.get('/api/posts',cacheDuration(600), async (req, res) => {
           posts.sort((a, b) => topScore(b) - topScore(a));
           break;
         case 'controversial':
-          posts = posts.filter(isControversial).sort((a, b) => b.timestamp - a.timestamp);
+          posts = posts.filter(isControversial).sort((a, b) => controversialScore(b) - controversialScore(a));
           break;
         case 'latest':
         default:
@@ -1501,10 +1514,6 @@ app.get('/api/posts',cacheDuration(600), async (req, res) => {
       // Save sorted and fetched posts to cache
       fullPostsCache.set(cacheKey, posts, 300); // Cache for 5 minutes
       allSortedPosts = posts;
-    } else {
-
-    //  console.log(cacheKey + 'found in cache!');
-
     }
 
     // Find the starting index if startPostId is specified
@@ -1528,31 +1537,6 @@ app.get('/api/posts',cacheDuration(600), async (req, res) => {
     res.status(500).send('Failed to fetch posts');
   }
 });
-
-function topScore(post) {
-  return (post.upvotes - post.downvotes) / ((Date.now() - new Date(post.timestamp).getTime()) / 3600000 + 1);
-}
-
-function isControversial(post) {
-  const minVotes = Math.min(post.upvotes, post.downvotes);
-  const maxVotes = Math.max(post.upvotes, post.downvotes);
-  return minVotes > 10 && (minVotes / maxVotes) > 0.5;
-}
-
-
-// Helper function to calculate top score
-function topScore(post) {
-  // Example score calculation, you can adjust as needed
-  return (post.upvotes - post.downvotes) / ((Date.now() - new Date(post.timestamp).getTime()) / 3600000 + 1);
-}
-
-// Helper function to determine if a post is controversial
-function isControversial(post) {
-  const minVotes = Math.min(post.upvotes, post.downvotes);
-  const maxVotes = Math.max(post.upvotes, post.downvotes);
-  return minVotes > 3 && (minVotes / maxVotes) > 0.5;
-}
-
 
 
 
