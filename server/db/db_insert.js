@@ -307,13 +307,12 @@ async function tallyVotesForComment(client, post_id, comment_id) {
     }
     // Note: vote_value of 0 does not affect counts
   });
-  console.log(upvotes,downvotes); 
 
   // Update the comment's upvote and downvote counts in the database
   const updateQuery = `UPDATE azodu_keyspace.comments SET upvotes = ?, downvotes = ? WHERE post_id = ? AND comment_id = ?`;
   await client.execute(updateQuery, [upvotes, downvotes, post_id, comment_id], { prepare: true });
 
-  console.log(`Updated votes for comment ${comment_id}: ${upvotes} upvotes, ${downvotes} downvotes`);
+//  console.log(`Updated votes for comment ${comment_id}: ${upvotes} upvotes, ${downvotes} downvotes`);
 }
 
 
