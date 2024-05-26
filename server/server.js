@@ -151,8 +151,8 @@ const cache = {
 const UPDATE_VOTES_AND_PINNED_CACHE_INTERVAL = Math.floor(Math.random() * 51 + 10) * 1000; // how quickly to fetch all posts and update votes, random # between 10 and 50 sec
 
 // following only happens on master
-const COMMENT_GENERATION_INTERVAL_MS = 1 * 60000; // 1 min
-const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 6; // 6 min
+const COMMENT_GENERATION_INTERVAL_MS = 2 * 60000; // 2 min
+const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 10; // 10 min
 
 
 const fullPostsCache = new NodeCache({ stdTTL: 200, checkperiod: 120 });
