@@ -242,7 +242,6 @@ async function fetchFromExternalAndCreatePosts() {
       'https://old.reddit.com/r/news/top/.json',
       //   'https://old.reddit.com/r/worldnews/top/.json',
       'https://old.reddit.com/r/technology/top/.json',
-      'https://old.reddit.com/r/Conservative/top/.json',
       'https://old.reddit.com/r/nottheonion/.json'
 
     ];
