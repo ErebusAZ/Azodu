@@ -152,7 +152,7 @@ const UPDATE_VOTES_AND_PINNED_CACHE_INTERVAL = Math.floor(Math.random() * 51 + 1
 
 // following only happens on master
 const COMMENT_GENERATION_INTERVAL_MS = 2 * 60000; // 2 min
-const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 20; // 20 min
+const FREQUENCY_TO_CREATE_POSTS_FROM_EXTERNAL_FETCH = 60000 * 120; // 120 min
 
 
 const fullPostsCache = new NodeCache({ stdTTL: 200, checkperiod: 120 });
@@ -242,7 +242,8 @@ async function fetchFromExternalAndCreatePosts() {
       'https://old.reddit.com/r/news/top/.json',
       //   'https://old.reddit.com/r/worldnews/top/.json',
       'https://old.reddit.com/r/technology/top/.json',
-      'https://old.reddit.com/r/nottheonion/.json'
+      'https://old.reddit.com/r/nottheonion/.json',
+      'https://old.reddit.com/r/conservative/.json'
 
     ];
 
