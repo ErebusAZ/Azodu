@@ -581,7 +581,7 @@
                                     },
                                     error: function (xhr, status, error) {
                                         if (xhr.responseJSON && xhr.responseJSON.message) {
-                                            showNotification(xhr.responseJSON.message, 'error', 10000);
+                                            showNotification(xhr.responseJSON.message, 'error', 999999999);
 
                                         } else {
                                             showNotification('Error updating post: ' + error, 'error', 5000);

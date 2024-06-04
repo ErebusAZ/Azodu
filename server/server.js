@@ -736,7 +736,7 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
     if (!isContentSafe) {
       const nextTimeoutDuration = setTimeoutForUser(creator);
 
-      return res.status(400).json({ status: 'error', message: `Your comment was not approved because it was found by AI to be against our content policies. Wait ${nextTimeoutDuration / 1000} seconds before you can submit again.` });
+      return res.status(400).json({ status: 'error', message: `Your post was not approved because it was found by AI to be against our content policies. Wait ${nextTimeoutDuration / 1000} seconds before you can submit again. If you believe the AI made a mistake, please email info@azodu.com with the full contents of the post.` });
     }
 
 
