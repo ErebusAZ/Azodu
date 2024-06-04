@@ -88,7 +88,7 @@ function removeUnwantedPatterns(inputString) {
 }
 
 async function generateAIComment(title, summary, model, post_id) {
-  const maxNum = getRandomNumberBetween(1, 4);
+  const maxNum = getRandomNumberBetween(4, 10);
 
   if (commentsCache[post_id] && commentsCache[post_id].length === 0) {
     return null; // No more comments to serve for this title
@@ -103,7 +103,7 @@ async function generateAIComment(title, summary, model, post_id) {
   }
 
   try {
-    const prompt = 'Respond with ' + maxNum + ' different perspective comments in an HTML list format. Try to mimic a random internet user as best as possible. The content is as follows ... Title: ' + title + ' Summary: ' + summary;
+    const prompt = 'Respond with ' + maxNum + ' different perspective comments in an HTML list format. Try to mimic a random internet user as best as possible, some should be dripping with sarcasm. The content is as follows ... Title: ' + title + ' Summary: ' + summary;
     const completion = await openai.chat.completions.create({
       model: model,
       messages: [{ role: "user", content: prompt }],
