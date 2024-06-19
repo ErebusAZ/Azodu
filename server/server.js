@@ -706,10 +706,10 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
 
   // Validate content length based on post type
   if (postType === 'text') {
-    if (contentText.length < 30 || contentText.length > 5000) {
+    if (contentText.length < 30 || contentText.length > 50000) {
       return res.status(400).json({
         status: 'error',
-        message: 'Content must be between 30 and 5000 characters for text posts.',
+        message: 'Content must be between 30 and 50000 characters for text posts.',
         error: true
       });
     }
@@ -1660,14 +1660,17 @@ async function initializeAllCategoriesCache(client,cache) {
 async function main() {
   try {
 
-    //   await flushAllTables(client,'azodu_keyspace','comments'); 
+  //  await flushAllTables(client, 'azodu_keyspace', 'comments'); 
+  //  await flushAllTables(client, 'azodu_keyspace', 'posts'); 
+
+
     //  await dropAllTables(client, 'azodu_keyspace'); 
 
     await client.connect();
     await createKeyspace(client);
     await createUsersTable(client);
     await createUserEmailsTable(client);
-    await insertFakeUsers(client, usernames);
+   // await insertFakeUsers(client, usernames);
     await createCommentsTable(client);
     await createPostsTable(client);
     await createPinnedPostsTable(client);
