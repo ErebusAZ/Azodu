@@ -2487,9 +2487,10 @@ h1 {
 }
 
 p {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    font-size: 14px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    font-size: 15px;
+    line-height: 20px;
 }
 
 ul {
