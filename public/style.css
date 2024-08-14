@@ -3844,7 +3844,7 @@ span#rules_span {
 }
 
 #rights, #rules,#disc {
-    font-size: 14px;
+    font-size: 15px;
     margin-left: 30px;
 }
 
@@ -4335,6 +4335,7 @@ h4#ai_moderated {
     line-height: 18px;
     padding-top: 5px;
     margin-bottom: 20px;
+    font-size: 15px;
 }
 
 
