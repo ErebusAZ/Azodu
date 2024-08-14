@@ -3386,7 +3386,7 @@ button#submit-comment {
 .comment-content {
     display: flex;
     flex-direction: column;
-    font-size: 14px;
+    font-size: 15px;
 }
 
 .username, .points, .time {
@@ -3454,7 +3454,7 @@ button#submit-comment {
 }
 
 .comment-content p {
-    font-size: 14px;
+    font-size: 15px;
     color: #d7dadc;
     /* Ensure comment text is visible against the dark background */
     line-height: 18px;
@@ -4013,7 +4013,7 @@ blockquote {
     margin-bottom: 5px;
     margin-top: 5px;
     padding-left: 10px;
-    font-size: 14px;
+    font-size: 15px;
     margin-left: 10px;
     color: gray;
 }
