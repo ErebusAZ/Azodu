@@ -305,7 +305,7 @@ function toggleMenu() {
             return '';
         if (!post.isPinned)
             post.isPinned = false;
-        let isTwitterUrl = post.content && post.content.includes("twitter.com");
+        let isTwitterUrl = post.content && post.content.includes("twitter.com") || post.content.includes("x.com");
         const postTitleHref = post.post_type === 'url' ? post.content : post.permalink;
 
         let contentDisplay = post.post_type === 'url' && post.ai_summary ?
@@ -715,7 +715,6 @@ function toggleMenu() {
         });
 
 
-
         $('.container').on('click', '.open-content', function () {
             $(this).toggleClass('fa-plus fa-minus');
             $(this).closest('.post').find('.post-text, .twitter-placeholder').slideToggle(0);
@@ -726,13 +725,16 @@ function toggleMenu() {
                 let tweetUrl = twitterPlaceholder.data('twitter-url');
 
                 if (tweetUrl) {
+                    // hack to fix embeds not loading with new x.com url
+                    tweetUrl = tweetUrl.replace('x.com', 'twitter.com');
+
                     let embedCode = `<blockquote class="twitter-tweet" data-theme="dark"><a href="${tweetUrl}"></a></blockquote>`;
                     twitterPlaceholder.html(embedCode).addClass('twitter-loaded');
 
                     // Check if the Twitter widgets script has already been loaded
                     if (!window.twttr) {
                         let script = document.createElement('script');
-                        script.setAttribute('src', '/js/libs/twitter-widgets.js');
+                        script.setAttribute('src', 'https://platform.twitter.com/widgets.js');
                         script.onload = function () {
                             // Once the script is loaded, initialize the widget
                             twttr.widgets.load();

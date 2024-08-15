@@ -469,6 +469,17 @@
                     // load twitter embeds
 
 
+                    // hack to fix embeds not loading with new x.com url
+                    $('.twitter-tweet a').each(function () {
+                        let href = $(this).attr('href');
+                        if (href.includes('x.com')) {
+                            let updatedHref = href.replace('x.com', 'twitter.com');
+                            $(this).attr('href', updatedHref);
+                        }
+                    });
+                    
+
+
                     const twitterEmbeds = document.querySelectorAll('.twitter-tweet');
 
                     twitterEmbeds.forEach(function (embed) {
