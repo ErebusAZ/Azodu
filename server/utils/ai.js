@@ -249,9 +249,25 @@ async function moderateContent(content, title, author) {
     // Log the full moderation response
     console.log("OpenAI Moderation API Response:", JSON.stringify(moderation, null, 2));
 
-    // For simplicity, assume content is safe if no categories of concern are detected
-    // Adjust according to your specific moderation policies and the structure of the moderation response
-    const isContentSafe = !moderation.results[0].flagged;
+    // Initialize a variable to track content safety
+    let isContentSafe = true;
+
+    // Loop through each category and check the scores
+    const categoryScores = moderation.results[0].category_scores;
+    const flaggedCategories = moderation.results[0].categories;
+
+    for (let category in categoryScores) {
+      if (flaggedCategories[category]) {
+        if (category === 'harassment' && categoryScores[category] > 0.97) {
+          isContentSafe = false;
+          break;
+        } else if (category !== 'harassment') {
+          // You can define more rules for other categories here if needed
+          isContentSafe = false;
+          break;
+        }
+      }
+    }
 
     return isContentSafe;
   } catch (error) {
@@ -260,6 +276,7 @@ async function moderateContent(content, title, author) {
     throw new Error("Moderation check failed");
   }
 }
+
 
 
 
