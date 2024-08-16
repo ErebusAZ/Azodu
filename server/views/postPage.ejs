@@ -268,7 +268,9 @@
 
                             const responseJson = xhr.responseJSON;
                             const message = responseJson && responseJson.message ? responseJson.message : `Error submitting comment: ${errorMessage}`;
-                            $statusMessage.text(message).css('color', 'red').show().delay(10000).fadeOut();
+                         //   $statusMessage.text(message).css('color', 'red').show().delay(30000).fadeOut();
+                            $statusMessage.text(message).css('color', 'red').show();
+
                             // $statusMessage.text(error.includes('error') ? error: 'Error submitting comment: ' + error).css('color', 'red').show().delay(3000).fadeOut();
                         }
                     });
