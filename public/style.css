@@ -4274,6 +4274,8 @@ div#user_page {
     z-index: -1;
     height: max-content;
     padding-bottom: 100px;
+    position: absolute;
+    left: 0;
 }
 
 
