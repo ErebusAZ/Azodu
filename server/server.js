@@ -161,7 +161,7 @@ const loginExpires = 86400 * 30; // how long till login expires
 const NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS = 150; // the # of posts to go back in a category on an interval to calculate votes and comments
 const NUM_POSTS_CACHED = 2500; // num of posts to go back via api/posts. multiplies in memory for each category and each sort: latest/top/controversial
 const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
-const DAYS_TILL_POST_ARCHIVED = 5; // WARNING default_time_to_live on votes table should be at least 1 day greater than this
+const DAYS_TILL_POST_ARCHIVED = 45; // WARNING default_time_to_live on votes table should be at least 1 day greater than this
 const DAYS_TILL_ALLOWED_TO_COMMENT = 999999; 
 
 
