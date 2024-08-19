@@ -161,7 +161,8 @@ const loginExpires = 86400 * 30; // how long till login expires
 const NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS = 150; // the # of posts to go back in a category on an interval to calculate votes and comments
 const NUM_POSTS_CACHED = 2500; // num of posts to go back via api/posts. multiplies in memory for each category and each sort: latest/top/controversial
 const COMMENT_POST_CHANCE = 1; // % chance of posting a comment on each post, 1 is 100%
-const DAYS_TILL_POST_ARCHIVED = 45; // WARNING default_time_to_live on votes table should be at least 1 day greater than this
+const DAYS_TILL_CALCULATE_VOTES_AND_COMMENTS = 45; // WARNING default_time_to_live on votes table should be at least 1 day greater than this
+const DAYS_TILL_VOTING_ALLOWED = 45; // should probably be the same as DAYS_TILL_CALCULATE_VOTES_AND_COMMENTS
 const DAYS_TILL_ALLOWED_TO_COMMENT = 999999; 
 
 
@@ -341,7 +342,7 @@ async function processCategoriesPeriodically() {
 
     const currentCategory = categoryKeys[currentCategoryIndex];
     try {
-      const newSummary = await fetchPostsAndCalculateVotesAndCommentCounts(client, currentCategory, postsCache[currentCategory] ? postsCache[currentCategory] : {}, true, NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS,DAYS_TILL_POST_ARCHIVED);
+      const newSummary = await fetchPostsAndCalculateVotesAndCommentCounts(client, currentCategory, postsCache[currentCategory] ? postsCache[currentCategory] : {}, true, NUM_POSTS_BACK_CALCULATE_VOTES_COMMENTS,DAYS_TILL_CALCULATE_VOTES_AND_COMMENTS);
       updatePinnedPostsInCache(newSummary, currentCategory);
       // You may want to consider whether you need to keep this assignment or adjust the design
       // to better handle updates.
@@ -1103,7 +1104,7 @@ app.post('/api/vote', authenticateToken, async (req, res) => {
   const voter = req.user.username;
 
 
-  if (isPostOlderThanDays(post_id, 5)) {
+  if (isPostOlderThanDays(post_id, DAYS_TILL_VOTING_ALLOWED)) {
     return res.status(403).send('The post is archived. Voting is disabled.');
   }
 
