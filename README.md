@@ -41,6 +41,19 @@ Cassandra excels in handling large volumes of data across multiple data centers 
 * Thumbnails: Auto-generated from links on submission
 * Scalibility: Built in HTTP caching behind Cassandra with a highly scalable architecture
 
+## Configuration
+
+To configure your application, you need to create a `secrets.json` file in your project root. This file will store all the necessary secret keys required for various services. Below is the template for the `secrets.json` file:
+
+```json
+{
+  "JWT_SECRET": "XXXXXXXXXXXXXXXXX", // The secret used for JSON web tokens, which is used for authentication
+  "OPENAI_API_KEY": "XXXXXXXXXXXXXXXXX", // If you wish to use AI moderation with OpenAI, you will need an API key
+  "CASSANDRA_PW": "XXXXXXXXXXXXXXXXX", // Used for authenticating your Node.js servers with Cassandra nodes
+  "RECAPTCHA_KEY": "XXXXXXXXXXXXXXXXX" // Google reCAPTCHA API key, which is used as spam protection on the user registration page
+}
+```
+
 ## Installation
 
 Follow these steps to get the project up and running locally.
@@ -48,9 +61,9 @@ Follow these steps to get the project up and running locally.
 1. Clone the repository
 2. Run `npm install` in the /server directory
 3. [Install and run Cassandra](https://cassandra.apache.org/doc/stable/cassandra/getting_started/installing.html) on your local machine
-4. In server/server.js, set `contactPoints: ['127.0.0.1']`. In production, this IP address should be swapped out with one or multiple other Cassandra nodes that are live and connected to your production cluster(s). 
-5. Run `node server/server.js`
-6. View the site at `localhost` which you can navigate to via your browser address bar
+4. In server/server.js, set `contactPoints: ['127.0.0.1']`. In production, this IP address should be swapped out with one or multiple other Cassandra nodes that are live and connected to your production cluster(s).
+6. Run `node server/server.js`. Make sure you have created a secrets.json (see above Configuration section) file before running this. 
+7. View the site at `localhost` which you can navigate to via your browser address bar
 
 ## Infastructure
 I recommend a very simple architecture. For every node server you spin up, create an A record (with the server IP) for it at your root domain. This will force users into a round robin distribution to your servers. As your site grows, you should spin up more node and Cassandra servers based on load.
