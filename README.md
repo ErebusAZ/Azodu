@@ -10,7 +10,7 @@ Go to [Azodu.com](https://azodu.com) to see the software in action. Learn more a
 
 
 ### Why is Azodu more scalable than other Reddit clones?
-Instead of relying on traditional SQL tech like MySql or Postgres, Azodu uses [Apache Cassandra](https://cassandra.apache.org/_/index.html). 
+Instead of relying on traditional SQL tech like MySQL or Postgres, Azodu uses [Apache Cassandra](https://cassandra.apache.org/_/index.html). 
 Cassandra excels in handling large volumes of data across multiple data centers with minimal downtime, thanks to its decentralized, masterless architecture. This allows for continuous availability and the ability to handle enormous write and read loads by distributing data across multiple nodes. Cassandra also has the ability to scale horizontally by simply adding more nodes to the cluster without downtime making it ideal for Reddit-like sites, which may experience unpredictable spikes in user traffic. 
 
 **Traditional SQL scaling**: Your DB server reaches 100% capacity so your only choice is to upgrade to better hardware or create read replicas. Both these avenues are extremely expensive. And it is the reason why Reddit-like sites can't scale without a massive investment. 
@@ -41,21 +41,38 @@ Cassandra excels in handling large volumes of data across multiple data centers 
 * Thumbnails: Auto-generated from links on submission
 * Scalibility: Built in HTTP caching behind Cassandra with a highly scalable architecture
 
+### AI-generated comments. 
+
+By running a node as a master (`node server/server.js --master`) you can automatically have AI generate posts (from Reddit URLs which can be altered in `fetchFromExternalAndCreatePosts`) and comments. This is meant for demonstration and testing purposes only. 
+
+## Configuration
+
+To configure your application, you need to create a `secrets.json` file in your project root. This file will store all the necessary secret keys required for various services. Below is the template for the `secrets.json` file:
+
+```json
+{
+  "JWT_SECRET": "XXXXXXXXXXXXXXXXX", // The secret used for JSON web tokens, which is used for authentication
+  "OPENAI_API_KEY": "XXXXXXXXXXXXXXXXX", // If you wish to use AI moderation with OpenAI, you will need an API key
+  "CASSANDRA_PW": "XXXXXXXXXXXXXXXXX", // Used for authenticating your Node.js servers with Cassandra nodes
+  "RECAPTCHA_KEY": "XXXXXXXXXXXXXXXXX" // Google reCAPTCHA API key, which is used as spam protection on the user registration page
+}
+```
+
 ## Installation
 
 Follow these steps to get the project up and running locally.
 
 1. Clone the repository
 2. Run `npm install` in the /server directory
-3. [Install and run Cassandra](https://cassandra.apache.org/doc/stable/cassandra/getting_started/installing.html) on your local machine
-4. In server/server.js, set `contactPoints: ['127.0.0.1']`. In production, this IP address should be swapped out with one or multiple other Cassandra nodes that are live and connected to your production cluster(s). 
-5. Run `node server/server.js`
-6. View the site at `localhost` which you can navigate to via your browser address bar
+3. [Install and run Cassandra](https://cassandra.apache.org/doc/stable/cassandra/getting_started/installing.html) on your local machine. Make sure that you have materialized views enabled in cassandra.yaml as Azodu makes extensive use of materialized views. There shouldn't be any additional Cassandra configuration required as running the app should create all necessary tables and materialized views. 
+4. In server/server.js, set `contactPoints: ['127.0.0.1']`. In production, this IP address should be swapped out with one or multiple other Cassandra nodes that are live and connected to your production cluster(s).
+6. Run `node server/server.js`. Make sure you have created a secrets.json (see above Configuration section) file before running this. 
+7. View the site at `localhost` which you can navigate to via your browser address bar
 
 ## Infastructure
 I recommend a very simple architecture. For every node server you spin up, create an A record (with the server IP) for it at your root domain. This will force users into a round robin distribution to your servers. As your site grows, you should spin up more node and Cassandra servers based on load.
 
-Althought Azodu does have application HTTP cache in node, I also recommend putting Cloudflare in front (using the "cache everything" feature) and caching HTML docs (which translate to DB calls). This is possible to do because all pages are designed to be static and not user-specific. The JWT architechture for users and authentication makes this possible.  
+Although Azodu does have application HTTP cache in node, I also recommend putting Cloudflare in front (using the "cache everything" feature) and caching HTML docs (which translate to DB calls). This is possible to do because all pages are designed to be static and not user-specific. The JWT architecture for users and authentication makes this possible.  
 
 ## Deployment
 A very simple deployment script is written in `scripts/deploy.js`. You can simply swap out the IP addresses in the `servers` var with your own servers. You also need to change the `privateKey` var to reference the file location of the SSH key for your server(s). 
