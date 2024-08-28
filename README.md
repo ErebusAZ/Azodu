@@ -29,6 +29,7 @@ Cassandra excels in handling large volumes of data across multiple data centers 
 ### Features
 * Comments: Create, reply, edit, delete, save
 * Posts: Create (text and link posts), reply, edit, delete, save
+* Sorting: Sort feeds by latest, top and controversial. Sorting takes place in-memory (no DB calls)
 * Rich Text editing: powered by [Quill](https://quilljs.com/) 
 * Currency: Users earn a currency for getting their content upvoted which they can use to create categories
 * Categories: Create, subscribe, unsubscribe
