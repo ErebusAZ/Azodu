@@ -3,9 +3,9 @@ With Azodu you can quickly have a feature-complete Reddit-like site that is easy
 
 The two biggest points of friction for Reddit-like sites getting off the ground are 1) scalability and 2) moderation. Azodu solves both those problems straight out of the box. 
 
-* **Scaling**: It solves scalability by relying on decentralized database technology with Cassandra (instead of expensive SQL solutions) and generating purely static HTML docs. The docs can be efficiently HTTP-cached (at application and CDN level) and speedily served. 
+* **Scaling**: Azodu relies on decentralized database technology with Cassandra (instead of expensive SQL solutions) and generates purely static HTML docs. The docs can be efficiently HTTP-cached (at application and CDN level) and speedily served. 
 
-* **Moderation**: Azodu solves moderation by relying on AI, instead of teams of moderators, to evaluate content. 
+* **Moderation**: Azodu solves moderation by relying on AI (powered by Open AI's moderation endpoint), instead of teams of moderators, to evaluate content. 
 
 In addition, Azodu uses no arcane frameworks used on the front or backend. Everything is vanilla HTML/CSS and Javascript and written from scratch for minimal software bloat.  
 
@@ -42,7 +42,7 @@ Cassandra excels in handling large volumes of data across multiple data centers 
 * Users: login, registration and profile pages with saved (private) content, public post and comment history
 * Responsive design: works out of the box on PC, mobile and tablet
 * Administration: pin posts, delete posts 
-* AI Moderation: posts and comments are all run though Open AI's moderation endpoint
+* AI Moderation: posts and comments are all run though [Open AI's moderation endpoint](https://platform.openai.com/docs/guides/moderation/overview)
 * AI Summaries: all post content is summarized with AI
 * Thumbnails: auto-generated from links on submission
 * Scalibility: built in HTTP caching behind Cassandra with a highly scalable architecture
