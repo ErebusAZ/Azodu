@@ -5,7 +5,7 @@ The two biggest points of friction for Reddit-like sites getting off the ground 
 
 * **Scaling**: Azodu relies on decentralized database technology with Cassandra (instead of expensive SQL solutions) and generates purely static HTML docs. The docs can be efficiently HTTP-cached (at application and CDN level) and speedily served. 
 
-* **Moderation**: Azodu solves moderation by relying on AI (powered by Open AI's moderation endpoint), instead of teams of moderators, to evaluate content. 
+* **Moderation**: Azodu solves moderation by relying on AI (powered by Open AI's moderation endpoint), instead of teams of moderators, to evaluate content. If you don't like AI moderation, you can replace it with human moderation or have some combination of both. 
 
 In addition, Azodu uses no arcane frameworks used on the front or backend. Everything is vanilla HTML/CSS and Javascript and written from scratch for minimal software bloat.  
 
