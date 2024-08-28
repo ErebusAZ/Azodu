@@ -3,34 +3,8 @@ With Azodu you can quickly have a feature-complete Reddit-like site that is easy
 
 ![Alt text](/public/img/azodu_image.png)
 
-The two biggest points of friction for Reddit-like sites getting off the ground are 1) scalability and 2) moderation. Azodu solves both those problems straight out of the box. 
-
-* **Scaling**: Azodu relies on decentralized database technology with Cassandra (instead of expensive SQL solutions) and generates purely static HTML docs. The docs can be efficiently HTTP-cached (at application and CDN level) and speedily served. 
-
-* **Moderation**: Azodu solves moderation by relying on AI (powered by Open AI's moderation endpoint), instead of teams of moderators, to evaluate content. If you don't like AI moderation, you can replace it with human moderation or have some combination of both. 
-
-In addition, Azodu uses no arcane frameworks used on the front or backend. Everything is vanilla HTML/CSS and Javascript and written from scratch for minimal software bloat.  
-
 ### Live Demo
 Go to [Azodu.com](https://azodu.com) to see the software in action. Learn more about the Azodu.com project in the [How it works](https://azodu.com/c/azodu/123e4567-e89b-12d3-a456-426614174001/how-it-works) and [Why I made Azodu](https://azodu.com/c/anything/3e97c068-5a54-11ef-a739-60b07b0766be/why-i-made-azodu) section. 
-
-
-### Why is Azodu more scalable than other Reddit clones?
-Instead of relying on traditional SQL tech like MySQL or Postgres, Azodu uses [Apache Cassandra](https://cassandra.apache.org/_/index.html). 
-Cassandra excels in handling large volumes of data across multiple data centers with minimal downtime, thanks to its decentralized, masterless architecture. This allows for continuous availability and the ability to handle enormous write and read loads by distributing data across multiple nodes. Cassandra also has the ability to scale horizontally by simply adding more nodes to the cluster without downtime making it ideal for Reddit-like sites, which may experience unpredictable spikes in user traffic. 
-
-* **Traditional SQL scaling**: Your DB server reaches 100% capacity so your only choice is to upgrade to better hardware or create read replicas. Both these avenues are extremely expensive. And it is the reason why Reddit-like sites can't scale without a massive investment. 
-
-* **Cassandra scaling**: Simply add more cassandra nodes to the cluster. You can scale to millions of DAU going completely out of pocket if you make proper use of efficient HTTP caching! 
-
-### What makes Azodu different than Reddit?
-* All content is moderated by AI instead of human moderators. The creator of a community only has the ability to pin posts. They cannot ban users or delete content. The AI will check for relevancy (based on what the community creator writes in the relevancy prompt) when a post is submitted to the category and will also check for malicious content. Don't like AI moderation? Simply rip it out and replace it with human moderation. 
-
-* The UI is clean and focused, and emphasized discussion around content itself as opposed to content itself. It is closer to Old Reddit than new Reddit. New Reddit is more like Twitter and Facebook... interfaces which encourage doomscrolling and dark patterns instead of healthy online discourse. Discourse (aka the comments) is very much the emphasis.
-
-* Users earn Azo, the platform currency for getting upvotes. They can use this currency to open new communities (which function like sub-reddits). This is to prevent a single person or group of people from reserving all the best names. If you're forking to build a Reddit-like, you can choose to remove this feature or come up with your own currency. 
-
-* All links submitted are summarized by AI so users can get the gist of what a link is before clicking it.
 
 ### Features
 * Comments: create, reply, edit, delete, save
@@ -53,6 +27,33 @@ Cassandra excels in handling large volumes of data across multiple data centers 
 ### AI-generated filler posts and comments 
 
 By running a node as a master (`node server/server.js --master`) you can automatically have AI generate posts (from Reddit URLs which can be altered in `fetchFromExternalAndCreatePosts`) and comments. This is meant for demonstration and testing purposes only. 
+
+### Why make it?
+
+The two biggest points of friction for Reddit-like sites getting off the ground are 1) scalability and 2) moderation. Azodu solves both those problems straight out of the box. 
+
+* **Scaling**: Azodu relies on decentralized database technology with Cassandra (instead of expensive SQL solutions) and generates purely static HTML docs. The docs can be efficiently HTTP-cached (at application and CDN level) and speedily served. 
+
+* **Moderation**: Azodu solves moderation by relying on AI (powered by Open AI's moderation endpoint), instead of teams of moderators, to evaluate content. If you don't like AI moderation, you can replace it with human moderation or have some combination of both. 
+
+In addition, Azodu uses no arcane frameworks used on the front or backend. Everything is vanilla HTML/CSS and Javascript and written from scratch for minimal software bloat.  
+
+### Why is Azodu more scalable than other Reddit clones?
+Instead of relying on traditional SQL tech like MySQL or Postgres, Azodu uses [Apache Cassandra](https://cassandra.apache.org/_/index.html). 
+Cassandra excels in handling large volumes of data across multiple data centers with minimal downtime, thanks to its decentralized, masterless architecture. This allows for continuous availability and the ability to handle enormous write and read loads by distributing data across multiple nodes. Cassandra also has the ability to scale horizontally by simply adding more nodes to the cluster without downtime making it ideal for Reddit-like sites, which may experience unpredictable spikes in user traffic. 
+
+* **Traditional SQL scaling**: Your DB server reaches 100% capacity so your only choice is to upgrade to better hardware or create read replicas. Both these avenues are extremely expensive. And it is the reason why Reddit-like sites can't scale without a massive investment. 
+
+* **Cassandra scaling**: Simply add more cassandra nodes to the cluster. You can scale to millions of DAU going completely out of pocket if you make proper use of efficient HTTP caching! 
+
+### What makes Azodu different than Reddit?
+* All content is moderated by AI instead of human moderators. The creator of a community only has the ability to pin posts. They cannot ban users or delete content. The AI will check for relevancy (based on what the community creator writes in the relevancy prompt) when a post is submitted to the category and will also check for malicious content. Don't like AI moderation? Simply rip it out and replace it with human moderation. 
+
+* The UI is clean and focused, and emphasized discussion around content itself as opposed to content itself. It is closer to Old Reddit than new Reddit. New Reddit is more like Twitter and Facebook... interfaces which encourage doomscrolling and dark patterns instead of healthy online discourse. Discourse (aka the comments) is very much the emphasis.
+
+* Users earn Azo, the platform currency for getting upvotes. They can use this currency to open new communities (which function like sub-reddits). This is to prevent a single person or group of people from reserving all the best names. If you're forking to build a Reddit-like, you can choose to remove this feature or come up with your own currency. 
+
+* All links submitted are summarized by AI so users can get the gist of what a link is before clicking it.
 
 ## Configuration
 
