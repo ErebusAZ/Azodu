@@ -27,21 +27,22 @@ Cassandra excels in handling large volumes of data across multiple data centers 
 * All links submitted are summarized by AI so users can get the gist of what a link is before clicking it.
 
 ### Features
-* Comments: Create, reply, edit, delete, save
-* Posts: Create (text and link posts), reply, edit, delete, save
-* Sorting: Sort feeds by latest, top and controversial. Sorting takes place in-memory (no DB calls)
+* Comments: create, reply, edit, delete, save
+* Posts: create (text and link posts), reply, edit, delete, save
+* Sorting: sort feeds by latest, top and controversial. Sorting takes place in-memory (no DB calls)
 * Rich Text editing: powered by [Quill](https://quilljs.com/) 
-* Currency: Users earn a currency for getting their content upvoted which they can use to create categories
-* Categories: Create, subscribe, unsubscribe
-* Votes: Vote on comments and posts
-* Authentication: Uses JSON web tokens
+* Currency: users earn a currency for getting their content upvoted which they can use to create categories
+* Categories: create, subscribe, unsubscribe
+* Votes: vote on comments and posts
+* Authentication: via stateless JSON web tokens
+* Users: login, registration and profile pages with saved (private) content, public post and comment history
 * Responsive design: works out of the box on PC, mobile and tablet
 * Administration: pin posts, delete posts 
 * AI Moderation: posts and comments are all run though Open AI's moderation endpoint
-* AI Summaries: All post content is summarized with AI
-* Thumbnails: Auto-generated from links on submission
-* Scalibility: Built in HTTP caching behind Cassandra with a highly scalable architecture
-* Security: Rate limiting on HTTP request and failed moderation frequency. Each time a user fails moderation, they must wait progressively more time to submit again. 
+* AI Summaries: all post content is summarized with AI
+* Thumbnails: auto-generated from links on submission
+* Scalibility: built in HTTP caching behind Cassandra with a highly scalable architecture
+* Security: rate limiting on HTTP request and failed moderation frequency. Each time a user fails moderation, they must wait progressively more time to submit again. 
 
 ### AI-generated filler posts and comments 
 
