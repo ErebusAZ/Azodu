@@ -41,6 +41,10 @@ Cassandra excels in handling large volumes of data across multiple data centers 
 * Thumbnails: Auto-generated from links on submission
 * Scalibility: Built in HTTP caching behind Cassandra with a highly scalable architecture
 
+### AI-generated comments. 
+
+By running a node as a master (`node server/server.js --master`) you can automatically have AI generate posts (from Reddit URLs which can be altered in `fetchFromExternalAndCreatePosts`) and comments. This is meant for demonstration and testing purposes only. 
+
 ## Configuration
 
 To configure your application, you need to create a `secrets.json` file in your project root. This file will store all the necessary secret keys required for various services. Below is the template for the `secrets.json` file:
