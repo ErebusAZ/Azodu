@@ -64,7 +64,7 @@ Follow these steps to get the project up and running locally.
 
 1. Clone the repository
 2. Run `npm install` in the /server directory
-3. [Install and run Cassandra](https://cassandra.apache.org/doc/stable/cassandra/getting_started/installing.html) on your local machine
+3. [Install and run Cassandra](https://cassandra.apache.org/doc/stable/cassandra/getting_started/installing.html) on your local machine. Make sure that you have materialized views enabled in cassandra.yaml as Azodu makes extensive use of materialized views. 
 4. In server/server.js, set `contactPoints: ['127.0.0.1']`. In production, this IP address should be swapped out with one or multiple other Cassandra nodes that are live and connected to your production cluster(s).
 6. Run `node server/server.js`. Make sure you have created a secrets.json (see above Configuration section) file before running this. 
 7. View the site at `localhost` which you can navigate to via your browser address bar
