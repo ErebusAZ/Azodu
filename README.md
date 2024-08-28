@@ -22,9 +22,9 @@ Cassandra excels in handling large volumes of data across multiple data centers 
 
 * The UI is clean and focused, and emphasized discussion around content itself as opposed to content itself. It is closer to Old Reddit than new Reddit. New Reddit is more like Twitter and Facebook... interfaces which encourage doomscrolling and dark patterns instead of healthy online discourse. Discourse (aka the comments) is very much the emphasis.
 
-* Users earn Azo, the platform currency for getting upvotes. They can use this currency to open new communities (which function like sub-reddits). This is to prevent a single person or group of people from reserving all the best names
+* Users earn Azo, the platform currency for getting upvotes. They can use this currency to open new communities (which function like sub-reddits). This is to prevent a single person or group of people from reserving all the best names. If you're forking to build a Reddit-like, you can choose to remove this feature or come up with your own currency. 
 
-* All links submitted are summarized by AI, so that users can get the gist of what a link is before clicking it.
+* All links submitted are summarized by AI so users can get the gist of what a link is before clicking it.
 
 ### Features
 * Comments: Create, reply, edit, delete, save
@@ -41,8 +41,9 @@ Cassandra excels in handling large volumes of data across multiple data centers 
 * AI Summaries: All post content is summarized with AI
 * Thumbnails: Auto-generated from links on submission
 * Scalibility: Built in HTTP caching behind Cassandra with a highly scalable architecture
+* Security: Rate limiting on HTTP request and failed moderation frequency. Each time a user fails moderation, they must wait progressively more time to submit again. 
 
-### AI-generated comments. 
+### AI-generated filler posts and comments 
 
 By running a node as a master (`node server/server.js --master`) you can automatically have AI generate posts (from Reddit URLs which can be altered in `fetchFromExternalAndCreatePosts`) and comments. This is meant for demonstration and testing purposes only. 
 
@@ -73,12 +74,10 @@ Follow these steps to get the project up and running locally.
 ## Infastructure
 I recommend a very simple architecture. For every node server you spin up, create an A record (with the server IP) for it at your root domain. This will force users into a round robin distribution to your servers. As your site grows, you should spin up more node and Cassandra servers based on load.
 
-Although Azodu does have application HTTP cache in node, I also recommend putting Cloudflare in front (using the "cache everything" feature) and caching HTML docs (which translate to DB calls). This is possible to do because all pages are designed to be static and not user-specific. The JWT architecture for users and authentication makes this possible.  
+Although Azodu does have some built-in application HTTP cache in node, I also recommend putting Cloudflare in front (using the "cache everything" feature) and caching HTML docs (which translate to DB calls). This is possible to do because all pages are designed to be static and not user-specific. The JWT architecture for users and authentication makes this possible.  
 
 ## Deployment
 A very simple deployment script is written in `scripts/deploy.js`. You can simply swap out the IP addresses in the `servers` var with your own servers. You also need to change the `privateKey` var to reference the file location of the SSH key for your server(s). 
-
-
 
 ## License
 
