@@ -1,9 +1,13 @@
 # Azodu - the open source Old Reddit clone that doesn't suck
 With Azodu you can quickly have a feature-complete Reddit-like site that is easy to setup, highly scalable and requires no human moderation. 
 
-The two biggest points of friction for Reddit-like sites getting off the ground are 1) scalability and 2) moderation. Azodu solves both those problems straight out of the box. It solves scalability by relying on decentralized database technology with Cassandra (instead of expensive SQL solutions) and generating purely static HTML docs which can be efficiently HTTP-cached (at application and CDN level) and speedily served. And it solves moderation by relying on AI, instead of teams of moderators, to evaluate content. 
+The two biggest points of friction for Reddit-like sites getting off the ground are 1) scalability and 2) moderation. Azodu solves both those problems straight out of the box. 
 
-In addition, there are no arcane frameworks used on the front or backend. Everything is vanilla HTML/CSS and Javascript and written from scratch for minimal software bloat.  
+**Scaling**: It solves scalability by relying on decentralized database technology with Cassandra (instead of expensive SQL solutions) and generating purely static HTML docs. The docs can be efficiently HTTP-cached (at application and CDN level) and speedily served. 
+
+**Moderation**: Azodu solves moderation by relying on AI, instead of teams of moderators, to evaluate content. 
+
+In addition, Azodu uses no arcane frameworks used on the front or backend. Everything is vanilla HTML/CSS and Javascript and written from scratch for minimal software bloat.  
 
 ### Live Demo
 Go to [Azodu.com](https://azodu.com) to see the software in action. Learn more about the Azodu.com project in the [How it works](https://azodu.com/c/azodu/123e4567-e89b-12d3-a456-426614174001/how-it-works) and [Why I made Azodu](https://azodu.com/c/anything/3e97c068-5a54-11ef-a739-60b07b0766be/why-i-made-azodu) section. 
