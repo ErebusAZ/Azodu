@@ -20,6 +20,7 @@ Go to [Azodu.com](https://azodu.com) to see the software in action. Learn more a
 * Administration: pin posts, delete posts 
 * AI Moderation: posts and comments are all run though [Open AI's moderation endpoint](https://platform.openai.com/docs/guides/moderation/overview)
 * AI Summaries: all post content is summarized with AI
+* X.com/Twitter embeds for x.com link submissions
 * Thumbnails: auto-generated from links on submission
 * Scalibility: built in HTTP caching behind Cassandra with a highly scalable architecture
 * Security: rate limiting on HTTP request and failed moderation frequency. Each time a user fails moderation, they must wait progressively more time to submit again. 
