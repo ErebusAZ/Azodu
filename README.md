@@ -7,7 +7,7 @@ With Azodu you can quickly have a feature-complete Reddit-like site that is easy
 Go to [Azodu.com](https://azodu.com) to see the software in action. Learn more about the Azodu.com project in the [How it works](https://azodu.com/c/azodu/123e4567-e89b-12d3-a456-426614174001/how-it-works) and [Why I made Azodu](https://azodu.com/c/anything/3e97c068-5a54-11ef-a739-60b07b0766be/why-i-made-azodu) section. 
 
 ### Features
-* Comments: create, reply, edit, delete, save
+* Comments: create, reply, edit, delete, save, nested comments and link to comments
 * Posts: create (text and link posts), reply, edit, delete, save
 * Sorting: sort feeds by latest, top and controversial. Sorting takes place in-memory (no DB calls)
 * Rich Text editing: powered by [Quill](https://quilljs.com/) 
