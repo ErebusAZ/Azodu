@@ -86,7 +86,7 @@ I recommend a very simple architecture. For every node server you spin up, creat
 Although Azodu does have some built-in application HTTP cache in node, I also recommend putting Cloudflare in front (using the "cache everything" feature) and caching HTML docs (which translate to DB calls). This is possible to do because all pages are designed to be static and not user-specific. The JWT architecture for users and authentication makes this possible.  
 
 ## Deployment
-A very simple deployment script is written in `scripts/deploy.js`. You can simply swap out the IP addresses in the `servers` var with your own servers. You also need to change the `privateKey` var to reference the file location of the SSH key for your server(s). 
+A very simple deployment script is written in `scripts/deploy.js` which pulls the latest from the repo and restarts the server. You can simply swap out the IP addresses in the `servers` var with your own servers. You also need to change the `privateKey` var to reference the file location of the SSH key for your server(s). This script assumes you have the git repo setup at `opt/azodu`. If you are forking the repo, you will need to swap out this repo with your own, and assure the server(s) have the appropriate git credentials. There are also several node dependencies you will need to install to execute the script, including dotenv.  
 
 ## License
 
