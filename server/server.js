@@ -653,6 +653,11 @@ async function getTwitterEmbedCode(url) {
   return `<blockquote class="twitter-tweet" data-theme="dark"><a href="${url}"></a></blockquote>`;
 }
 
+function isImageURL(url) {
+  // Checks for image extensions occurring before any query parameters
+  return /\.(jpg|jpeg|png|webp|gif|bmp|tiff)(\?.*)?$/i.test(url);
+}
+
 
 app.post('/submitPost', authenticateToken, async (req, res) => {
   const creator = req.user.username;
@@ -724,6 +729,7 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
     }
   }
 
+
   if (postType === 'text') {
     content = processHTMLFromUsers(contentText);
 
@@ -741,6 +747,13 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
     }
 
 
+  } else if (postType === 'url' && contentUrl && isImageURL(contentUrl)) { // direct link to image
+
+    summary = '<img style="max-width: 100%;" src=' + contentUrl + ' />';
+    thumbnail = contentUrl; 
+    
+   
+    
   } else if (postType === 'url' && contentUrl) {
     thumbnail = await fetchURLAndParseForThumb(contentUrl);
 
@@ -749,7 +762,7 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
       summary = await getTwitterEmbedCode(contentUrl);
       title += ' [twitter]';
 
-    } else {
+    }  else {
       try {
         // Fetch content from the URL
         const { data } = await axios.get(contentUrl);
