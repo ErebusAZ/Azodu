@@ -729,6 +729,8 @@ app.post('/submitPost', authenticateToken, async (req, res) => {
     }
   }
 
+  title = processHTMLFromUsers(title);
+
 
   if (postType === 'text') {
     content = processHTMLFromUsers(contentText);
