@@ -58,7 +58,7 @@ function stripTagsExceptAllowed(html) {
   html = he.decode(html);
 
   // List of allowed tags
-  const allowedTags = ['b', 'i', 'strong', 's', 'blockquote', 'ul', 'ol', 'a','p'];
+  const allowedTags = ['b', 'i', 'strong', 's', 'blockquote', 'ul', 'ol', 'a','p','li'];
 
   // Construct a regex pattern that matches anything not in the allowed list
   const regex = new RegExp(`<(?!/?(${allowedTags.join('|')})\\b)[^>]*>`, 'gi');
