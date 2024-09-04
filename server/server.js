@@ -1502,16 +1502,31 @@ app.get('/api/posts', cacheDuration(600), async (req, res) => {
   const { startPostId, category, sort = 'latest' } = req.query;
 
   try {
-    // Define cache key including the sort type
-    const cacheKey = `posts_${category}_${sort}`;
+    // Define cache key
+    const cacheKey = category === 'anything' ? `posts_all_${sort}` : `posts_${category}_${sort}`;
 
-    // Check for cached data of all sorted posts
+    // Check for cached data
     let allSortedPosts = fullPostsCache.get(cacheKey);
     if (!allSortedPosts) {
-      let query = 'SELECT * FROM azodu_keyspace.posts WHERE category = ? LIMIT ?';
-      let params = [category, NUM_POSTS_CACHED];
+      let query;
+      let params = [];
+
+      // Adjust query based on category
+      if (category === 'anything') {
+        query = 'SELECT * FROM azodu_keyspace.posts LIMIT ?';
+        params = [NUM_POSTS_CACHED];
+      } else {
+        query = 'SELECT * FROM azodu_keyspace.posts WHERE category = ? LIMIT ?';
+        params = [category, NUM_POSTS_CACHED];
+      }
+
       const result = await client.execute(query, params, { prepare: true });
       let posts = result.rows;
+
+      // Filter out 'azodu' category posts if 'anything' is specified
+      if (category === 'anything') {
+        posts = posts.filter(post => post.category !== 'azodu');
+      }
 
       // Sort posts based on the sort parameter
       switch (sort) {
@@ -1553,6 +1568,8 @@ app.get('/api/posts', cacheDuration(600), async (req, res) => {
     res.status(500).send('Failed to fetch posts');
   }
 });
+
+
 
 
 
