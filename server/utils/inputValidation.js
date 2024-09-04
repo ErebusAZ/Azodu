@@ -1,3 +1,8 @@
+const he = require('he');
+
+
+
+
 function validateComment(content) {
   const minLength = 6;
   const maxLength = 60000;
@@ -49,12 +54,16 @@ function validateComment(content) {
 
 
 function stripTagsExceptAllowed(html) {
+  // Decode HTML entities first
+  html = he.decode(html);
+
+  // List of allowed tags
   const allowedTags = ['b', 'i', 'strong', 's', 'blockquote', 'ul', 'ol', 'a','p'];
 
-  const escapedTags = allowedTags.map(tag => `/${tag}|${tag.slice(1)}`);
+  // Construct a regex pattern that matches anything not in the allowed list
+  const regex = new RegExp(`<(?!/?(${allowedTags.join('|')})\\b)[^>]*>`, 'gi');
 
-  const regex = new RegExp(`</?(?!${escapedTags.join("|")})\\b[^>]*>`, 'gi');
-
+  // Replace tags that do not match the allowed list with an empty string
   return html.replace(regex, '');
 }
 
@@ -96,6 +105,7 @@ function processHTMLFromUsers(content) {
 
   // Step 1: Clean the content (if needed, like removing &nbsp; or empty tags)
   content = cleanHtmlContent(content);
+
 
   // Step 2: Remove dangerous tags like <script>
   content = removeDangerousTags(content);
