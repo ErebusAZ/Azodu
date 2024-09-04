@@ -12,7 +12,7 @@ const servers = [
 
 // SSH and Git credentials
 const username = 'root';
-const privateKey = fs.readFileSync('/Users/chris/Desktop/blink/creds/discuss', 'utf8');
+const privateKey = fs.readFileSync('/Users/chris/Desktop/az/creds/discuss', 'utf8');
 
 // Function to handle the deployment process for one server
 function deployServer(server, callback) {
