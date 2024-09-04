@@ -48,7 +48,15 @@ function validateComment(content) {
 
 
 
+function stripTagsExceptAllowed(html) {
+  const allowedTags = ['b', 'i', 'strong', 's', 'blockquote', 'ul', 'ol', 'a','p'];
 
+  const escapedTags = allowedTags.map(tag => `/${tag}|${tag.slice(1)}`);
+
+  const regex = new RegExp(`</?(?!${escapedTags.join("|")})\\b[^>]*>`, 'gi');
+
+  return html.replace(regex, '');
+}
 
 function processHTMLFromUsers(content) {
   if (!content) {
@@ -60,6 +68,8 @@ function processHTMLFromUsers(content) {
     content = content.replace(/&nbsp;/gi, ' ');
 
     content = content.replace(/<p(?:\s+[^>]*)?>\s*(<br\s*\/?>|\s)*<\/p>/gi, '');
+
+    content = stripTagsExceptAllowed(content); 
 
     return content;
 }
