@@ -14,7 +14,6 @@ const servers = [
 const username = 'root';
 const privateKey = fs.readFileSync('/Users/chris/Desktop/az/creds/discuss', 'utf8');
 
-// Function to handle the deployment process for one server
 function deployServer(server, callback) {
     const ssh = new NodeSSH(); // Create a new instance for each server
     console.log(`Starting deployment on ${server}`);
@@ -25,6 +24,7 @@ function deployServer(server, callback) {
     })
     .then(() => {
         console.log(`Connected to ${server}`);
+        // Execute the git commands to update the repository
         return ssh.execCommand('git fetch --all && git reset --hard origin/main && git clean -fd', { cwd: '/opt/azodu' });
     })
     .then(result => {
@@ -34,7 +34,8 @@ function deployServer(server, callback) {
             throw new Error(`Deployment failed on ${server} with exit code ${result.code}`);
         }
         console.log(`Deployment successful on ${server}`);
-        return ssh.execCommand('reboot'); // Reboot the server
+        // Delay the reboot by using 'sleep' command, e.g., sleep for 5 seconds
+        return ssh.execCommand('sleep 5 && reboot');
     })
     .then(() => {
         console.log(`Reboot initiated on ${server}`);
